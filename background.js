@@ -26,11 +26,12 @@ import "./modules-background.mjs";
 	// Chrome v MV3 service worker po ~30 s nečinnosti uspí a znovu probudí až
 	// při další relevantní události (zpráva, alarm, kliknutí na ikonku, ...) —
 	// tenhle indikátor jde sledovat v reálném čase přímo v liště prohlížeče.
-	// Kreslí se přes OffscreenCanvas (service worker nemá <canvas>/document,
-	// ale OffscreenCanvas je dostupný i tam) — načte se původní icon.png,
-	// vykreslí beze změny a jen v aktivním stavu se do levého dolního rohu
-	// přidá malá zelená tečka s měkkým (průhledným) okrajem přes
-	// createRadialGradient(). Ve Firefoxu (kde background BĚŽÍ jako obyčejný
+	// Kreslí se přes OffscreenCanvas — načte se icon.svg, vykreslí beze změny
+	// v každé velikosti z ICON_SIZES a jen v aktivním stavu se do levého
+	// dolního rohu přidá malá zelená tečka s měkkým (průhledným) okrajem přes
+	// createRadialGradient(). SVG jde do canvasu jen přes <img> (viz
+	// loadIcon()) — service worker (Chrome) ho nemá, tam zůstane ikonka
+	// z manifestu bez tečky. Ve Firefoxu (kde background BĚŽÍ jako obyčejný
 	// skript, ne service worker, viz komentář na začátku souboru) bude
 	// zelená prakticky trvale — smysluplně odráží, že tam se ke stejnému
 	// "uspání" neděje.
@@ -48,45 +49,75 @@ import "./modules-background.mjs";
 		return iconDrawPromise;
 	}
 
+	// Velikosti ikonky pro setIcon() v px — SVG se vykreslí přímo v každé
+	// z nich (ostře, bez zmenšování), prohlížeč si vybere podle hustoty displeje.
+	const ICON_SIZES = [ 16, 32, 64 ];
+
+	// icon.svg jako obrázek pro canvas. createImageBitmap() SVG nedekóduje,
+	// proto přes <img>. SVG bez width/height Firefox do canvasu nevykreslí —
+	// doplní se (na vykreslenou velikost nemají vliv, ta je v drawImage()).
+	/** @type {Functions.Background.loadIcon} */
+	async function loadIcon ()
+	{
+		const response = await fetch( chrome.runtime.getURL( "icon.svg" ) );
+		const svg = new DOMParser().parseFromString( await response.text(), "image/svg+xml" ).documentElement;
+		const largest = String( Math.max( ...ICON_SIZES ) );
+		svg.setAttribute( "width", largest );
+		svg.setAttribute( "height", largest );
+		const url = URL.createObjectURL( new Blob( [ new XMLSerializer().serializeToString( svg ) ], { type: "image/svg+xml" } ) );
+		try {
+			const image = new Image();
+			image.src = url;
+			await image.decode();
+			return image;
+		} finally {
+			URL.revokeObjectURL( url );
+		}
+	}
+
 	/** @type {Functions.Background.drawExtensionIcon} */
 	async function drawExtensionIcon ( active )
 	{
-		if ( !chrome.action || !chrome.action.setIcon || typeof OffscreenCanvas === "undefined" ) {
+		if ( !chrome.action || !chrome.action.setIcon || typeof OffscreenCanvas === "undefined" || typeof Image === "undefined" ) {
 			return;
 		}
 		try {
-			const response = await fetch( chrome.runtime.getURL( "icon.png" ) );
-			const bitmap = await createImageBitmap( await response.blob() );
-			const canvas = new OffscreenCanvas( bitmap.width, bitmap.height );
-			// 2D kontext OffscreenCanvas je vždy k dispozici (null jen pro nepodporovaný typ).
-			const ctx = /** @type {OffscreenCanvasRenderingContext2D} */ ( canvas.getContext( "2d" ) );
-			ctx.drawImage( bitmap, 0, 0 );
+			const icon = await loadIcon();
+			/** @type {Record<number, ImageData>} */
+			const imageData = {};
+			for ( const size of ICON_SIZES ) {
+				const canvas = new OffscreenCanvas( size, size );
+				// 2D kontext OffscreenCanvas je vždy k dispozici (null jen pro nepodporovaný typ).
+				const ctx = /** @type {OffscreenCanvasRenderingContext2D} */ ( canvas.getContext( "2d" ) );
+				ctx.drawImage( icon, 0, 0, size, size );
 
-			if ( active ) {
-				// Zadaná velikost (~9 px) platí pro ikonku zobrazenou při 32 px
-				// (běžná velikost v liště prohlížeče na displejích s vyšším
-				// rozlišením) — přepočteno poměrem ke skutečné velikosti
-				// zdrojového obrázku (icon.png, 256×256), ať tečka vypadá stejně
-				// velká bez ohledu na to, na jakou velikost ji prohlížeč zrovna
-				// škáluje.
-				const scale = bitmap.width / 32;
-				const radius = ( 9 / 2 ) * scale;
-				const margin = radius * 0.6;
-				const cx = margin + radius;
-				const cy = bitmap.height - margin - radius;
+				if ( active ) {
+					// Zadaná velikost (~9 px) platí pro ikonku zobrazenou při 32 px
+					// (běžná velikost v liště prohlížeče na displejích s vyšším
+					// rozlišením) — v ostatních velikostech stejným poměrem, ať
+					// tečka vypadá stejně velká bez ohledu na to, kterou velikost
+					// prohlížeč zrovna použije.
+					const scale = size / 32;
+					const radius = ( 9 / 2 ) * scale;
+					const margin = radius * 0.6;
+					const cx = margin + radius;
+					const cy = size - margin - radius;
 
-				const gradient = ctx.createRadialGradient( cx, cy, 0, cx, cy, radius );
-				gradient.addColorStop( 0, "rgba(30, 180, 70, 1)" );
-				gradient.addColorStop( 0.7, "rgba(30, 180, 70, 1)" );
-				gradient.addColorStop( 1, "rgba(30, 180, 70, 0)" );
+					const gradient = ctx.createRadialGradient( cx, cy, 0, cx, cy, radius );
+					gradient.addColorStop( 0, "rgba(30, 180, 70, 1)" );
+					gradient.addColorStop( 0.7, "rgba(30, 180, 70, 1)" );
+					gradient.addColorStop( 1, "rgba(30, 180, 70, 0)" );
 
-				ctx.fillStyle = gradient;
-				ctx.beginPath();
-				ctx.arc( cx, cy, radius, 0, Math.PI * 2 );
-				ctx.fill();
+					ctx.fillStyle = gradient;
+					ctx.beginPath();
+					ctx.arc( cx, cy, radius, 0, Math.PI * 2 );
+					ctx.fill();
+				}
+
+				imageData[ size ] = ctx.getImageData( 0, 0, size, size );
 			}
 
-			await chrome.action.setIcon( { imageData: ctx.getImageData( 0, 0, canvas.width, canvas.height ) } );
+			await chrome.action.setIcon( { imageData } );
 		} catch ( err ) {
 			console.error( "Překreslení ikonky rozšíření (indikátor běžícího service workeru) selhalo:", err );
 		}

@@ -33,7 +33,7 @@
 		"manifest.json",
 		"default-settings.json",
 		"modules.json",
-		"icon.png"
+		"icon.svg"
 	],
 	"scripts": {
 		"check": "npm run validate && npm run typecheck && npm run lint && npm test",
