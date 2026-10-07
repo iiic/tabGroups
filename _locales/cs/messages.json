@@ -1,0 +1,569 @@
+{
+	"extension_name": {
+		"message": "tabGroups – AnalyticExtension"
+	},
+	"extension_description": {
+		"message": "Karty, které nejsou ve vlastní skupině, sám řadí do 9 skupin (dnes, včera, … v minulém roce) podle toho, kdy byly otevřené, nebo — volba v Nastavení — kdy byly naposledy použité, a po půlnoci je posouvá do dalších. V Nastavení jde přidat i skupiny ze záložek: karty se záložkou ve zvolené složce (volitelně i s adresou na doméně záložky) mají vlastní skupinu. Automatické skupiny drží vpravo od vlastních, od nejstarší po nejnovější."
+	},
+	"extension_action_title": {
+		"message": "Otevřít popup"
+	},
+	"core_activation_background": {
+		"message": "Spouštět automaticky a pracovat na pozadí"
+	},
+	"core_activation_focus": {
+		"message": "Spouštět automaticky, pracovat jen s aktivním dokumentem se focusem (visibilitychange)"
+	},
+	"core_activation_icon_click": {
+		"message": "Při kliknutí na hlavní tlačítko rozšíření"
+	},
+	"core_activation_popup": {
+		"message": "Spouštět jen na základě stisku tlačítka v popup.html"
+	},
+	"core_activation_install": {
+		"message": "Po instalaci rozšíření"
+	},
+	"core_activation_disabled": {
+		"message": "Nespouštět vůbec (modul neaktivní)"
+	},
+	"core_location_popup": {
+		"message": "V Popup (ikonka rozšíření)"
+	},
+	"core_location_sidebar": {
+		"message": "V postranním panelu"
+	},
+	"core_location_options": {
+		"message": "Na stránce Nastavení"
+	},
+	"core_location_onboarding": {
+		"message": "Na uvítací stránce (onboarding)"
+	},
+	"core_output_inline": {
+		"message": "Řádkový element"
+	},
+	"core_output_block": {
+		"message": "Blokový element"
+	},
+	"core_output_indented": {
+		"message": "Odsazený blokový element"
+	},
+	"core_output_details_closed": {
+		"message": "Uzavíratelný element, uzavřený"
+	},
+	"core_output_details_open": {
+		"message": "Uzavíratelný element, otevřený"
+	},
+	"core_default_modules_load_failed": {
+		"message": "Nelze načíst výchozí modules.json: $1"
+	},
+	"core_file_load_failed": {
+		"message": "Nelze načíst $1: $2"
+	},
+	"core_default_settings_not_object": {
+		"message": "$1 musí být objekt { \"klíč nastavení\": hodnota }"
+	},
+	"core_modules_json_not_array": {
+		"message": "modules.json musí být pole řetězců"
+	},
+	"core_storage_unavailable": {
+		"message": "chrome.storage.$1 není v tomhle kontextu dostupné."
+	},
+	"popup_page_title": {
+		"message": "AnalyticExtension Popup"
+	},
+	"popup_json_error": {
+		"message": "Chyba v JSON: $1"
+	},
+	"popup_module_not_in_folder": {
+		"message": "Modul \"$1\" není umístěn ve svém vlastním podadresáři ($2)"
+	},
+	"popup_module_error": {
+		"message": "Chyba v modulu: $1"
+	},
+	"sidebar_page_title": {
+		"message": "AnalyticExtension - sidebar (postranní lišta)"
+	},
+	"onboarding_page_title": {
+		"message": "AnalyticExtension - uvítací stránka (onboarding)"
+	},
+	"onboarding_empty_html": {
+		"message": "Na uvítací stránce se zatím nic nevypisuje. Moduly sem pošleš v <a href=\"./options.html\" target=\"_blank\">Nastavení rozšíření</a> volbou „Vypisovat data modulu“ u každého modulu."
+	},
+	"options_page_title": {
+		"message": "Nastavení celého AnalyticExtension"
+	},
+	"options_heading": {
+		"message": "Nastavení rozšíření tabGroups"
+	},
+	"core_ui_language": {
+		"message": "Jazyk"
+	},
+	"core_ui_language_browser": {
+		"message": "$1 - jazyk prohlížeče"
+	},
+	"options_modules_list_json": {
+		"message": "Seznam modulů (JSON)"
+	},
+	"options_save_list": {
+		"message": "Uložit seznam"
+	},
+	"options_reset_list": {
+		"message": "Obnovit výchozí seznam"
+	},
+	"options_modules_settings": {
+		"message": "Pokročilá nastavení"
+	},
+	"options_save_settings": {
+		"message": "Uložit nastavení"
+	},
+	"options_reset_defaults": {
+		"message": "Obnovit výchozí"
+	},
+	"options_custom_module_settings": {
+		"message": "Nastavení tabGroups"
+	},
+	"options_recommended_suffix": {
+		"message": " (doporučeno modulem)"
+	},
+	"options_hint_not_displayed": {
+		"message": "Nic není zaškrtnuté — modul se nikde nevypisuje. Podle aktivačního režimu může dál pracovat na pozadí."
+	},
+	"options_hint_disabled": {
+		"message": "Modul je vypnutý (aktivační režim „Nespouštět vůbec“) — nevypíše se nikde."
+	},
+	"options_error": {
+		"message": "Chyba: $1"
+	},
+	"options_modules_diff_differs": {
+		"message": "Uložený seznam modulů se liší od výchozího souboru modules.json."
+	},
+	"options_modules_diff_extra": {
+		"message": "Navíc oproti modules.json:"
+	},
+	"options_modules_diff_missing": {
+		"message": "Chybí oproti modules.json:"
+	},
+	"options_modules_diff_order_only": {
+		"message": "Obsahuje stejné položky, liší se jen pořadím."
+	},
+	"options_invalid_json": {
+		"message": "Neplatný JSON: $1"
+	},
+	"options_modules_saved": {
+		"message": "Seznam modulů uložen."
+	},
+	"options_modules_reset": {
+		"message": "Seznam modulů obnoven na výchozí hodnotu."
+	},
+	"options_drag_to_reorder": {
+		"message": "Přetažením změníš pořadí modulu v seznamu"
+	},
+	"options_activation_mode": {
+		"message": "Aktivační režim modulu"
+	},
+	"options_output_look": {
+		"message": "Vzhled výpisu — stejný na všech zaškrtnutých místech:"
+	},
+	"options_output_element": {
+		"message": "Element výpisu dat"
+	},
+	"options_show_heading": {
+		"message": "s nadpisem modulu"
+	},
+	"options_dependency_missing_suffix": {
+		"message": " — není v seznamu modulů, tahle část nebude fungovat"
+	},
+	"options_dependency_needs": {
+		"message": "Potřebuje modul $1"
+	},
+	"options_dependency_dependents": {
+		"message": "Závisí na něm"
+	},
+	"options_optional_permission": {
+		"message": "Nepovinné oprávnění"
+	},
+	"options_permission_granted": {
+		"message": " (uděleno)"
+	},
+	"options_permission_not_granted": {
+		"message": " (neuděleno)"
+	},
+	"options_permission_unavailable": {
+		"message": " (v tomto prohlížeči nedostupné)"
+	},
+	"options_dependencies_none": {
+		"message": "Žádné — nepotřebuje jiné moduly ani nepovinná oprávnění."
+	},
+	"options_dependencies": {
+		"message": "Závislosti:"
+	},
+	"options_add_instance": {
+		"message": "+ Přidat $1"
+	},
+	"options_add_instance_title": {
+		"message": "Přidá do seznamu nový samostatný výpis tohoto modulu — přetažením za nadpis ho pak přesuneš na místo, kde se má vypsat."
+	},
+	"options_instance_added": {
+		"message": "Přidáno: $1. Nastavení ulož tlačítkem „Uložit nastavení“."
+	},
+	"options_remove": {
+		"message": "Odebrat"
+	},
+	"options_remove_confirm": {
+		"message": "Opravdu odebrat? Klikni znovu"
+	},
+	"options_instance_removed": {
+		"message": "Odebráno: $1."
+	},
+	"options_heading_always_visible": {
+		"message": "U uzavíratelného elementu je nadpis vždy vidět — jen za něj jde element rozbalit."
+	},
+	"options_display_locations": {
+		"message": "Vypisovat data modulu (můžeš zaškrtnout víc míst):"
+	},
+	"options_order_saved": {
+		"message": "Pořadí modulů uloženo."
+	},
+	"options_no_module_settings": {
+		"message": "Žádný modul aktuálně nenabízí vlastní nastavení."
+	},
+	"options_custom_field_invalid": {
+		"message": "render() musí vrátit element s metodou getValue()"
+	},
+	"options_custom_field_failed": {
+		"message": "Pole nelze zobrazit: $1"
+	},
+	"options_module_settings_saved": {
+		"message": "Nastavení modulů uloženo."
+	},
+	"options_module_settings_reset": {
+		"message": "Nastavení modulů obnoveno na výchozí."
+	},
+	"options_settings_saved": {
+		"message": "Nastavení uloženo."
+	},
+	"options_settings_reset": {
+		"message": "Nastavení obnoveno na výchozí."
+	},
+	"tabGroups_description": {
+		"message": "Karty, které nejsou ve vlastní skupině, sám řadí do 9 skupin (dnes, včera, … v minulém roce) podle toho, kdy byly otevřené, nebo — volba v Nastavení — kdy byly naposledy použité, a po půlnoci je posouvá do dalších. V Nastavení jde přidat i skupiny ze záložek: karty se záložkou ve zvolené složce (volitelně i s adresou na doméně záložky) mají vlastní skupinu. Automatické skupiny drží vpravo od vlastních, od nejstarší po nejnovější."
+	},
+	"tabGroups_setting_group_by": {
+		"message": "Řadit karty do skupin podle"
+	},
+	"tabGroups_setting_group_by_opened": {
+		"message": "vzniku karty — karta zůstane ve skupině dne, kdy byla otevřená"
+	},
+	"tabGroups_setting_group_by_last_used": {
+		"message": "posledního použití karty — karta, na kterou se přepneš, se přesune do skupiny „dnes“"
+	},
+	"tabGroups_setting_manual_moves": {
+		"message": "Možnost přetahovat karty mezi automatickými skupinami — karta přetažená do skupiny jiného dne (třeba z „dnes“ do „včera“) v ní zůstane (při řazení podle posledního použití, dokud se na ni znovu nepřepneš)"
+	},
+	"tabGroups_setting_title_prefix": {
+		"message": "Předpona před názvy všech automatických skupin (i skupin ze záložek), oddělená mezerou — prázdná = bez předpony"
+	},
+	"tabGroups_setting_title_prefix_placeholder": {
+		"message": "bez předpony"
+	},
+	"tabGroups_setting_groups": {
+		"message": "Automatické skupiny karet (název, barva a uzavřená skupina pro každé období)"
+	},
+	"tabGroups_setting_bookmark_groups": {
+		"message": "Skupiny ze záložek (název skupiny, složka záložek, volba pro celou doménu, barva a uzavřená skupina)"
+	},
+	"tabGroups_color_grey": {
+		"message": "šedá"
+	},
+	"tabGroups_color_blue": {
+		"message": "modrá"
+	},
+	"tabGroups_color_red": {
+		"message": "červená"
+	},
+	"tabGroups_color_yellow": {
+		"message": "žlutá"
+	},
+	"tabGroups_color_green": {
+		"message": "zelená"
+	},
+	"tabGroups_color_pink": {
+		"message": "růžová"
+	},
+	"tabGroups_color_purple": {
+		"message": "fialová"
+	},
+	"tabGroups_color_cyan": {
+		"message": "azurová"
+	},
+	"tabGroups_color_orange": {
+		"message": "oranžová"
+	},
+	"tabGroups_bucket_today_title": {
+		"message": "dnes"
+	},
+	"tabGroups_bucket_today_range": {
+		"message": "dnes"
+	},
+	"tabGroups_bucket_yesterday_title": {
+		"message": "včera"
+	},
+	"tabGroups_bucket_yesterday_range": {
+		"message": "včera"
+	},
+	"tabGroups_bucket_day_before_yesterday_title": {
+		"message": "předevčírem"
+	},
+	"tabGroups_bucket_day_before_yesterday_range": {
+		"message": "předevčírem"
+	},
+	"tabGroups_bucket_this_week_title": {
+		"message": "v tomto týdnu"
+	},
+	"tabGroups_bucket_this_week_range": {
+		"message": "dřív v tomto týdnu (od pondělí)"
+	},
+	"tabGroups_bucket_last_week_title": {
+		"message": "v minulém týdnu"
+	},
+	"tabGroups_bucket_last_week_range": {
+		"message": "v minulém týdnu"
+	},
+	"tabGroups_bucket_this_month_title": {
+		"message": "v tomto měsíci"
+	},
+	"tabGroups_bucket_this_month_range": {
+		"message": "dřív v tomto měsíci"
+	},
+	"tabGroups_bucket_last_month_title": {
+		"message": "v minulém měsíci"
+	},
+	"tabGroups_bucket_last_month_range": {
+		"message": "v minulém měsíci"
+	},
+	"tabGroups_bucket_this_year_title": {
+		"message": "v tomto roce"
+	},
+	"tabGroups_bucket_this_year_range": {
+		"message": "dřív v tomto roce"
+	},
+	"tabGroups_bucket_last_year_title": {
+		"message": "v minulém roce"
+	},
+	"tabGroups_bucket_last_year_range": {
+		"message": "v minulém roce a dřív"
+	},
+	"tabGroups_loading": {
+		"message": "$1: Načítám skupiny karet..."
+	},
+	"tabGroups_disabled": {
+		"message": "$1: Vypnut"
+	},
+	"tabGroups_intro_opened": {
+		"message": "$1: karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly otevřené."
+	},
+	"tabGroups_intro_last_used": {
+		"message": "$1: karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly naposledy použité."
+	},
+	"tabGroups_intro_opened_bookmarks": {
+		"message": "$1: karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly otevřené, karty se záložkou ve zvolených složkách do skupin ze záložek."
+	},
+	"tabGroups_intro_last_used_bookmarks": {
+		"message": "$1: karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly naposledy použité, karty se záložkou ve zvolených složkách do skupin ze záložek."
+	},
+	"tabGroups_unsupported": {
+		"message": "Tenhle prohlížeč rozšířením spravovat skupiny karet nedovolí (Chrome od verze 89, Firefox od verze 139 na počítači)."
+	},
+	"tabGroups_missing_permission": {
+		"message": "Chybí oprávnění ke skupinám karet — zatím se nic neřadí."
+	},
+	"tabGroups_grant_tab_groups": {
+		"message": "Povolit skupiny karet"
+	},
+	"tabGroups_missing_alarms": {
+		"message": "Bez oprávnění k budíku se skupiny po půlnoci posunou až při další práci s kartami."
+	},
+	"tabGroups_grant_alarms": {
+		"message": "Posouvat přesně o půlnoci"
+	},
+	"tabGroups_missing_bookmarks": {
+		"message": "Skupiny ze záložek potřebují přístup k záložkám a k adresám karet — zatím se nepoužívají."
+	},
+	"tabGroups_grant_bookmarks": {
+		"message": "Povolit záložky a adresy karet"
+	},
+	"tabGroups_regroup_now": {
+		"message": "Přeskupit teď"
+	},
+	"tabGroups_group_settings": {
+		"message": "Nastavení skupin"
+	},
+	"tabGroups_identify": {
+		"message": "Identifikovat řízené skupiny"
+	},
+	"tabGroups_identify_title": {
+		"message": "Skupiny, které modul automaticky řídí, ve všech oknech krátce zablikají"
+	},
+	"tabGroups_overview_elsewhere": {
+		"message": "Přehled skupin okna je v popupu, postranním panelu nebo v Nastavení."
+	},
+	"tabGroups_overview_not_sorted": {
+		"message": "Karty v tomhle okně se ještě nezařadily — zkus „Přeskupit teď“."
+	},
+	"tabGroups_overview_no_groups": {
+		"message": "V tomhle okně zatím není žádná automatická skupina (karty jsou ve vlastních skupinách nebo připnuté)."
+	},
+	"tabGroups_chip_opened": {
+		"message": "Karty otevřené $1: $2"
+	},
+	"tabGroups_chip_last_used": {
+		"message": "Karty naposledy použité $1: $2"
+	},
+	"tabGroups_chip_bookmarks": {
+		"message": "Karty $1: $2"
+	},
+	"tabGroups_user_groups": {
+		"message": "Vlastních skupin vlevo od nich: $1"
+	},
+	"tabGroups_no_response": {
+		"message": "Background část modulu neodpověděla — zkus rozšíření znovu načíst."
+	},
+	"tabGroups_regrouped": {
+		"message": "Karty jsou přeskupené."
+	},
+	"tabGroups_nothing_to_regroup": {
+		"message": "Všechny karty už jsou ve správné skupině."
+	},
+	"tabGroups_identified_one": {
+		"message": "Zablikala $1 skupina řízená modulem (ve všech oknech)."
+	},
+	"tabGroups_identified_few": {
+		"message": "Zablikaly $1 skupiny řízené modulem (ve všech oknech)."
+	},
+	"tabGroups_identified_other": {
+		"message": "Zablikalo $1 skupin řízených modulem (ve všech oknech)."
+	},
+	"tabGroups_identified_none": {
+		"message": "Modul teď neřídí žádnou skupinu."
+	},
+	"tabGroups_identify_error": {
+		"message": "Identifikace skupin selhala: $1"
+	},
+	"tabGroups_problem_disabled": {
+		"message": "Modul je vypnutý nebo není v seznamu modulů — karty se neřadí."
+	},
+	"tabGroups_problem_unavailable": {
+		"message": "Chybí oprávnění ke skupinám karet."
+	},
+	"tabGroups_problem_error": {
+		"message": "Přeskupení selhalo: $1"
+	},
+	"tabGroups_unknown_error": {
+		"message": "neznámá chyba"
+	},
+	"tabGroups_bookmarks_fallback_title": {
+		"message": "Záložky"
+	},
+	"tabGroups_bookmarks_describe_domain": {
+		"message": "na doménách záložek ze složky „$1“"
+	},
+	"tabGroups_bookmarks_describe_folder": {
+		"message": "ze záložek ve složce „$1“"
+	},
+	"tabGroups_folder_untitled": {
+		"message": "(bez názvu)"
+	},
+	"tabGroups_folder_in_account": {
+		"message": "$1 (v účtu)"
+	},
+	"tabGroups_folder_device_only": {
+		"message": "$1 (jen v zařízení)"
+	},
+	"tabGroups_editor_hint": {
+		"message": "Karty, které nejsou ve vlastní skupině, se samy řadí do skupiny období podle toho, kdy byly otevřené, nebo kdy byly naposledy použité (volba výš). Modul své skupiny pozná podle názvu — nepojmenovávej stejně žádnou vlastní skupinu."
+	},
+	"tabGroups_editor_period": {
+		"message": "Období"
+	},
+	"tabGroups_editor_group_name": {
+		"message": "Název skupiny"
+	},
+	"tabGroups_editor_color": {
+		"message": "Barva"
+	},
+	"tabGroups_editor_title_aria": {
+		"message": "Název skupiny pro období $1"
+	},
+	"tabGroups_editor_color_aria": {
+		"message": "Barva skupiny pro období $1"
+	},
+	"tabGroups_editor_color_default": {
+		"message": "$1 (výchozí)"
+	},
+	"tabGroups_editor_collapsed_aria": {
+		"message": "Uzavřená skupina pro období $1"
+	},
+	"tabGroups_editor_duplicates": {
+		"message": "Názvy skupin se nesmí opakovat ($1) — opakovaný název se uloží jako výchozí název období."
+	},
+	"tabGroups_quoted": {
+		"message": "„$1“"
+	},
+	"tabGroups_editor_collapsed_title": {
+		"message": "Nová skupina vznikne sbalená — když v ní ale je právě otevřená karta, zůstane rozbalená, ať prohlížeč nepřepne jinam. Už existující skupinu modul nesbaluje ani nerozbaluje."
+	},
+	"tabGroups_editor_collapsed": {
+		"message": "uzavřená skupina"
+	},
+	"tabGroups_bookmarks_hint": {
+		"message": "Karta, jejíž adresa je záložkou ve vybrané složce (i v podsložkách), jde do skupiny ze záložek místo do skupiny období; porovnává se celá adresa bez části za #. Když karta patří do víc skupin, platí první řádek. Skupiny ze záložek stojí v liště mezi vlastními skupinami a obdobími."
+	},
+	"tabGroups_bookmarks_folder": {
+		"message": "Složka záložek"
+	},
+	"tabGroups_bookmarks_empty": {
+		"message": "Žádná skupina ze záložek."
+	},
+	"tabGroups_bookmarks_add": {
+		"message": "Přidat skupinu ze záložek"
+	},
+	"tabGroups_bookmarks_choose_folder": {
+		"message": "— vyber složku záložek —"
+	},
+	"tabGroups_bookmarks_folder_not_found": {
+		"message": "$1 (složka nenalezena)"
+	},
+	"tabGroups_bookmarks_folder_name": {
+		"message": "název složky"
+	},
+	"tabGroups_bookmarks_duplicates": {
+		"message": "Názvy skupin se nesmí opakovat ani shodovat s názvem období ($1) — opakovaný název dostane pořadové číslo."
+	},
+	"tabGroups_bookmarks_without_folder": {
+		"message": "Řádek bez vybrané složky se nepoužije."
+	},
+	"tabGroups_bookmarks_title_aria": {
+		"message": "Název skupiny ze záložek (prázdný = název složky)"
+	},
+	"tabGroups_bookmarks_whole_domain_title": {
+		"message": "Do skupiny přijde i karta s jinou adresou na doméně některé záložky ze složky: při záložce some.tld třeba some.tld/slozka/soubor.html. Předpona www. se nepočítá (some.tld i www.some.tld jsou stejná doména), jiné subdomény ano."
+	},
+	"tabGroups_bookmarks_whole_domain": {
+		"message": "všechny url na doméně záložky"
+	},
+	"tabGroups_bookmarks_color_aria": {
+		"message": "Barva skupiny ze záložek"
+	},
+	"tabGroups_bookmarks_collapsed_aria": {
+		"message": "Uzavřená skupina ze záložek"
+	},
+	"tabGroups_bookmarks_remove": {
+		"message": "Odebrat skupinu ze záložek"
+	},
+	"tabGroups_bookmarks_missing_permission": {
+		"message": "Skupiny ze záložek potřebují přístup k záložkám a k adresám karet — bez něj se nepoužijí a složku nejde vybrat."
+	},
+	"tabGroups_bookmarks_permission_here": {
+		"message": "Tady ho udělit nejde — povol ho v Nastavení, popupu nebo postranním panelu."
+	}
+}

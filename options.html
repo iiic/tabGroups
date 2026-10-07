@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title data-i18n="options_page_title">AnalyticExtension settings</title>
+	<link rel="stylesheet" href="./css/mvp.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/theme-light.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/options.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/module-frame.css" crossorigin="anonymous">
+	<!-- Volba vzhledu (světlý/tmavý) — přepíná ji modul styleSwitch (modules/styleSwitch/pageStyles.mjs), href musí být na všech stránkách stejné. -->
+	<link rel="alternate stylesheet" href="./css/theme-light.css" title="Světlý" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/theme-dark.css" title="Tmavý" media="(prefers-color-scheme: dark)" crossorigin="anonymous">
+</head>
+
+<body>
+	<h1 data-i18n="options_heading">tabGroups extension settings</h1>
+
+	<section>
+		<label class="ui-language"><span data-i18n="core_ui_language">Language</span>
+			<select id="ui-language"></select>
+		</label>
+	</section>
+
+	<section hidden>
+		<h2 data-i18n="options_modules_list_json">Module list (JSON)</h2>
+		<div id="modules-json-diff" class="modules-json-diff" hidden></div>
+		<textarea id="modules-json"></textarea>
+		<div class="buttons">
+			<button id="save-modules-json" class="save-btn" data-i18n="options_save_list">Save list</button>
+			<button id="reset-modules-json" class="reset-btn" data-i18n="options_reset_list">Restore default list</button>
+		</div>
+	</section>
+
+	<details class="module-settings-details">
+		<summary data-i18n="options_modules_settings">Advanced settings</summary>
+		<div id="modules-list"></div>
+		<div class="buttons">
+			<button id="save-btn" class="save-btn" data-i18n="options_save_settings">Save settings</button>
+			<button id="reset-btn" class="reset-btn" data-i18n="options_reset_defaults">Restore defaults</button>
+		</div>
+	</details>
+
+	<section>
+		<h2 data-i18n="options_custom_module_settings">tabGroups settings</h2>
+		<div id="module-settings-list"></div>
+		<div class="buttons">
+			<button id="save-module-settings-btn" class="save-btn" data-i18n="options_save_settings">Save settings</button>
+			<button id="reset-module-settings-btn" class="reset-btn" data-i18n="options_reset_defaults">Restore defaults</button>
+		</div>
+	</section>
+
+	<div id="status" class="status"></div>
+	<script type="module" src="./options.mjs" crossorigin="anonymous"></script>
+</body>
+
+</html>

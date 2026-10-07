@@ -1,0 +1,12 @@
+{
+	"name": "tabgroups-extension",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/chrome": "^0.3.4",
+		"typescript": "^7.0.2"
+	}
+}

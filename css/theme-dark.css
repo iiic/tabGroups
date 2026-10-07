@@ -1,0 +1,35 @@
+/* Tmavý vzhled — přepisuje proměnné z mvp.css a theme-light.css. Bez
+   uložené volby (nebo bez modulu styleSwitch) platí podle systému (atribut
+   media na <link>), s volbou "Tmavý" vždy. Hodnoty mvp.css proměnných
+   jsou převzaté z jeho vlastního tmavého bloku (ten je v mvp.css vázaný
+   na :root[color-mode="user"], takže se sám nikdy nepoužije). */
+:root {
+	color-scheme: dark;
+
+	/* mvp.css */
+	--color-accent: #0097fc4f;
+	--color-bg: #333;
+	--color-bg-secondary: #555;
+	--color-link: #0097fc;
+	--color-secondary: #e20de9;
+	--color-secondary-accent: #e20de94f;
+	--color-shadow: #bbbbbb20;
+	--color-table: #0097fc;
+	--color-text: #f7f7f7;
+	--color-text-secondary: #aaa;
+	--color-scrollbar: #666;
+
+	/* stránky rozšíření (viz theme-light.css) */
+	--color-panel: #404040;
+	--color-border: #555;
+	--color-input-border: #666;
+	--color-input-bg: #2b2b2b;
+	--color-text-muted: #bbb;
+	--color-text-label: #ccc;
+	--color-disabled-bg: #444;
+	--color-button-secondary: #555;
+	--color-button-secondary-hover: #666;
+	--color-button-secondary-text: #eee;
+	--color-error: #ff6b6b;
+	--color-success: #4caf50;
+}

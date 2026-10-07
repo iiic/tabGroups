@@ -1,0 +1,566 @@
+{
+	"extension_name": {
+		"message": "tabGroups – AnalyticExtension"
+	},
+	"extension_description": {
+		"message": "Ταξινομεί αυτόματα τις καρτέλες που δεν βρίσκονται σε δική σας ομάδα σε 9 ομάδες (σήμερα, χθες, … πέρσι) ανάλογα με το πότε άνοιξαν ή — επιλογή στις Ρυθμίσεις — πότε χρησιμοποιήθηκαν τελευταία, και τις μετακινεί μετά τα μεσάνυχτα. Στις Ρυθμίσεις μπορείτε επίσης να προσθέσετε ομάδες από σελιδοδείκτες: οι καρτέλες με σελιδοδείκτη σε επιλεγμένο φάκελο (προαιρετικά και οποιαδήποτε διεύθυνση στον τομέα του σελιδοδείκτη) αποκτούν δική τους ομάδα. Οι αυτόματες ομάδες μένουν στα δεξιά των δικών σας ομάδων, από την παλαιότερη στη νεότερη."
+	},
+	"extension_action_title": {
+		"message": "Άνοιγμα αναδυόμενου παραθύρου"
+	},
+	"core_activation_background": {
+		"message": "Αυτόματη εκκίνηση και λειτουργία στο παρασκήνιο"
+	},
+	"core_activation_focus": {
+		"message": "Αυτόματη εκκίνηση, λειτουργία μόνο με το ενεργό έγγραφο που έχει την εστίαση (visibilitychange)"
+	},
+	"core_activation_icon_click": {
+		"message": "Με κλικ στο κύριο κουμπί της επέκτασης"
+	},
+	"core_activation_popup": {
+		"message": "Εκκίνηση μόνο με πάτημα κουμπιού στο popup.html"
+	},
+	"core_activation_install": {
+		"message": "Μετά την εγκατάσταση της επέκτασης"
+	},
+	"core_activation_disabled": {
+		"message": "Καμία εκκίνηση (ανενεργή μονάδα)"
+	},
+	"core_location_popup": {
+		"message": "Στο αναδυόμενο παράθυρο (εικονίδιο επέκτασης)"
+	},
+	"core_location_sidebar": {
+		"message": "Στο πλευρικό πάνελ"
+	},
+	"core_location_options": {
+		"message": "Στη σελίδα Ρυθμίσεων"
+	},
+	"core_location_onboarding": {
+		"message": "Στη σελίδα καλωσορίσματος (onboarding)"
+	},
+	"core_output_inline": {
+		"message": "Ενσωματωμένο στοιχείο (inline)"
+	},
+	"core_output_block": {
+		"message": "Στοιχείο μπλοκ"
+	},
+	"core_output_indented": {
+		"message": "Στοιχείο μπλοκ με εσοχή"
+	},
+	"core_output_details_closed": {
+		"message": "Πτυσσόμενο στοιχείο, συμπτυγμένο"
+	},
+	"core_output_details_open": {
+		"message": "Πτυσσόμενο στοιχείο, αναπτυγμένο"
+	},
+	"core_default_modules_load_failed": {
+		"message": "Δεν είναι δυνατή η φόρτωση του προεπιλεγμένου modules.json: $1"
+	},
+	"core_file_load_failed": {
+		"message": "Δεν είναι δυνατή η φόρτωση του $1: $2"
+	},
+	"core_default_settings_not_object": {
+		"message": "Το $1 πρέπει να είναι αντικείμενο { \"κλειδί ρύθμισης\": τιμή }"
+	},
+	"core_modules_json_not_array": {
+		"message": "Το modules.json πρέπει να είναι πίνακας συμβολοσειρών"
+	},
+	"core_storage_unavailable": {
+		"message": "Το chrome.storage.$1 δεν είναι διαθέσιμο σε αυτό το περιβάλλον."
+	},
+	"popup_page_title": {
+		"message": "AnalyticExtension Popup"
+	},
+	"popup_json_error": {
+		"message": "Σφάλμα JSON: $1"
+	},
+	"popup_module_not_in_folder": {
+		"message": "Η μονάδα «$1» δεν βρίσκεται στον δικό της υποφάκελο ($2)"
+	},
+	"popup_module_error": {
+		"message": "Σφάλμα στη μονάδα: $1"
+	},
+	"sidebar_page_title": {
+		"message": "AnalyticExtension - πλευρικό πάνελ"
+	},
+	"onboarding_page_title": {
+		"message": "AnalyticExtension - σελίδα καλωσορίσματος (onboarding)"
+	},
+	"onboarding_empty_html": {
+		"message": "Στη σελίδα καλωσορίσματος δεν εμφανίζεται ακόμη τίποτα. Στείλτε εδώ μονάδες από τις <a href=\"./options.html\" target=\"_blank\">ρυθμίσεις της επέκτασης</a> με την επιλογή «Εμφάνιση εξόδου μονάδας» κάθε μονάδας."
+	},
+	"options_page_title": {
+		"message": "Ρυθμίσεις AnalyticExtension"
+	},
+	"options_heading": {
+		"message": "Ρυθμίσεις της επέκτασης tabGroups"
+	},
+	"core_ui_language": {
+		"message": "Γλώσσα"
+	},
+	"core_ui_language_browser": {
+		"message": "$1 - γλώσσα του προγράμματος περιήγησης"
+	},
+	"options_modules_list_json": {
+		"message": "Λίστα μονάδων (JSON)"
+	},
+	"options_save_list": {
+		"message": "Αποθήκευση λίστας"
+	},
+	"options_reset_list": {
+		"message": "Επαναφορά προεπιλεγμένης λίστας"
+	},
+	"options_modules_settings": {
+		"message": "Σύνθετες ρυθμίσεις"
+	},
+	"options_save_settings": {
+		"message": "Αποθήκευση ρυθμίσεων"
+	},
+	"options_reset_defaults": {
+		"message": "Επαναφορά προεπιλογών"
+	},
+	"options_custom_module_settings": {
+		"message": "Ρυθμίσεις tabGroups"
+	},
+	"options_recommended_suffix": {
+		"message": " (συνιστάται από τη μονάδα)"
+	},
+	"options_hint_not_displayed": {
+		"message": "Δεν έχει επιλεγεί τίποτα, οπότε η μονάδα δεν εμφανίζεται πουθενά. Ανάλογα με τον τρόπο ενεργοποίησής της, μπορεί να εξακολουθεί να λειτουργεί στο παρασκήνιο."
+	},
+	"options_hint_disabled": {
+		"message": "Η μονάδα είναι απενεργοποιημένη (τρόπος ενεργοποίησης «Καμία εκκίνηση»), οπότε δεν εμφανίζεται πουθενά."
+	},
+	"options_error": {
+		"message": "Σφάλμα: $1"
+	},
+	"options_modules_diff_differs": {
+		"message": "Η αποθηκευμένη λίστα μονάδων διαφέρει από το προεπιλεγμένο αρχείο modules.json."
+	},
+	"options_modules_diff_extra": {
+		"message": "Επιπλέον σε σύγκριση με το modules.json:"
+	},
+	"options_modules_diff_missing": {
+		"message": "Λείπουν σε σύγκριση με το modules.json:"
+	},
+	"options_modules_diff_order_only": {
+		"message": "Ίδιες καταχωρίσεις, διαφέρει μόνο η σειρά."
+	},
+	"options_invalid_json": {
+		"message": "Μη έγκυρο JSON: $1"
+	},
+	"options_modules_saved": {
+		"message": "Η λίστα μονάδων αποθηκεύτηκε."
+	},
+	"options_modules_reset": {
+		"message": "Έγινε επαναφορά της λίστας μονάδων στην προεπιλογή."
+	},
+	"options_drag_to_reorder": {
+		"message": "Σύρετε για να αλλάξετε τη θέση της μονάδας στη λίστα"
+	},
+	"options_activation_mode": {
+		"message": "Τρόπος ενεργοποίησης μονάδας"
+	},
+	"options_output_look": {
+		"message": "Εμφάνιση εξόδου (ίδια σε όλες τις επιλεγμένες θέσεις):"
+	},
+	"options_output_element": {
+		"message": "Στοιχείο εξόδου"
+	},
+	"options_show_heading": {
+		"message": "με επικεφαλίδα μονάδας"
+	},
+	"options_dependency_missing_suffix": {
+		"message": " (δεν υπάρχει στη λίστα μονάδων, αυτό το τμήμα δεν θα λειτουργεί)"
+	},
+	"options_dependency_needs": {
+		"message": "Χρειάζεται τη μονάδα $1"
+	},
+	"options_dependency_dependents": {
+		"message": "Εξαρτώνται από αυτήν"
+	},
+	"options_optional_permission": {
+		"message": "Προαιρετική άδεια"
+	},
+	"options_permission_granted": {
+		"message": " (έχει παραχωρηθεί)"
+	},
+	"options_permission_not_granted": {
+		"message": " (δεν έχει παραχωρηθεί)"
+	},
+	"options_permission_unavailable": {
+		"message": " (μη διαθέσιμο σε αυτό το πρόγραμμα περιήγησης)"
+	},
+	"options_dependencies_none": {
+		"message": "Καμία: δεν χρειάζεται άλλες μονάδες ούτε προαιρετικές άδειες."
+	},
+	"options_dependencies": {
+		"message": "Εξαρτήσεις:"
+	},
+	"options_add_instance": {
+		"message": "+ Προσθήκη $1"
+	},
+	"options_add_instance_title": {
+		"message": "Προσθέτει στη λίστα μια νέα, ξεχωριστή έξοδο αυτής της μονάδας· σύρετέ την από την επικεφαλίδα της εκεί όπου θέλετε να εμφανίζεται."
+	},
+	"options_instance_added": {
+		"message": "Προστέθηκε: $1. Αποθηκεύστε τις ρυθμίσεις της με «Αποθήκευση ρυθμίσεων»."
+	},
+	"options_remove": {
+		"message": "Κατάργηση"
+	},
+	"options_remove_confirm": {
+		"message": "Σίγουρα κατάργηση; Κάντε ξανά κλικ"
+	},
+	"options_instance_removed": {
+		"message": "Καταργήθηκε: $1."
+	},
+	"options_heading_always_visible": {
+		"message": "Ένα πτυσσόμενο στοιχείο εμφανίζει πάντα την επικεφαλίδα του· το στοιχείο αναπτύσσεται από αυτήν."
+	},
+	"options_display_locations": {
+		"message": "Εμφάνιση εξόδου μονάδας (μπορείτε να επιλέξετε πολλές θέσεις):"
+	},
+	"options_order_saved": {
+		"message": "Η σειρά των μονάδων αποθηκεύτηκε."
+	},
+	"options_no_module_settings": {
+		"message": "Καμία μονάδα δεν προσφέρει προς το παρόν δικές της ρυθμίσεις."
+	},
+	"options_custom_field_invalid": {
+		"message": "Η render() πρέπει να επιστρέφει στοιχείο με μέθοδο getValue()"
+	},
+	"options_custom_field_failed": {
+		"message": "Δεν είναι δυνατή η εμφάνιση του πεδίου: $1"
+	},
+	"options_module_settings_saved": {
+		"message": "Οι ρυθμίσεις μονάδων αποθηκεύτηκαν."
+	},
+	"options_module_settings_reset": {
+		"message": "Έγινε επαναφορά των ρυθμίσεων μονάδων στις προεπιλογές."
+	},
+	"options_settings_saved": {
+		"message": "Οι ρυθμίσεις αποθηκεύτηκαν."
+	},
+	"options_settings_reset": {
+		"message": "Έγινε επαναφορά των ρυθμίσεων στις προεπιλογές."
+	},
+	"tabGroups_description": {
+		"message": "Ταξινομεί αυτόματα τις καρτέλες που δεν βρίσκονται σε δική σας ομάδα σε 9 ομάδες (σήμερα, χθες, … πέρσι) ανάλογα με το πότε άνοιξαν ή — επιλογή στις Ρυθμίσεις — πότε χρησιμοποιήθηκαν τελευταία, και τις μετακινεί μετά τα μεσάνυχτα. Στις Ρυθμίσεις μπορείτε επίσης να προσθέσετε ομάδες από σελιδοδείκτες: οι καρτέλες με σελιδοδείκτη σε επιλεγμένο φάκελο (προαιρετικά και οποιαδήποτε διεύθυνση στον τομέα του σελιδοδείκτη) αποκτούν δική τους ομάδα. Οι αυτόματες ομάδες μένουν στα δεξιά των δικών σας ομάδων, από την παλαιότερη στη νεότερη."
+	},
+	"tabGroups_setting_group_by": {
+		"message": "Ταξινόμηση καρτελών σε ομάδες βάσει"
+	},
+	"tabGroups_setting_group_by_opened": {
+		"message": "του πότε άνοιξε η καρτέλα — η καρτέλα παραμένει στην ομάδα της ημέρας που άνοιξε"
+	},
+	"tabGroups_setting_group_by_last_used": {
+		"message": "του πότε χρησιμοποιήθηκε τελευταία η καρτέλα — μια καρτέλα στην οποία μεταβαίνετε μετακινείται στην ομάδα «σήμερα»"
+	},
+	"tabGroups_setting_manual_moves": {
+		"message": "Να επιτρέπεται η μεταφορά καρτελών μεταξύ αυτόματων ομάδων — μια καρτέλα που σύρετε στην ομάδα άλλης ημέρας (π.χ. από «σήμερα» σε «χθες») μένει εκεί (κατά την ταξινόμηση βάσει τελευταίας χρήσης, μέχρι να μεταβείτε ξανά σε αυτήν)"
+	},
+	"tabGroups_setting_title_prefix": {
+		"message": "Πρόθεμα πριν από τα ονόματα όλων των αυτόματων ομάδων (και των ομάδων από σελιδοδείκτες), χωρισμένο με κενό — κενό = χωρίς πρόθεμα"
+	},
+	"tabGroups_setting_title_prefix_placeholder": {
+		"message": "χωρίς πρόθεμα"
+	},
+	"tabGroups_setting_groups": {
+		"message": "Αυτόματες ομάδες καρτελών (όνομα, χρώμα και συμπτυγμένη ομάδα για κάθε περίοδο)"
+	},
+	"tabGroups_setting_bookmark_groups": {
+		"message": "Ομάδες από σελιδοδείκτες (όνομα ομάδας, φάκελος σελιδοδεικτών, επιλογή ολόκληρου τομέα, χρώμα και συμπτυγμένη ομάδα)"
+	},
+	"tabGroups_color_grey": {
+		"message": "γκρι"
+	},
+	"tabGroups_color_blue": {
+		"message": "μπλε"
+	},
+	"tabGroups_color_red": {
+		"message": "κόκκινο"
+	},
+	"tabGroups_color_yellow": {
+		"message": "κίτρινο"
+	},
+	"tabGroups_color_green": {
+		"message": "πράσινο"
+	},
+	"tabGroups_color_pink": {
+		"message": "ροζ"
+	},
+	"tabGroups_color_purple": {
+		"message": "μωβ"
+	},
+	"tabGroups_color_cyan": {
+		"message": "κυανό"
+	},
+	"tabGroups_color_orange": {
+		"message": "πορτοκαλί"
+	},
+	"tabGroups_bucket_today_title": {
+		"message": "σήμερα"
+	},
+	"tabGroups_bucket_today_range": {
+		"message": "σήμερα"
+	},
+	"tabGroups_bucket_yesterday_title": {
+		"message": "χθες"
+	},
+	"tabGroups_bucket_yesterday_range": {
+		"message": "χθες"
+	},
+	"tabGroups_bucket_day_before_yesterday_title": {
+		"message": "πριν από 2 ημέρες"
+	},
+	"tabGroups_bucket_day_before_yesterday_range": {
+		"message": "πριν από 2 ημέρες"
+	},
+	"tabGroups_bucket_this_week_title": {
+		"message": "αυτή η εβδομάδα"
+	},
+	"tabGroups_bucket_this_week_range": {
+		"message": "νωρίτερα αυτή την εβδομάδα (από τη Δευτέρα)"
+	},
+	"tabGroups_bucket_last_week_title": {
+		"message": "προηγούμενη εβδομάδα"
+	},
+	"tabGroups_bucket_last_week_range": {
+		"message": "την προηγούμενη εβδομάδα"
+	},
+	"tabGroups_bucket_this_month_title": {
+		"message": "αυτός ο μήνας"
+	},
+	"tabGroups_bucket_this_month_range": {
+		"message": "νωρίτερα αυτόν τον μήνα"
+	},
+	"tabGroups_bucket_last_month_title": {
+		"message": "προηγούμενος μήνας"
+	},
+	"tabGroups_bucket_last_month_range": {
+		"message": "τον προηγούμενο μήνα"
+	},
+	"tabGroups_bucket_this_year_title": {
+		"message": "φέτος"
+	},
+	"tabGroups_bucket_this_year_range": {
+		"message": "νωρίτερα φέτος"
+	},
+	"tabGroups_bucket_last_year_title": {
+		"message": "πέρσι"
+	},
+	"tabGroups_bucket_last_year_range": {
+		"message": "πέρσι και νωρίτερα"
+	},
+	"tabGroups_loading": {
+		"message": "$1: Φόρτωση ομάδων καρτελών..."
+	},
+	"tabGroups_disabled": {
+		"message": "$1: Απενεργοποιημένο"
+	},
+	"tabGroups_intro_opened": {
+		"message": "$1: οι καρτέλες εκτός των δικών σας ομάδων ταξινομούνται αυτόματα σε ομάδες ανάλογα με το πότε άνοιξαν."
+	},
+	"tabGroups_intro_last_used": {
+		"message": "$1: οι καρτέλες εκτός των δικών σας ομάδων ταξινομούνται αυτόματα σε ομάδες ανάλογα με το πότε χρησιμοποιήθηκαν τελευταία."
+	},
+	"tabGroups_intro_opened_bookmarks": {
+		"message": "$1: οι καρτέλες εκτός των δικών σας ομάδων ταξινομούνται αυτόματα σε ομάδες ανάλογα με το πότε άνοιξαν, και οι καρτέλες με σελιδοδείκτη στους επιλεγμένους φακέλους σε ομάδες από σελιδοδείκτες."
+	},
+	"tabGroups_intro_last_used_bookmarks": {
+		"message": "$1: οι καρτέλες εκτός των δικών σας ομάδων ταξινομούνται αυτόματα σε ομάδες ανάλογα με το πότε χρησιμοποιήθηκαν τελευταία φορά, και οι καρτέλες με σελιδοδείκτη στους επιλεγμένους φακέλους σε ομάδες από σελιδοδείκτες."
+	},
+	"tabGroups_unsupported": {
+		"message": "Αυτό το πρόγραμμα περιήγησης δεν επιτρέπει στις επεκτάσεις να διαχειρίζονται ομάδες καρτελών (Chrome 89+, Firefox 139+ σε υπολογιστή)."
+	},
+	"tabGroups_missing_permission": {
+		"message": "Λείπει η άδεια για τις ομάδες καρτελών — δεν ταξινομείται ακόμη τίποτα."
+	},
+	"tabGroups_grant_tab_groups": {
+		"message": "Να επιτρέπονται οι ομάδες καρτελών"
+	},
+	"tabGroups_missing_alarms": {
+		"message": "Χωρίς την άδεια χρονομέτρων (alarms), οι ομάδες μετακινούνται μετά τα μεσάνυχτα μόνο την επόμενη φορά που θα εργαστείτε με καρτέλες."
+	},
+	"tabGroups_grant_alarms": {
+		"message": "Μετακίνηση ακριβώς τα μεσάνυχτα"
+	},
+	"tabGroups_missing_bookmarks": {
+		"message": "Οι ομάδες από σελιδοδείκτες χρειάζονται πρόσβαση στους σελιδοδείκτες και στις διευθύνσεις των καρτελών — δεν χρησιμοποιούνται ακόμη."
+	},
+	"tabGroups_grant_bookmarks": {
+		"message": "Να επιτρέπονται οι σελιδοδείκτες και οι διευθύνσεις καρτελών"
+	},
+	"tabGroups_regroup_now": {
+		"message": "Αναδιοργάνωση τώρα"
+	},
+	"tabGroups_group_settings": {
+		"message": "Ρυθμίσεις ομάδων"
+	},
+	"tabGroups_identify": {
+		"message": "Αναγνώριση διαχειριζόμενων ομάδων"
+	},
+	"tabGroups_identify_title": {
+		"message": "Οι ομάδες που διαχειρίζεται αυτόματα η λειτουργική μονάδα αναβοσβήνουν σύντομα σε όλα τα παράθυρα"
+	},
+	"tabGroups_overview_elsewhere": {
+		"message": "Η επισκόπηση ομάδων του παραθύρου βρίσκεται στο αναδυόμενο παράθυρο, στο πλευρικό πάνελ ή στις Ρυθμίσεις."
+	},
+	"tabGroups_overview_not_sorted": {
+		"message": "Οι καρτέλες σε αυτό το παράθυρο δεν έχουν ταξινομηθεί ακόμη — δοκιμάστε «Αναδιοργάνωση τώρα»."
+	},
+	"tabGroups_overview_no_groups": {
+		"message": "Δεν υπάρχει ακόμη αυτόματη ομάδα σε αυτό το παράθυρο (οι καρτέλες είναι στις δικές σας ομάδες ή καρφιτσωμένες)."
+	},
+	"tabGroups_chip_opened": {
+		"message": "Καρτέλες που άνοιξαν $1: $2"
+	},
+	"tabGroups_chip_last_used": {
+		"message": "Καρτέλες που χρησιμοποιήθηκαν τελευταία $1: $2"
+	},
+	"tabGroups_chip_bookmarks": {
+		"message": "Καρτέλες $1: $2"
+	},
+	"tabGroups_user_groups": {
+		"message": "Δικές σας ομάδες στα αριστερά τους: $1"
+	},
+	"tabGroups_no_response": {
+		"message": "Το τμήμα παρασκηνίου της λειτουργικής μονάδας δεν απάντησε — δοκιμάστε να φορτώσετε ξανά την επέκταση."
+	},
+	"tabGroups_regrouped": {
+		"message": "Οι καρτέλες αναδιοργανώθηκαν."
+	},
+	"tabGroups_nothing_to_regroup": {
+		"message": "Όλες οι καρτέλες βρίσκονται ήδη στη σωστή ομάδα."
+	},
+	"tabGroups_identified_one": {
+		"message": "Αναβόσβησε $1 ομάδα που διαχειρίζεται η λειτουργική μονάδα (σε όλα τα παράθυρα)."
+	},
+	"tabGroups_identified_other": {
+		"message": "Αναβόσβησαν $1 ομάδες που διαχειρίζεται η λειτουργική μονάδα (σε όλα τα παράθυρα)."
+	},
+	"tabGroups_identified_none": {
+		"message": "Η λειτουργική μονάδα δεν διαχειρίζεται αυτή τη στιγμή καμία ομάδα."
+	},
+	"tabGroups_identify_error": {
+		"message": "Η αναγνώριση των ομάδων απέτυχε: $1"
+	},
+	"tabGroups_problem_disabled": {
+		"message": "Η λειτουργική μονάδα είναι απενεργοποιημένη ή δεν υπάρχει στη λίστα λειτουργικών μονάδων — οι καρτέλες δεν ταξινομούνται."
+	},
+	"tabGroups_problem_unavailable": {
+		"message": "Λείπει η άδεια για τις ομάδες καρτελών."
+	},
+	"tabGroups_problem_error": {
+		"message": "Η αναδιοργάνωση απέτυχε: $1"
+	},
+	"tabGroups_unknown_error": {
+		"message": "άγνωστο σφάλμα"
+	},
+	"tabGroups_bookmarks_fallback_title": {
+		"message": "Σελιδοδείκτες"
+	},
+	"tabGroups_bookmarks_describe_domain": {
+		"message": "στους τομείς των σελιδοδεικτών του φακέλου «$1»"
+	},
+	"tabGroups_bookmarks_describe_folder": {
+		"message": "από σελιδοδείκτες του φακέλου «$1»"
+	},
+	"tabGroups_folder_untitled": {
+		"message": "(χωρίς τίτλο)"
+	},
+	"tabGroups_folder_in_account": {
+		"message": "$1 (στον λογαριασμό)"
+	},
+	"tabGroups_folder_device_only": {
+		"message": "$1 (μόνο σε αυτή τη συσκευή)"
+	},
+	"tabGroups_editor_hint": {
+		"message": "Οι καρτέλες που δεν ανήκουν σε δική σας ομάδα ταξινομούνται αυτόματα σε ομάδα περιόδου ανάλογα με το πότε άνοιξαν ή πότε χρησιμοποιήθηκαν τελευταία φορά (επιλογή παραπάνω). Η λειτουργική μονάδα αναγνωρίζει τις ομάδες της από το όνομα — μη δίνετε το ίδιο όνομα σε καμία δική σας ομάδα."
+	},
+	"tabGroups_editor_period": {
+		"message": "Περίοδος"
+	},
+	"tabGroups_editor_group_name": {
+		"message": "Όνομα ομάδας"
+	},
+	"tabGroups_editor_color": {
+		"message": "Χρώμα"
+	},
+	"tabGroups_editor_title_aria": {
+		"message": "Όνομα ομάδας για την περίοδο $1"
+	},
+	"tabGroups_editor_color_aria": {
+		"message": "Χρώμα ομάδας για την περίοδο $1"
+	},
+	"tabGroups_editor_color_default": {
+		"message": "$1 (προεπιλογή)"
+	},
+	"tabGroups_editor_collapsed_aria": {
+		"message": "Συμπτυγμένη ομάδα για την περίοδο $1"
+	},
+	"tabGroups_editor_duplicates": {
+		"message": "Τα ονόματα ομάδων δεν πρέπει να επαναλαμβάνονται ($1) — ένα επαναλαμβανόμενο όνομα αποθηκεύεται ως το προεπιλεγμένο όνομα της περιόδου."
+	},
+	"tabGroups_quoted": {
+		"message": "«$1»"
+	},
+	"tabGroups_editor_collapsed_title": {
+		"message": "Μια νέα ομάδα δημιουργείται συμπτυγμένη — αν όμως περιέχει την τρέχουσα ανοιχτή καρτέλα, παραμένει αναπτυγμένη ώστε το πρόγραμμα περιήγησης να μη μεταβεί αλλού. Η λειτουργική μονάδα δεν συμπτύσσει ούτε αναπτύσσει ποτέ μια υπάρχουσα ομάδα."
+	},
+	"tabGroups_editor_collapsed": {
+		"message": "συμπτυγμένη ομάδα"
+	},
+	"tabGroups_bookmarks_hint": {
+		"message": "Μια καρτέλα της οποίας η διεύθυνση υπάρχει ως σελιδοδείκτης στον επιλεγμένο φάκελο (μαζί με τους υποφακέλους) μπαίνει στην ομάδα από σελιδοδείκτες αντί σε ομάδα περιόδου· συγκρίνεται ολόκληρη η διεύθυνση, χωρίς το τμήμα μετά το #. Αν μια καρτέλα ανήκει σε περισσότερες ομάδες, υπερισχύει η πρώτη γραμμή. Οι ομάδες από σελιδοδείκτες βρίσκονται στη γραμμή καρτελών ανάμεσα στις δικές σας ομάδες και στις περιόδους."
+	},
+	"tabGroups_bookmarks_folder": {
+		"message": "Φάκελος σελιδοδεικτών"
+	},
+	"tabGroups_bookmarks_empty": {
+		"message": "Δεν υπάρχουν ομάδες από σελιδοδείκτες."
+	},
+	"tabGroups_bookmarks_add": {
+		"message": "Προσθήκη ομάδας από σελιδοδείκτες"
+	},
+	"tabGroups_bookmarks_choose_folder": {
+		"message": "— επιλέξτε φάκελο σελιδοδεικτών —"
+	},
+	"tabGroups_bookmarks_folder_not_found": {
+		"message": "$1 (ο φάκελος δεν βρέθηκε)"
+	},
+	"tabGroups_bookmarks_folder_name": {
+		"message": "όνομα φακέλου"
+	},
+	"tabGroups_bookmarks_duplicates": {
+		"message": "Τα ονόματα ομάδων δεν πρέπει να επαναλαμβάνονται ούτε να συμπίπτουν με όνομα περιόδου ($1) — ένα επαναλαμβανόμενο όνομα λαμβάνει αύξοντα αριθμό."
+	},
+	"tabGroups_bookmarks_without_folder": {
+		"message": "Μια γραμμή χωρίς επιλεγμένο φάκελο δεν θα χρησιμοποιηθεί."
+	},
+	"tabGroups_bookmarks_title_aria": {
+		"message": "Όνομα της ομάδας από σελιδοδείκτες (κενό = όνομα φακέλου)"
+	},
+	"tabGroups_bookmarks_whole_domain_title": {
+		"message": "Η ομάδα λαμβάνει επίσης καρτέλες με άλλες διευθύνσεις στον τομέα οποιουδήποτε σελιδοδείκτη του φακέλου: με σελιδοδείκτη some.tld, π.χ. some.tld/folder/file.html. Το πρόθεμα www. δεν μετράει (τα some.tld και www.some.tld είναι ο ίδιος τομέας), οι άλλοι υποτομείς μετράνε."
+	},
+	"tabGroups_bookmarks_whole_domain": {
+		"message": "όλα τα URL στον τομέα του σελιδοδείκτη"
+	},
+	"tabGroups_bookmarks_color_aria": {
+		"message": "Χρώμα της ομάδας από σελιδοδείκτες"
+	},
+	"tabGroups_bookmarks_collapsed_aria": {
+		"message": "Συμπτυγμένη ομάδα από σελιδοδείκτες"
+	},
+	"tabGroups_bookmarks_remove": {
+		"message": "Κατάργηση ομάδας από σελιδοδείκτες"
+	},
+	"tabGroups_bookmarks_missing_permission": {
+		"message": "Οι ομάδες από σελιδοδείκτες χρειάζονται πρόσβαση στους σελιδοδείκτες και στις διευθύνσεις των καρτελών — χωρίς αυτήν δεν χρησιμοποιούνται και δεν μπορεί να επιλεγεί φάκελος."
+	},
+	"tabGroups_bookmarks_permission_here": {
+		"message": "Δεν μπορεί να παραχωρηθεί εδώ — επιτρέψτε την στις Ρυθμίσεις, στο αναδυόμενο παράθυρο ή στο πλευρικό πάνελ."
+	}
+}

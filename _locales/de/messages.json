@@ -1,0 +1,566 @@
+{
+	"extension_name": {
+		"message": "tabGroups – AnalyticExtension"
+	},
+	"extension_description": {
+		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie geöffnet oder (Option in den Einstellungen) zuletzt verwendet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
+	},
+	"extension_action_title": {
+		"message": "Pop-up öffnen"
+	},
+	"core_activation_background": {
+		"message": "Automatisch starten und im Hintergrund arbeiten"
+	},
+	"core_activation_focus": {
+		"message": "Automatisch starten, nur mit dem aktiven fokussierten Dokument arbeiten (visibilitychange)"
+	},
+	"core_activation_icon_click": {
+		"message": "Beim Klick auf die Hauptschaltfläche der Erweiterung"
+	},
+	"core_activation_popup": {
+		"message": "Nur beim Klick auf eine Schaltfläche in popup.html starten"
+	},
+	"core_activation_install": {
+		"message": "Nach der Installation der Erweiterung"
+	},
+	"core_activation_disabled": {
+		"message": "Nie starten (Modul inaktiv)"
+	},
+	"core_location_popup": {
+		"message": "Im Pop-up (Erweiterungssymbol)"
+	},
+	"core_location_sidebar": {
+		"message": "In der Seitenleiste"
+	},
+	"core_location_options": {
+		"message": "Auf der Einstellungsseite"
+	},
+	"core_location_onboarding": {
+		"message": "Auf der Willkommensseite (Onboarding)"
+	},
+	"core_output_inline": {
+		"message": "Inline-Element"
+	},
+	"core_output_block": {
+		"message": "Blockelement"
+	},
+	"core_output_indented": {
+		"message": "Eingerücktes Blockelement"
+	},
+	"core_output_details_closed": {
+		"message": "Ausklappbares Element, eingeklappt"
+	},
+	"core_output_details_open": {
+		"message": "Ausklappbares Element, ausgeklappt"
+	},
+	"core_default_modules_load_failed": {
+		"message": "Die Standarddatei modules.json kann nicht geladen werden: $1"
+	},
+	"core_file_load_failed": {
+		"message": "$1 kann nicht geladen werden: $2"
+	},
+	"core_default_settings_not_object": {
+		"message": "$1 muss ein Objekt { \"setting key\": value } sein"
+	},
+	"core_modules_json_not_array": {
+		"message": "modules.json muss ein Array von Zeichenketten sein"
+	},
+	"core_storage_unavailable": {
+		"message": "chrome.storage.$1 ist in diesem Kontext nicht verfügbar."
+	},
+	"popup_page_title": {
+		"message": "AnalyticExtension-Pop-up"
+	},
+	"popup_json_error": {
+		"message": "JSON-Fehler: $1"
+	},
+	"popup_module_not_in_folder": {
+		"message": "Modul „$1“ befindet sich nicht in einem eigenen Unterordner ($2)"
+	},
+	"popup_module_error": {
+		"message": "Fehler im Modul: $1"
+	},
+	"sidebar_page_title": {
+		"message": "AnalyticExtension – Seitenleiste"
+	},
+	"onboarding_page_title": {
+		"message": "AnalyticExtension – Willkommensseite (Onboarding)"
+	},
+	"onboarding_empty_html": {
+		"message": "Auf der Willkommensseite wird noch nichts angezeigt. Senden Sie Module in den <a href=\"./options.html\" target=\"_blank\">Einstellungen der Erweiterung</a> mit der Option „Modulausgabe anzeigen“ des jeweiligen Moduls hierher."
+	},
+	"options_page_title": {
+		"message": "AnalyticExtension-Einstellungen"
+	},
+	"options_heading": {
+		"message": "Einstellungen der tabGroups-Erweiterung"
+	},
+	"core_ui_language": {
+		"message": "Sprache"
+	},
+	"core_ui_language_browser": {
+		"message": "$1 - Browsersprache"
+	},
+	"options_modules_list_json": {
+		"message": "Modulliste (JSON)"
+	},
+	"options_save_list": {
+		"message": "Liste speichern"
+	},
+	"options_reset_list": {
+		"message": "Standardliste wiederherstellen"
+	},
+	"options_modules_settings": {
+		"message": "Erweiterte Einstellungen"
+	},
+	"options_save_settings": {
+		"message": "Einstellungen speichern"
+	},
+	"options_reset_defaults": {
+		"message": "Standardwerte wiederherstellen"
+	},
+	"options_custom_module_settings": {
+		"message": "tabGroups-Einstellungen"
+	},
+	"options_recommended_suffix": {
+		"message": " (vom Modul empfohlen)"
+	},
+	"options_hint_not_displayed": {
+		"message": "Nichts ist angehakt, daher wird das Modul nirgends angezeigt. Je nach Aktivierungsmodus kann es trotzdem im Hintergrund arbeiten."
+	},
+	"options_hint_disabled": {
+		"message": "Das Modul ist ausgeschaltet (Aktivierungsmodus „Nie starten“) und wird daher nirgends angezeigt."
+	},
+	"options_error": {
+		"message": "Fehler: $1"
+	},
+	"options_modules_diff_differs": {
+		"message": "Die gespeicherte Modulliste weicht von der Standarddatei modules.json ab."
+	},
+	"options_modules_diff_extra": {
+		"message": "Zusätzlich gegenüber modules.json:"
+	},
+	"options_modules_diff_missing": {
+		"message": "Fehlend gegenüber modules.json:"
+	},
+	"options_modules_diff_order_only": {
+		"message": "Gleiche Einträge, nur die Reihenfolge unterscheidet sich."
+	},
+	"options_invalid_json": {
+		"message": "Ungültiges JSON: $1"
+	},
+	"options_modules_saved": {
+		"message": "Modulliste gespeichert."
+	},
+	"options_modules_reset": {
+		"message": "Modulliste auf den Standard zurückgesetzt."
+	},
+	"options_drag_to_reorder": {
+		"message": "Ziehen, um die Position des Moduls in der Liste zu ändern"
+	},
+	"options_activation_mode": {
+		"message": "Aktivierungsmodus des Moduls"
+	},
+	"options_output_look": {
+		"message": "Darstellung der Ausgabe (an allen angehakten Orten gleich):"
+	},
+	"options_output_element": {
+		"message": "Ausgabeelement"
+	},
+	"options_show_heading": {
+		"message": "mit Modulüberschrift"
+	},
+	"options_dependency_missing_suffix": {
+		"message": " (nicht in der Modulliste, dieser Teil funktioniert nicht)"
+	},
+	"options_dependency_needs": {
+		"message": "Benötigt Modul $1"
+	},
+	"options_dependency_dependents": {
+		"message": "Wird benötigt von"
+	},
+	"options_optional_permission": {
+		"message": "Optionale Berechtigung"
+	},
+	"options_permission_granted": {
+		"message": " (erteilt)"
+	},
+	"options_permission_not_granted": {
+		"message": " (nicht erteilt)"
+	},
+	"options_permission_unavailable": {
+		"message": " (in diesem Browser nicht verfügbar)"
+	},
+	"options_dependencies_none": {
+		"message": "Keine: benötigt keine anderen Module und keine optionalen Berechtigungen."
+	},
+	"options_dependencies": {
+		"message": "Abhängigkeiten:"
+	},
+	"options_add_instance": {
+		"message": "+ $1 hinzufügen"
+	},
+	"options_add_instance_title": {
+		"message": "Fügt der Liste eine neue, separate Ausgabe dieses Moduls hinzu; ziehen Sie sie an ihrer Überschrift an die gewünschte Stelle."
+	},
+	"options_instance_added": {
+		"message": "Hinzugefügt: $1. Speichern Sie die Einstellungen mit „Einstellungen speichern“."
+	},
+	"options_remove": {
+		"message": "Entfernen"
+	},
+	"options_remove_confirm": {
+		"message": "Wirklich entfernen? Erneut klicken"
+	},
+	"options_instance_removed": {
+		"message": "Entfernt: $1."
+	},
+	"options_heading_always_visible": {
+		"message": "Ein ausklappbares Element zeigt immer seine Überschrift an; von ihr aus wird das Element ausgeklappt."
+	},
+	"options_display_locations": {
+		"message": "Modulausgabe anzeigen (Sie können mehrere Orte anhaken):"
+	},
+	"options_order_saved": {
+		"message": "Modulreihenfolge gespeichert."
+	},
+	"options_no_module_settings": {
+		"message": "Derzeit bietet kein Modul eigene Einstellungen an."
+	},
+	"options_custom_field_invalid": {
+		"message": "render() muss ein Element mit einer Methode getValue() zurückgeben"
+	},
+	"options_custom_field_failed": {
+		"message": "Das Feld kann nicht angezeigt werden: $1"
+	},
+	"options_module_settings_saved": {
+		"message": "Moduleinstellungen gespeichert."
+	},
+	"options_module_settings_reset": {
+		"message": "Moduleinstellungen auf die Standardwerte zurückgesetzt."
+	},
+	"options_settings_saved": {
+		"message": "Einstellungen gespeichert."
+	},
+	"options_settings_reset": {
+		"message": "Einstellungen auf die Standardwerte zurückgesetzt."
+	},
+	"tabGroups_description": {
+		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie geöffnet oder (Option in den Einstellungen) zuletzt verwendet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
+	},
+	"tabGroups_setting_group_by": {
+		"message": "Tabs in Gruppen sortieren nach"
+	},
+	"tabGroups_setting_group_by_opened": {
+		"message": "Zeitpunkt des Öffnens – ein Tab bleibt in der Gruppe des Tages, an dem er geöffnet wurde"
+	},
+	"tabGroups_setting_group_by_last_used": {
+		"message": "Zeitpunkt der letzten Verwendung – ein Tab, zu dem Sie wechseln, wandert in die Gruppe „heute“"
+	},
+	"tabGroups_setting_manual_moves": {
+		"message": "Verschieben von Tabs zwischen automatischen Gruppen erlauben – ein Tab, den Sie in die Gruppe eines anderen Tages ziehen (z. B. von „heute“ nach „gestern“), bleibt dort (bei Sortierung nach letzter Verwendung, bis Sie wieder zu ihm wechseln)"
+	},
+	"tabGroups_setting_title_prefix": {
+		"message": "Präfix vor den Namen aller automatischen Gruppen (auch Gruppen aus Lesezeichen), durch ein Leerzeichen getrennt – leer = kein Präfix"
+	},
+	"tabGroups_setting_title_prefix_placeholder": {
+		"message": "kein Präfix"
+	},
+	"tabGroups_setting_groups": {
+		"message": "Automatische Tabgruppen (Name, Farbe und eingeklappte Gruppe für jeden Zeitraum)"
+	},
+	"tabGroups_setting_bookmark_groups": {
+		"message": "Gruppen aus Lesezeichen (Gruppenname, Lesezeichenordner, Option für die ganze Domain, Farbe und eingeklappte Gruppe)"
+	},
+	"tabGroups_color_grey": {
+		"message": "grau"
+	},
+	"tabGroups_color_blue": {
+		"message": "blau"
+	},
+	"tabGroups_color_red": {
+		"message": "rot"
+	},
+	"tabGroups_color_yellow": {
+		"message": "gelb"
+	},
+	"tabGroups_color_green": {
+		"message": "grün"
+	},
+	"tabGroups_color_pink": {
+		"message": "pink"
+	},
+	"tabGroups_color_purple": {
+		"message": "lila"
+	},
+	"tabGroups_color_cyan": {
+		"message": "cyan"
+	},
+	"tabGroups_color_orange": {
+		"message": "orange"
+	},
+	"tabGroups_bucket_today_title": {
+		"message": "heute"
+	},
+	"tabGroups_bucket_today_range": {
+		"message": "heute"
+	},
+	"tabGroups_bucket_yesterday_title": {
+		"message": "gestern"
+	},
+	"tabGroups_bucket_yesterday_range": {
+		"message": "gestern"
+	},
+	"tabGroups_bucket_day_before_yesterday_title": {
+		"message": "vor 2 Tagen"
+	},
+	"tabGroups_bucket_day_before_yesterday_range": {
+		"message": "vor 2 Tagen"
+	},
+	"tabGroups_bucket_this_week_title": {
+		"message": "diese Woche"
+	},
+	"tabGroups_bucket_this_week_range": {
+		"message": "früher in dieser Woche (seit Montag)"
+	},
+	"tabGroups_bucket_last_week_title": {
+		"message": "letzte Woche"
+	},
+	"tabGroups_bucket_last_week_range": {
+		"message": "letzte Woche"
+	},
+	"tabGroups_bucket_this_month_title": {
+		"message": "diesen Monat"
+	},
+	"tabGroups_bucket_this_month_range": {
+		"message": "früher in diesem Monat"
+	},
+	"tabGroups_bucket_last_month_title": {
+		"message": "letzten Monat"
+	},
+	"tabGroups_bucket_last_month_range": {
+		"message": "letzten Monat"
+	},
+	"tabGroups_bucket_this_year_title": {
+		"message": "dieses Jahr"
+	},
+	"tabGroups_bucket_this_year_range": {
+		"message": "früher in diesem Jahr"
+	},
+	"tabGroups_bucket_last_year_title": {
+		"message": "letztes Jahr"
+	},
+	"tabGroups_bucket_last_year_range": {
+		"message": "letztes Jahr und früher"
+	},
+	"tabGroups_loading": {
+		"message": "$1: Tabgruppen werden geladen..."
+	},
+	"tabGroups_disabled": {
+		"message": "$1: Deaktiviert"
+	},
+	"tabGroups_intro_opened": {
+		"message": "$1: Tabs außerhalb Ihrer eigenen Gruppen werden automatisch danach in Gruppen sortiert, wann sie geöffnet wurden."
+	},
+	"tabGroups_intro_last_used": {
+		"message": "$1: Tabs außerhalb Ihrer eigenen Gruppen werden automatisch danach in Gruppen sortiert, wann sie zuletzt verwendet wurden."
+	},
+	"tabGroups_intro_opened_bookmarks": {
+		"message": "$1: Tabs außerhalb Ihrer eigenen Gruppen werden automatisch nach dem Öffnungszeitpunkt in Gruppen sortiert, Tabs mit Lesezeichen in den ausgewählten Ordnern in Gruppen aus Lesezeichen."
+	},
+	"tabGroups_intro_last_used_bookmarks": {
+		"message": "$1: Tabs außerhalb Ihrer eigenen Gruppen werden automatisch nach der letzten Verwendung in Gruppen sortiert, Tabs mit Lesezeichen in den ausgewählten Ordnern in Gruppen aus Lesezeichen."
+	},
+	"tabGroups_unsupported": {
+		"message": "Dieser Browser erlaubt Erweiterungen nicht, Tabgruppen zu verwalten (Chrome 89+, Firefox 139+ auf dem Desktop)."
+	},
+	"tabGroups_missing_permission": {
+		"message": "Die Berechtigung für Tabgruppen fehlt – es wird noch nichts sortiert."
+	},
+	"tabGroups_grant_tab_groups": {
+		"message": "Tabgruppen erlauben"
+	},
+	"tabGroups_missing_alarms": {
+		"message": "Ohne die Berechtigung „Timer“ (alarms) werden die Gruppen nach Mitternacht erst verschoben, wenn Sie das nächste Mal mit Tabs arbeiten."
+	},
+	"tabGroups_grant_alarms": {
+		"message": "Genau um Mitternacht verschieben"
+	},
+	"tabGroups_missing_bookmarks": {
+		"message": "Gruppen aus Lesezeichen benötigen Zugriff auf Lesezeichen und Tab-Adressen – sie werden noch nicht verwendet."
+	},
+	"tabGroups_grant_bookmarks": {
+		"message": "Lesezeichen und Tab-Adressen erlauben"
+	},
+	"tabGroups_regroup_now": {
+		"message": "Jetzt neu gruppieren"
+	},
+	"tabGroups_group_settings": {
+		"message": "Gruppeneinstellungen"
+	},
+	"tabGroups_identify": {
+		"message": "Verwaltete Gruppen identifizieren"
+	},
+	"tabGroups_identify_title": {
+		"message": "Gruppen, die das Modul automatisch verwaltet, blinken in allen Fenstern kurz auf"
+	},
+	"tabGroups_overview_elsewhere": {
+		"message": "Die Gruppenübersicht des Fensters finden Sie im Pop-up, in der Seitenleiste oder in den Einstellungen."
+	},
+	"tabGroups_overview_not_sorted": {
+		"message": "Die Tabs in diesem Fenster wurden noch nicht sortiert – versuchen Sie „Jetzt neu gruppieren“."
+	},
+	"tabGroups_overview_no_groups": {
+		"message": "In diesem Fenster gibt es noch keine automatische Gruppe (die Tabs sind in Ihren eigenen Gruppen oder angepinnt)."
+	},
+	"tabGroups_chip_opened": {
+		"message": "Tabs geöffnet $1: $2"
+	},
+	"tabGroups_chip_last_used": {
+		"message": "Tabs zuletzt verwendet $1: $2"
+	},
+	"tabGroups_chip_bookmarks": {
+		"message": "Tabs $1: $2"
+	},
+	"tabGroups_user_groups": {
+		"message": "Ihre eigenen Gruppen links davon: $1"
+	},
+	"tabGroups_no_response": {
+		"message": "Der Hintergrundteil des Moduls hat nicht geantwortet – versuchen Sie, die Erweiterung neu zu laden."
+	},
+	"tabGroups_regrouped": {
+		"message": "Die Tabs wurden neu gruppiert."
+	},
+	"tabGroups_nothing_to_regroup": {
+		"message": "Alle Tabs sind bereits in der richtigen Gruppe."
+	},
+	"tabGroups_identified_one": {
+		"message": "$1 vom Modul verwaltete Gruppe hat geblinkt (in allen Fenstern)."
+	},
+	"tabGroups_identified_other": {
+		"message": "$1 vom Modul verwaltete Gruppen haben geblinkt (in allen Fenstern)."
+	},
+	"tabGroups_identified_none": {
+		"message": "Das Modul verwaltet derzeit keine Gruppe."
+	},
+	"tabGroups_identify_error": {
+		"message": "Die Gruppen konnten nicht identifiziert werden: $1"
+	},
+	"tabGroups_problem_disabled": {
+		"message": "Das Modul ist deaktiviert oder nicht in der Modulliste – Tabs werden nicht sortiert."
+	},
+	"tabGroups_problem_unavailable": {
+		"message": "Die Berechtigung für Tabgruppen fehlt."
+	},
+	"tabGroups_problem_error": {
+		"message": "Neugruppierung fehlgeschlagen: $1"
+	},
+	"tabGroups_unknown_error": {
+		"message": "unbekannter Fehler"
+	},
+	"tabGroups_bookmarks_fallback_title": {
+		"message": "Lesezeichen"
+	},
+	"tabGroups_bookmarks_describe_domain": {
+		"message": "auf den Domains der Lesezeichen im Ordner „$1“"
+	},
+	"tabGroups_bookmarks_describe_folder": {
+		"message": "aus Lesezeichen im Ordner „$1“"
+	},
+	"tabGroups_folder_untitled": {
+		"message": "(ohne Namen)"
+	},
+	"tabGroups_folder_in_account": {
+		"message": "$1 (im Konto)"
+	},
+	"tabGroups_folder_device_only": {
+		"message": "$1 (nur auf diesem Gerät)"
+	},
+	"tabGroups_editor_hint": {
+		"message": "Tabs, die sich nicht in einer Ihrer eigenen Gruppen befinden, werden automatisch nach dem Öffnungszeitpunkt oder der letzten Verwendung (Option oben) in eine Zeitraumgruppe sortiert. Das Modul erkennt seine Gruppen am Namen – geben Sie keiner Ihrer eigenen Gruppen denselben Namen."
+	},
+	"tabGroups_editor_period": {
+		"message": "Zeitraum"
+	},
+	"tabGroups_editor_group_name": {
+		"message": "Gruppenname"
+	},
+	"tabGroups_editor_color": {
+		"message": "Farbe"
+	},
+	"tabGroups_editor_title_aria": {
+		"message": "Gruppenname für den Zeitraum $1"
+	},
+	"tabGroups_editor_color_aria": {
+		"message": "Gruppenfarbe für den Zeitraum $1"
+	},
+	"tabGroups_editor_color_default": {
+		"message": "$1 (Standard)"
+	},
+	"tabGroups_editor_collapsed_aria": {
+		"message": "Minimierte Gruppe für den Zeitraum $1"
+	},
+	"tabGroups_editor_duplicates": {
+		"message": "Gruppennamen dürfen sich nicht wiederholen ($1) – ein wiederholter Name wird als Standardname des Zeitraums gespeichert."
+	},
+	"tabGroups_quoted": {
+		"message": "„$1“"
+	},
+	"tabGroups_editor_collapsed_title": {
+		"message": "Eine neue Gruppe wird minimiert erstellt – enthält sie jedoch den gerade geöffneten Tab, bleibt sie maximiert, damit der Browser nicht woandershin wechselt. Das Modul minimiert oder maximiert niemals eine bestehende Gruppe."
+	},
+	"tabGroups_editor_collapsed": {
+		"message": "minimierte Gruppe"
+	},
+	"tabGroups_bookmarks_hint": {
+		"message": "Ein Tab, dessen Adresse im ausgewählten Ordner (einschließlich Unterordnern) als Lesezeichen gespeichert ist, kommt statt in eine Zeitraumgruppe in die Gruppe aus Lesezeichen; verglichen wird die gesamte Adresse ohne den Teil nach #. Gehört ein Tab zu mehreren Gruppen, gilt die erste Zeile. Gruppen aus Lesezeichen stehen in der Tableiste zwischen Ihren eigenen Gruppen und den Zeiträumen."
+	},
+	"tabGroups_bookmarks_folder": {
+		"message": "Lesezeichenordner"
+	},
+	"tabGroups_bookmarks_empty": {
+		"message": "Keine Gruppen aus Lesezeichen."
+	},
+	"tabGroups_bookmarks_add": {
+		"message": "Gruppe aus Lesezeichen hinzufügen"
+	},
+	"tabGroups_bookmarks_choose_folder": {
+		"message": "– Lesezeichenordner auswählen –"
+	},
+	"tabGroups_bookmarks_folder_not_found": {
+		"message": "$1 (Ordner nicht gefunden)"
+	},
+	"tabGroups_bookmarks_folder_name": {
+		"message": "Ordnername"
+	},
+	"tabGroups_bookmarks_duplicates": {
+		"message": "Gruppennamen dürfen sich nicht wiederholen und keinem Zeitraumnamen entsprechen ($1) – ein wiederholter Name erhält eine laufende Nummer."
+	},
+	"tabGroups_bookmarks_without_folder": {
+		"message": "Eine Zeile ohne ausgewählten Ordner wird nicht verwendet."
+	},
+	"tabGroups_bookmarks_title_aria": {
+		"message": "Name der Gruppe aus Lesezeichen (leer = Ordnername)"
+	},
+	"tabGroups_bookmarks_whole_domain_title": {
+		"message": "Die Gruppe erhält auch Tabs mit anderen Adressen auf der Domain eines beliebigen Lesezeichens im Ordner: bei einem Lesezeichen some.tld z. B. some.tld/folder/file.html. Das Präfix www. zählt nicht (some.tld und www.some.tld sind dieselbe Domain), andere Subdomains schon."
+	},
+	"tabGroups_bookmarks_whole_domain": {
+		"message": "alle URLs auf der Domain des Lesezeichens"
+	},
+	"tabGroups_bookmarks_color_aria": {
+		"message": "Farbe der Gruppe aus Lesezeichen"
+	},
+	"tabGroups_bookmarks_collapsed_aria": {
+		"message": "Minimierte Gruppe aus Lesezeichen"
+	},
+	"tabGroups_bookmarks_remove": {
+		"message": "Gruppe aus Lesezeichen entfernen"
+	},
+	"tabGroups_bookmarks_missing_permission": {
+		"message": "Gruppen aus Lesezeichen benötigen Zugriff auf Lesezeichen und Tab-Adressen – ohne ihn werden sie nicht verwendet und es kann kein Ordner ausgewählt werden."
+	},
+	"tabGroups_bookmarks_permission_here": {
+		"message": "Sie kann hier nicht erteilt werden – erlauben Sie sie in den Einstellungen, im Pop-up oder in der Seitenleiste."
+	}
+}

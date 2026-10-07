@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title data-i18n="onboarding_page_title">AnalyticExtension - welcome page (onboarding)</title>
+	<link rel="stylesheet" href="./css/mvp.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/theme-light.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/onboarding.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/module-frame.css" crossorigin="anonymous">
+	<!-- Volba vzhledu (světlý/tmavý) — přepíná ji modul styleSwitch (modules/styleSwitch/pageStyles.mjs), href musí být na všech stránkách stejné. -->
+	<link rel="alternate stylesheet" href="./css/theme-light.css" title="Světlý" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/theme-dark.css" title="Tmavý" media="(prefers-color-scheme: dark)" crossorigin="anonymous">
+</head>
+
+<body>
+	<!-- Jazyk rozhraní — stejná nabídka jako nahoře na stránce Nastavení
+	     (initUiLanguageSelect() v i18n.mjs). Nahoře, ať si ho nový uživatel
+	     přepne dřív, než začne číst výpisy modulů. -->
+	<div class="onboarding-language">
+		<label><span data-i18n="core_ui_language">Language</span>
+			<select id="ui-language"></select>
+		</label>
+	</div>
+
+	<div id="modules-output"></div>
+
+	<!-- Ukáže onboarding.mjs, když se na uvítací stránku nevypíše žádný modul. -->
+	<p id="onboarding-empty" class="onboarding-empty" hidden data-i18n-html="onboarding_empty_html">
+		Nothing is shown on the welcome page yet. Send modules here in the <a href="./options.html" target="_blank">extension settings</a> with the “Show module output” option of each module.
+	</p>
+
+	<script type="module" src="./onboarding.mjs" crossorigin="anonymous"></script>
+</body>
+
+</html>

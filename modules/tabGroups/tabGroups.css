@@ -1,0 +1,227 @@
+/* modules/tabGroups/tabGroups.css — vzhled přehledu skupin (tabGroups.mjs) i
+   editoru názvů a barev na stránce Nastavení (groupsEditor.mjs). Jádro soubor
+   připojí na každou plochu, kde se element vykresluje, i na stránku Nastavení
+   (registerModule({ styles })). */
+
+/* Barvy skupin karet — přibližně jako v liště karet prohlížeče (světlý vzhled
+   Chrome), s čitelným textem. Stejné ve světlém i tmavém vzhledu stránek,
+   ať náhled odpovídá tomu, co uživatel vidí v liště. */
+.tab-groups-color--grey {
+	background: #5f6368;
+	color: #fff;
+}
+.tab-groups-color--blue {
+	background: #1a73e8;
+	color: #fff;
+}
+.tab-groups-color--red {
+	background: #d93025;
+	color: #fff;
+}
+.tab-groups-color--yellow {
+	background: #f9ab00;
+	color: #000;
+}
+.tab-groups-color--green {
+	background: #1e8e3e;
+	color: #fff;
+}
+.tab-groups-color--pink {
+	background: #d01884;
+	color: #fff;
+}
+.tab-groups-color--purple {
+	background: #9334e6;
+	color: #fff;
+}
+.tab-groups-color--cyan {
+	background: #007b83;
+	color: #fff;
+}
+.tab-groups-color--orange {
+	background: #fa903e;
+	color: #000;
+}
+
+/* Přehled: štítky skupin v pořadí lišty karet (nejstarší vlevo). */
+.tab-groups-output {
+	.tab-groups-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px;
+		margin: 4px 0;
+		padding: 0;
+		list-style: none;
+	}
+	.tab-groups-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		margin: 0;
+		padding: 1px 9px;
+		border-radius: 999px;
+		font-size: 0.9em;
+		white-space: nowrap;
+	}
+	.tab-groups-count {
+		font-weight: bold;
+	}
+	.tab-groups-status,
+	.tab-groups-note,
+	.tab-groups-result {
+		margin: 4px 0;
+		font-size: 0.9em;
+		color: var(--color-text-muted);
+	}
+	.tab-groups-status--problem {
+		color: var(--color-error);
+	}
+	.tab-groups-status button {
+		margin: 4px 0 0;
+	}
+	.tab-groups-actions button {
+		margin: 4px 6px 0 0;
+		font-size: 0.9em;
+	}
+}
+
+/* Editor na stránce Nastavení: řádek = období, název skupiny, barva s náhledem. */
+.tab-groups-editor {
+	.tab-groups-editor-hint {
+		margin: 2px 0 6px;
+		font-size: 0.9em;
+		color: var(--color-text-muted);
+	}
+	table {
+		border-collapse: collapse;
+	}
+	th,
+	td {
+		padding: 2px 8px 2px 0;
+		text-align: left;
+		vertical-align: middle;
+	}
+	thead th {
+		font-size: 0.85em;
+		font-weight: normal;
+		color: var(--color-text-label);
+	}
+	tbody th {
+		font-weight: normal;
+		white-space: nowrap;
+	}
+	input,
+	select {
+		margin: 0;
+	}
+	.tab-groups-editor-title {
+		width: 14rem;
+		max-width: 100%;
+	}
+	.tab-groups-editor-duplicate {
+		outline: 2px solid var(--color-error);
+	}
+	/* Výběr barvy a náhled na jednom řádku — stránka Nastavení dává selectu
+	   display: block a width: 100 % (mvp.css, options.css). Výběry v tabulce
+	   jsou stejně široké podle nejdelšího: procentní šířka se do šířky sloupce
+	   nepočítá (bere se jako auto), sloupec je tak široký jako nejširší výběr
+	   s náhledem a každý výběr ho vyplní až po náhled. min-width: na úzké
+	   stránce by se jinak výběr s procentní šířkou zmáčkl pod svůj text. */
+	.tab-groups-editor-color {
+		white-space: nowrap;
+	}
+	.tab-groups-editor-color select {
+		display: inline-block;
+		width: calc(100% - var(--tab-groups-swatch-size) - var(--tab-groups-swatch-gap));
+		min-width: max-content;
+		vertical-align: middle;
+	}
+	.tab-groups-editor-collapsed {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin: 0;
+		font-size: 0.9em;
+		font-weight: normal;
+		color: inherit;
+		white-space: nowrap;
+		cursor: pointer;
+	}
+	.tab-groups-editor-collapsed input {
+		margin: 0;
+	}
+	.tab-groups-editor-message {
+		margin-top: 4px;
+		font-size: 0.85em;
+		color: var(--color-error);
+	}
+	.tab-groups-editor-message:empty {
+		display: none;
+	}
+}
+
+/* Editor skupin ze záložek (bookmarkGroupsEditor.mjs): tabulka jako u období
+   (má i třídu .tab-groups-editor), navíc výběr složky, zaškrtávátko domény,
+   tlačítko × u řádku a „Přidat skupinu ze záložek“. */
+.tab-groups-bookmarks-editor {
+	.tab-groups-editor-title {
+		width: 11rem;
+	}
+	.tab-groups-bookmarks-folder {
+		min-width: 12rem;
+		max-width: 22rem;
+	}
+	.tab-groups-bookmarks-domain {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin: 0;
+		font-size: 0.9em;
+		font-weight: normal;
+		color: inherit;
+		white-space: nowrap;
+		cursor: pointer;
+	}
+	.tab-groups-bookmarks-domain input {
+		margin: 0;
+	}
+	button {
+		margin: 0;
+		padding: 2px 9px;
+		font-size: 0.9em;
+		font-weight: normal;
+		line-height: 1.4;
+		background: var(--color-button-secondary);
+		color: var(--color-button-secondary-text);
+		border: 1px solid var(--color-input-border);
+		border-radius: 4px;
+	}
+	button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	.tab-groups-bookmarks-remove {
+		font-size: 16px;
+	}
+	.tab-groups-bookmarks-add {
+		margin-top: 6px;
+	}
+	[hidden] {
+		display: none;
+	}
+}
+
+/* Kolečko s náhledem barvy vedle výběru v editoru — rozměry v px, ať s nimi
+   jde počítat i v šířce výběru (jiná velikost písma než buňka). */
+.tab-groups-editor {
+	--tab-groups-swatch-size: 16px;
+	--tab-groups-swatch-gap: 6px;
+}
+.tab-groups-swatch {
+	display: inline-block;
+	width: var(--tab-groups-swatch-size, 16px);
+	height: var(--tab-groups-swatch-size, 16px);
+	margin-left: var(--tab-groups-swatch-gap, 6px);
+	border-radius: 50%;
+	vertical-align: middle;
+}

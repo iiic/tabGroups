@@ -1,0 +1,566 @@
+{
+	"extension_name": {
+		"message": "tabGroups – AnalyticExtension"
+	},
+	"extension_description": {
+		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were opened or — an option in Settings — when they were last used, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
+	},
+	"extension_action_title": {
+		"message": "Open popup"
+	},
+	"core_activation_background": {
+		"message": "Start automatically and work in the background"
+	},
+	"core_activation_focus": {
+		"message": "Start automatically, work only with the active focused document (visibilitychange)"
+	},
+	"core_activation_icon_click": {
+		"message": "On click of the main extension button"
+	},
+	"core_activation_popup": {
+		"message": "Start only on a button press in popup.html"
+	},
+	"core_activation_install": {
+		"message": "After the extension is installed"
+	},
+	"core_activation_disabled": {
+		"message": "Never start (module inactive)"
+	},
+	"core_location_popup": {
+		"message": "In the popup (extension icon)"
+	},
+	"core_location_sidebar": {
+		"message": "In the side panel"
+	},
+	"core_location_options": {
+		"message": "On the Settings page"
+	},
+	"core_location_onboarding": {
+		"message": "On the welcome page (onboarding)"
+	},
+	"core_output_inline": {
+		"message": "Inline element"
+	},
+	"core_output_block": {
+		"message": "Block element"
+	},
+	"core_output_indented": {
+		"message": "Indented block element"
+	},
+	"core_output_details_closed": {
+		"message": "Collapsible element, collapsed"
+	},
+	"core_output_details_open": {
+		"message": "Collapsible element, expanded"
+	},
+	"core_default_modules_load_failed": {
+		"message": "Cannot load the default modules.json: $1"
+	},
+	"core_file_load_failed": {
+		"message": "Cannot load $1: $2"
+	},
+	"core_default_settings_not_object": {
+		"message": "$1 must be an object { \"setting key\": value }"
+	},
+	"core_modules_json_not_array": {
+		"message": "modules.json must be an array of strings"
+	},
+	"core_storage_unavailable": {
+		"message": "chrome.storage.$1 is not available in this context."
+	},
+	"popup_page_title": {
+		"message": "AnalyticExtension Popup"
+	},
+	"popup_json_error": {
+		"message": "JSON error: $1"
+	},
+	"popup_module_not_in_folder": {
+		"message": "Module \"$1\" is not in its own subfolder ($2)"
+	},
+	"popup_module_error": {
+		"message": "Error in module: $1"
+	},
+	"sidebar_page_title": {
+		"message": "AnalyticExtension - sidebar"
+	},
+	"onboarding_page_title": {
+		"message": "AnalyticExtension - welcome page (onboarding)"
+	},
+	"onboarding_empty_html": {
+		"message": "Nothing is shown on the welcome page yet. Send modules here in the <a href=\"./options.html\" target=\"_blank\">extension settings</a> with the “Show module output” option of each module."
+	},
+	"options_page_title": {
+		"message": "AnalyticExtension settings"
+	},
+	"options_heading": {
+		"message": "tabGroups extension settings"
+	},
+	"core_ui_language": {
+		"message": "Language"
+	},
+	"core_ui_language_browser": {
+		"message": "$1 - browser language"
+	},
+	"options_modules_list_json": {
+		"message": "Module list (JSON)"
+	},
+	"options_save_list": {
+		"message": "Save list"
+	},
+	"options_reset_list": {
+		"message": "Restore default list"
+	},
+	"options_modules_settings": {
+		"message": "Advanced settings"
+	},
+	"options_save_settings": {
+		"message": "Save settings"
+	},
+	"options_reset_defaults": {
+		"message": "Restore defaults"
+	},
+	"options_custom_module_settings": {
+		"message": "tabGroups settings"
+	},
+	"options_recommended_suffix": {
+		"message": " (recommended by the module)"
+	},
+	"options_hint_not_displayed": {
+		"message": "Nothing is ticked, so the module is not shown anywhere. Depending on its activation mode it may still work in the background."
+	},
+	"options_hint_disabled": {
+		"message": "The module is turned off (activation mode “Never start”), so it is not shown anywhere."
+	},
+	"options_error": {
+		"message": "Error: $1"
+	},
+	"options_modules_diff_differs": {
+		"message": "The saved module list differs from the default modules.json file."
+	},
+	"options_modules_diff_extra": {
+		"message": "Extra compared to modules.json:"
+	},
+	"options_modules_diff_missing": {
+		"message": "Missing compared to modules.json:"
+	},
+	"options_modules_diff_order_only": {
+		"message": "Same entries, only the order differs."
+	},
+	"options_invalid_json": {
+		"message": "Invalid JSON: $1"
+	},
+	"options_modules_saved": {
+		"message": "Module list saved."
+	},
+	"options_modules_reset": {
+		"message": "Module list restored to the default."
+	},
+	"options_drag_to_reorder": {
+		"message": "Drag to change the module's position in the list"
+	},
+	"options_activation_mode": {
+		"message": "Module activation mode"
+	},
+	"options_output_look": {
+		"message": "Output look (the same in all ticked places):"
+	},
+	"options_output_element": {
+		"message": "Output element"
+	},
+	"options_show_heading": {
+		"message": "with module heading"
+	},
+	"options_dependency_missing_suffix": {
+		"message": " (not in the module list, this part will not work)"
+	},
+	"options_dependency_needs": {
+		"message": "Needs module $1"
+	},
+	"options_dependency_dependents": {
+		"message": "Depended on by"
+	},
+	"options_optional_permission": {
+		"message": "Optional permission"
+	},
+	"options_permission_granted": {
+		"message": " (granted)"
+	},
+	"options_permission_not_granted": {
+		"message": " (not granted)"
+	},
+	"options_permission_unavailable": {
+		"message": " (not available in this browser)"
+	},
+	"options_dependencies_none": {
+		"message": "None: needs no other modules and no optional permissions."
+	},
+	"options_dependencies": {
+		"message": "Dependencies:"
+	},
+	"options_add_instance": {
+		"message": "+ Add $1"
+	},
+	"options_add_instance_title": {
+		"message": "Adds a new separate output of this module to the list; drag it by its heading to where it should appear."
+	},
+	"options_instance_added": {
+		"message": "Added: $1. Save its settings with “Save settings”."
+	},
+	"options_remove": {
+		"message": "Remove"
+	},
+	"options_remove_confirm": {
+		"message": "Really remove? Click again"
+	},
+	"options_instance_removed": {
+		"message": "Removed: $1."
+	},
+	"options_heading_always_visible": {
+		"message": "A collapsible element always shows its heading; the element expands from it."
+	},
+	"options_display_locations": {
+		"message": "Show module output (you can tick several places):"
+	},
+	"options_order_saved": {
+		"message": "Module order saved."
+	},
+	"options_no_module_settings": {
+		"message": "No module currently offers its own settings."
+	},
+	"options_custom_field_invalid": {
+		"message": "render() must return an element with a getValue() method"
+	},
+	"options_custom_field_failed": {
+		"message": "The field cannot be shown: $1"
+	},
+	"options_module_settings_saved": {
+		"message": "Module settings saved."
+	},
+	"options_module_settings_reset": {
+		"message": "Module settings restored to defaults."
+	},
+	"options_settings_saved": {
+		"message": "Settings saved."
+	},
+	"options_settings_reset": {
+		"message": "Settings restored to defaults."
+	},
+	"tabGroups_description": {
+		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were opened or — an option in Settings — when they were last used, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
+	},
+	"tabGroups_setting_group_by": {
+		"message": "Sort tabs into groups by"
+	},
+	"tabGroups_setting_group_by_opened": {
+		"message": "when the tab was opened — a tab stays in the group of the day it was opened"
+	},
+	"tabGroups_setting_group_by_last_used": {
+		"message": "when the tab was last used — a tab you switch to moves to the \"today\" group"
+	},
+	"tabGroups_setting_manual_moves": {
+		"message": "Allow dragging tabs between automatic groups — a tab dragged into another day's group (e.g. from \"today\" to \"yesterday\") stays there (when sorting by last use, until you switch to it again)"
+	},
+	"tabGroups_setting_title_prefix": {
+		"message": "Prefix before the names of all automatic groups (groups from bookmarks too), separated by a space — empty = no prefix"
+	},
+	"tabGroups_setting_title_prefix_placeholder": {
+		"message": "no prefix"
+	},
+	"tabGroups_setting_groups": {
+		"message": "Automatic tab groups (name, color and collapsed group for each period)"
+	},
+	"tabGroups_setting_bookmark_groups": {
+		"message": "Groups from bookmarks (group name, bookmark folder, whole-domain option, color and collapsed group)"
+	},
+	"tabGroups_color_grey": {
+		"message": "grey"
+	},
+	"tabGroups_color_blue": {
+		"message": "blue"
+	},
+	"tabGroups_color_red": {
+		"message": "red"
+	},
+	"tabGroups_color_yellow": {
+		"message": "yellow"
+	},
+	"tabGroups_color_green": {
+		"message": "green"
+	},
+	"tabGroups_color_pink": {
+		"message": "pink"
+	},
+	"tabGroups_color_purple": {
+		"message": "purple"
+	},
+	"tabGroups_color_cyan": {
+		"message": "cyan"
+	},
+	"tabGroups_color_orange": {
+		"message": "orange"
+	},
+	"tabGroups_bucket_today_title": {
+		"message": "today"
+	},
+	"tabGroups_bucket_today_range": {
+		"message": "today"
+	},
+	"tabGroups_bucket_yesterday_title": {
+		"message": "yesterday"
+	},
+	"tabGroups_bucket_yesterday_range": {
+		"message": "yesterday"
+	},
+	"tabGroups_bucket_day_before_yesterday_title": {
+		"message": "2 days ago"
+	},
+	"tabGroups_bucket_day_before_yesterday_range": {
+		"message": "2 days ago"
+	},
+	"tabGroups_bucket_this_week_title": {
+		"message": "this week"
+	},
+	"tabGroups_bucket_this_week_range": {
+		"message": "earlier this week (since Monday)"
+	},
+	"tabGroups_bucket_last_week_title": {
+		"message": "last week"
+	},
+	"tabGroups_bucket_last_week_range": {
+		"message": "last week"
+	},
+	"tabGroups_bucket_this_month_title": {
+		"message": "this month"
+	},
+	"tabGroups_bucket_this_month_range": {
+		"message": "earlier this month"
+	},
+	"tabGroups_bucket_last_month_title": {
+		"message": "last month"
+	},
+	"tabGroups_bucket_last_month_range": {
+		"message": "last month"
+	},
+	"tabGroups_bucket_this_year_title": {
+		"message": "this year"
+	},
+	"tabGroups_bucket_this_year_range": {
+		"message": "earlier this year"
+	},
+	"tabGroups_bucket_last_year_title": {
+		"message": "last year"
+	},
+	"tabGroups_bucket_last_year_range": {
+		"message": "last year and earlier"
+	},
+	"tabGroups_loading": {
+		"message": "$1: Loading tab groups..."
+	},
+	"tabGroups_disabled": {
+		"message": "$1: Disabled"
+	},
+	"tabGroups_intro_opened": {
+		"message": "$1: tabs outside your own groups are sorted into groups automatically by when they were opened."
+	},
+	"tabGroups_intro_last_used": {
+		"message": "$1: tabs outside your own groups are sorted into groups automatically by when they were last used."
+	},
+	"tabGroups_intro_opened_bookmarks": {
+		"message": "$1: tabs outside your own groups are sorted into groups automatically by when they were opened, and bookmarked tabs in the chosen folders into groups from bookmarks."
+	},
+	"tabGroups_intro_last_used_bookmarks": {
+		"message": "$1: tabs outside your own groups are sorted into groups automatically by when they were last used, and bookmarked tabs in the chosen folders into groups from bookmarks."
+	},
+	"tabGroups_unsupported": {
+		"message": "This browser doesn't let extensions manage tab groups (Chrome 89+, Firefox 139+ on desktop)."
+	},
+	"tabGroups_missing_permission": {
+		"message": "Tab groups permission is missing — nothing is being sorted yet."
+	},
+	"tabGroups_grant_tab_groups": {
+		"message": "Allow tab groups"
+	},
+	"tabGroups_missing_alarms": {
+		"message": "Without the alarms permission, groups move on after midnight only the next time you work with tabs."
+	},
+	"tabGroups_grant_alarms": {
+		"message": "Move exactly at midnight"
+	},
+	"tabGroups_missing_bookmarks": {
+		"message": "Groups from bookmarks need access to bookmarks and tab addresses — they aren't used yet."
+	},
+	"tabGroups_grant_bookmarks": {
+		"message": "Allow bookmarks and tab addresses"
+	},
+	"tabGroups_regroup_now": {
+		"message": "Regroup now"
+	},
+	"tabGroups_group_settings": {
+		"message": "Group settings"
+	},
+	"tabGroups_identify": {
+		"message": "Identify managed groups"
+	},
+	"tabGroups_identify_title": {
+		"message": "Groups the module manages automatically briefly blink in all windows"
+	},
+	"tabGroups_overview_elsewhere": {
+		"message": "The window's group overview is in the popup, side panel or Settings."
+	},
+	"tabGroups_overview_not_sorted": {
+		"message": "Tabs in this window haven't been sorted yet — try \"Regroup now\"."
+	},
+	"tabGroups_overview_no_groups": {
+		"message": "There's no automatic group in this window yet (tabs are in your own groups or pinned)."
+	},
+	"tabGroups_chip_opened": {
+		"message": "Tabs opened $1: $2"
+	},
+	"tabGroups_chip_last_used": {
+		"message": "Tabs last used $1: $2"
+	},
+	"tabGroups_chip_bookmarks": {
+		"message": "Tabs $1: $2"
+	},
+	"tabGroups_user_groups": {
+		"message": "Your own groups to the left of them: $1"
+	},
+	"tabGroups_no_response": {
+		"message": "The module's background part didn't respond — try reloading the extension."
+	},
+	"tabGroups_regrouped": {
+		"message": "Tabs have been regrouped."
+	},
+	"tabGroups_nothing_to_regroup": {
+		"message": "All tabs are already in the right group."
+	},
+	"tabGroups_identified_one": {
+		"message": "$1 group managed by the module blinked (in all windows)."
+	},
+	"tabGroups_identified_other": {
+		"message": "$1 groups managed by the module blinked (in all windows)."
+	},
+	"tabGroups_identified_none": {
+		"message": "The module currently manages no group."
+	},
+	"tabGroups_identify_error": {
+		"message": "Identifying the groups failed: $1"
+	},
+	"tabGroups_problem_disabled": {
+		"message": "The module is disabled or not in the module list — tabs aren't being sorted."
+	},
+	"tabGroups_problem_unavailable": {
+		"message": "Tab groups permission is missing."
+	},
+	"tabGroups_problem_error": {
+		"message": "Regrouping failed: $1"
+	},
+	"tabGroups_unknown_error": {
+		"message": "unknown error"
+	},
+	"tabGroups_bookmarks_fallback_title": {
+		"message": "Bookmarks"
+	},
+	"tabGroups_bookmarks_describe_domain": {
+		"message": "on the domains of bookmarks in the \"$1\" folder"
+	},
+	"tabGroups_bookmarks_describe_folder": {
+		"message": "from bookmarks in the \"$1\" folder"
+	},
+	"tabGroups_folder_untitled": {
+		"message": "(untitled)"
+	},
+	"tabGroups_folder_in_account": {
+		"message": "$1 (in account)"
+	},
+	"tabGroups_folder_device_only": {
+		"message": "$1 (on this device only)"
+	},
+	"tabGroups_editor_hint": {
+		"message": "Tabs that aren't in a group of your own are sorted into a period group automatically by when they were opened or when they were last used (option above). The module recognizes its groups by name — don't give any of your own groups the same name."
+	},
+	"tabGroups_editor_period": {
+		"message": "Period"
+	},
+	"tabGroups_editor_group_name": {
+		"message": "Group name"
+	},
+	"tabGroups_editor_color": {
+		"message": "Color"
+	},
+	"tabGroups_editor_title_aria": {
+		"message": "Group name for the period $1"
+	},
+	"tabGroups_editor_color_aria": {
+		"message": "Group color for the period $1"
+	},
+	"tabGroups_editor_color_default": {
+		"message": "$1 (default)"
+	},
+	"tabGroups_editor_collapsed_aria": {
+		"message": "Collapsed group for the period $1"
+	},
+	"tabGroups_editor_duplicates": {
+		"message": "Group names must not repeat ($1) — a repeated name is saved as the period's default name."
+	},
+	"tabGroups_quoted": {
+		"message": "\"$1\""
+	},
+	"tabGroups_editor_collapsed_title": {
+		"message": "A new group is created collapsed — but if it contains the currently open tab, it stays expanded so the browser doesn't switch elsewhere. The module never collapses or expands an existing group."
+	},
+	"tabGroups_editor_collapsed": {
+		"message": "collapsed group"
+	},
+	"tabGroups_bookmarks_hint": {
+		"message": "A tab whose address is bookmarked in the chosen folder (including subfolders) goes into the group from bookmarks instead of a period group; the whole address is compared, without the part after #. If a tab belongs to several groups, the first row wins. Groups from bookmarks sit in the tab bar between your own groups and the periods."
+	},
+	"tabGroups_bookmarks_folder": {
+		"message": "Bookmark folder"
+	},
+	"tabGroups_bookmarks_empty": {
+		"message": "No groups from bookmarks."
+	},
+	"tabGroups_bookmarks_add": {
+		"message": "Add group from bookmarks"
+	},
+	"tabGroups_bookmarks_choose_folder": {
+		"message": "— choose a bookmark folder —"
+	},
+	"tabGroups_bookmarks_folder_not_found": {
+		"message": "$1 (folder not found)"
+	},
+	"tabGroups_bookmarks_folder_name": {
+		"message": "folder name"
+	},
+	"tabGroups_bookmarks_duplicates": {
+		"message": "Group names must not repeat or match a period name ($1) — a repeated name gets a sequence number."
+	},
+	"tabGroups_bookmarks_without_folder": {
+		"message": "A row without a selected folder won't be used."
+	},
+	"tabGroups_bookmarks_title_aria": {
+		"message": "Name of the group from bookmarks (empty = folder name)"
+	},
+	"tabGroups_bookmarks_whole_domain_title": {
+		"message": "The group also gets tabs with other addresses on the domain of any bookmark in the folder: with a bookmark some.tld, e.g. some.tld/folder/file.html. The www. prefix doesn't count (some.tld and www.some.tld are the same domain), other subdomains do."
+	},
+	"tabGroups_bookmarks_whole_domain": {
+		"message": "all URLs on the bookmark's domain"
+	},
+	"tabGroups_bookmarks_color_aria": {
+		"message": "Color of the group from bookmarks"
+	},
+	"tabGroups_bookmarks_collapsed_aria": {
+		"message": "Collapsed group from bookmarks"
+	},
+	"tabGroups_bookmarks_remove": {
+		"message": "Remove group from bookmarks"
+	},
+	"tabGroups_bookmarks_missing_permission": {
+		"message": "Groups from bookmarks need access to bookmarks and tab addresses — without it they aren't used and no folder can be chosen."
+	},
+	"tabGroups_bookmarks_permission_here": {
+		"message": "It can't be granted here — allow it in Settings, the popup or the side panel."
+	}
+}

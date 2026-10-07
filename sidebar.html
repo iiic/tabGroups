@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title data-i18n="sidebar_page_title">AnalyticExtension - sidebar</title>
+	<link rel="stylesheet" href="./css/mvp.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/theme-light.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/sidebar.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/module-frame.css" crossorigin="anonymous">
+	<!-- Volba vzhledu (světlý/tmavý) — přepíná ji modul styleSwitch (modules/styleSwitch/pageStyles.mjs), href musí být na všech stránkách stejné. -->
+	<link rel="alternate stylesheet" href="./css/theme-light.css" title="Světlý" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/theme-dark.css" title="Tmavý" media="(prefers-color-scheme: dark)" crossorigin="anonymous">
+</head>
+
+<body>
+	<div id="modules-output"></div>
+
+	<script type="module" src="./sidebar.mjs" crossorigin="anonymous"></script>
+</body>
+
+</html>

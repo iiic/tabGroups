@@ -1,0 +1,57 @@
+/* Rám kolem vlastního elementu modulu — viz BaseController.mountModuleElement()
+   v base.mjs a nastavení „Element výpisu dat“ (OUTPUT_ELEMENTS) v Nastavení.
+   Sdílený všemi plochami výstupu (popup/sidebar/options).
+
+   Vlastní elementy (custom elements) modulů nemají ve výchozím stavu žádný
+   styl a prohlížeč je zobrazuje jako "display: inline" — jak se mají
+   zobrazit, určuje až typ rámu níž (dřív to za všechny moduly vynucovalo
+   pravidlo "#modules-output > * { display: block }" v CSS každé plochy). */
+
+.module-frame-heading {
+	font-weight: 600;
+}
+
+/* Vypnutý nadpis („s nadpisem modulu“) v rámu zůstává, jen s atributem
+   hidden — pravidla níž nastavují display všem přímým potomkům rámu, a tím
+   by obecné [hidden] { display: none } z mvp.css přebila. */
+.module-frame-heading[hidden] {
+	display: none;
+}
+
+/* Řádkový — rám, nadpis i element modulu tečou v řádku, víc řádkových
+   modulů za sebou skončí vedle sebe. */
+.module-frame--inline,
+.module-frame--inline > * {
+	display: inline;
+}
+.module-frame--inline {
+	margin-right: 8px;
+}
+.module-frame--inline > .module-frame-heading {
+	margin-right: 4px;
+}
+
+/* Blokový — pod sebou, přes celou šířku (stejný vzhled jako před zavedením
+   rámu). */
+.module-frame--block > *,
+.module-frame--indented > * {
+	display: block;
+}
+.module-frame--block > .module-frame-heading,
+.module-frame--indented > .module-frame-heading {
+	margin-top: 8px;
+}
+
+/* Odsazený blokový — jako blokový, jen obsah modulu (ne nadpis) je
+   odsazený zleva. */
+.module-frame--indented > :not(.module-frame-heading) {
+	margin-left: 16px;
+}
+
+/* Uzavíratelný — <details>/<summary>, nadpis (summary) je vidět vždy. */
+details.module-frame {
+	margin: 8px 0 0;
+}
+details.module-frame > :not(summary) {
+	display: block;
+}
