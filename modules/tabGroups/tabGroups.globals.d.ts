@@ -55,3 +55,11 @@ declare namespace Classes {
 		const observedAttributes: string[];
 	}
 }
+
+declare namespace Functions {
+	namespace TabGroups {
+		namespace Element {
+			type onTabUpdated = ( tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo ) => void;
+		}
+	}
+}

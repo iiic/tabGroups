@@ -213,6 +213,7 @@
 
 /* Kolečko s náhledem barvy vedle výběru v editoru — rozměry v px, ať s nimi
    jde počítat i v šířce výběru (jiná velikost písma než buňka). */
+/* stylelint-disable-next-line no-duplicate-selectors -- proměnné náhledu patří k této sekci */
 .tab-groups-editor {
 	--tab-groups-swatch-size: 16px;
 	--tab-groups-swatch-gap: 6px;

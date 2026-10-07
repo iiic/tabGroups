@@ -66,6 +66,9 @@ class ExtensionTabGroups extends /** @type {Types.WithFields<typeof BaseElement,
 
 	constructor() {
 		super();
+		// Prázdné i před init() — disconnectedCallback() může přijít dřív.
+		/** @type {Classes.ExtensionTabGroups['_unsubscribe']} */
+		this._unsubscribe = [];
 	}
 
 	/**

@@ -962,15 +962,15 @@ class OptionsController extends BaseController
 	_createCustomControl ( field, value, settings )
 	{
 		try {
-			const control = field.render( value, settings );
+			const control = /** @type {Partial<Types.CustomSettingControl> | undefined} */ ( field.render?.( value, settings ) );
 			if ( !control || typeof control.getValue !== "function" ) {
 				throw new Error( t( "options_custom_field_invalid" ) );
 			}
-			return control;
+			return /** @type {Types.CustomSettingControl} */ ( control );
 		} catch ( err ) {
 			console.error( `Nelze vykreslit vlastní pole "${ field.key }":`, err );
 			// Metodu getValue() dostane o pár řádků níž.
-			const fallback = /** @type {Types.FallbackSettingControl} */ ( document.createElement( "div" ) );
+			const fallback = /** @type {Types.FallbackSettingControl} */ ( /** @type {HTMLElement} */ ( document.createElement( "div" ) ) );
 			fallback.className = "no-settings";
 			fallback.textContent = t( "options_custom_field_failed", /** @type {Error} */( err ).message );
 			fallback.getValue = () => value;

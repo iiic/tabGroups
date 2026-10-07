@@ -1,0 +1,77 @@
+# Kontroly a testy po každém pushi do main a u každého pull requestu.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Kontroly a testy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalace závislostí
+        id: install
+        run: npm ci
+
+      # Každá kontrola běží, i když předchozí selže — v jednom běhu jsou
+      # vidět všechny problémy najednou.
+      - name: Validace projektu (verze, odkazy na soubory, překlady)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run validate
+
+      - name: Kontrola typů (TypeScript)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run typecheck
+
+      - name: ESLint (JavaScript)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run lint:js
+
+      - name: Stylelint (CSS)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run lint:css
+
+      - name: html-validate (HTML)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run lint:html
+
+      - name: web-ext lint (manifest a pravidla addons.mozilla.org)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run lint:ext
+
+      - name: Testy s pokrytím kódu
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run test:coverage
+
+      - name: Obsah balíčku npm
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm pack --dry-run
+
+      - name: Sestavení rozšíření (zip)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run build
+
+      - name: Uložení zipu rozšíření
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: extension-${{ github.sha }}
+          path: web-ext-artifacts/*.zip
+          if-no-files-found: error

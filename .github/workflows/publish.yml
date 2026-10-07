@@ -1,0 +1,53 @@
+# Publikace na npm po vydání (GitHub → Releases → Draft a new release, tag
+# vX.Y.Z odpovídající verzi v package.json). Před publikací proběhnou všechny
+# kontroly (skript prepublishOnly). Zip rozšíření se přiloží k vydání.
+#
+# Přihlášení k npm: Trusted Publishing (npmjs.com → balíček → Settings →
+# Trusted Publisher → GitHub Actions, workflow publish.yml) — bez tokenu.
+# Dokud není nastavené, použije se secret NPM_TOKEN (granular access token).
+name: Publikace na npm
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write # přiložení zipu k vydání
+  id-token: write # Trusted Publishing a provenance na npm
+
+jobs:
+  publish:
+    name: npm publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Instalace závislostí
+        run: npm ci
+
+      - name: Tag vydání odpovídá verzi v package.json
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME#v}" != "$version" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} neodpovídá verzi ${version} v package.json"
+            exit 1
+          fi
+
+      - name: Publikace (s kontrolami z prepublishOnly)
+        run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Sestavení rozšíření (zip)
+        run: npm run build
+
+      - name: Přiložení zipu k vydání
+        run: gh release upload "$GITHUB_REF_NAME" web-ext-artifacts/*.zip --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}

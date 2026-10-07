@@ -111,6 +111,7 @@ import "./modules-background.mjs";
 
 	// Firefox sidebar_action z manifestu nejde dynamicky odebrat. Když ale
 	// žádné uložené umístění modulu sidebar neobsahuje, zavři případně otevřený panel.
+	/** @type {Functions.Background.closeSidebarWhenUnused} */
 	async function closeSidebarWhenUnused ( settings )
 	{
 		const sidebarAction = Reflect.get( chrome, "sidebarAction" );
@@ -134,7 +135,7 @@ import "./modules-background.mjs";
 	{
 		try {
 			const stored = await chrome.storage.local.get( base.SETTINGS_KEY );
-			await closeSidebarWhenUnused( stored[ base.SETTINGS_KEY ] || {} );
+			await closeSidebarWhenUnused( /** @type {Types.ModuleSettings} */ ( stored[ base.SETTINGS_KEY ] || {} ) );
 		} catch ( err ) {
 			console.error( "Kontrola nastavení sidebaru selhala:", err );
 		}

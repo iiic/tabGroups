@@ -1,0 +1,12 @@
+#!/bin/sh
+# Rychlé kontroly před každým commitem. Hook zapne `npm install` (skript
+# "prepare" v package.json nastaví git config core.hooksPath .githooks).
+# Úplné kontroly (i web-ext lint) běží na GitHubu a před `npm publish`.
+# Výjimečně přeskočit: git commit --no-verify
+set -e
+npm run --silent validate
+npm run --silent typecheck
+npm run --silent lint:js
+npm run --silent lint:css
+npm run --silent lint:html
+npm test --silent

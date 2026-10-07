@@ -64,9 +64,10 @@ class PopupController extends BaseController
 			// výchozí hodnoty odfiltruje až initModules(). Vypnutý modul nic
 			// nevypisuje — ani poznámku, že je vypnutý.
 			// Pod holým jménem modulu (u instance pod "<modul>#<id>") je uložený
-			// jeho aktivační režim (nebo nic). Vypnutá instance nebrání importu
-			// modulu kvůli jiné, zapnuté instanci.
-			if ( DISABLED_SPEC.isSatisfiedBy( { mode: /** @type {Enums.ActivationMode | undefined} */ ( settings[ key ] ) } ) ) {
+			// jeho aktivační režim (nebo nic — pak getModuleMode() bez výchozí
+			// hodnoty modulu vrátí DEFAULT_MODE, tedy ne "disabled"). Vypnutá
+			// instance nebrání importu modulu kvůli jiné, zapnuté instanci.
+			if ( DISABLED_SPEC.isSatisfiedBy( { mode: getModuleMode( settings, key ) } ) ) {
 				continue;
 			}
 			imported.add( path );

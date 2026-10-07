@@ -61,7 +61,7 @@ declare namespace Types {
 			hidden: boolean;
 			lastAccessed?: number;
 		};
-		type GroupInfo = { id: number; windowId?: number; title: string; color: GroupColor; shared?: boolean; collapsed?: boolean };
+		type GroupInfo = { id: number; windowId?: number; title?: string; color: GroupColor; shared?: boolean; collapsed?: boolean };
 		type GroupIdEntry = { key: string; title: string; day: number };
 		type GroupCandidate = { groupId: number; bucket: number; count: number; sameTarget: boolean; first: number };
 		type WindowPlan = {
@@ -87,7 +87,7 @@ declare namespace Functions {
 				knownTitles: Array<[string, string]>;
 				openedDays: Record<number, number>;
 				usedDays: Record<number, number>;
-				referenceDay: number;
+				referenceDay: number | null;
 				today: number;
 				dayOf: ( timestamp: number ) => number;
 				groupBy: Types.TabGroups.GroupBy;

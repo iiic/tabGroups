@@ -23,6 +23,10 @@
 		"**/*.globals.d.ts"
 	],
 	"exclude": [
-		"node_modules"
+		"node_modules",
+		"scripts",
+		"test",
+		"eslint.config.js",
+		"web-ext-artifacts"
 	]
 }

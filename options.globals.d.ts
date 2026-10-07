@@ -14,7 +14,7 @@ declare namespace Classes {
 		saveModuleSettingsBtn: HTMLButtonElement;
 		resetModuleSettingsBtn: HTMLButtonElement;
 		_moduleDefs: Types.ModuleDescriptor[];
-		_draggedRow: HTMLElement | null;
+		_draggedRow: Element | null;
 		loadModulesListEditor(): Promise<void>;
 		_showModulesListDiff(): Promise<void>;
 		_compareModuleLists( userList: string[], defaultList: string[] ): { extra: string[]; missing: string[] };
@@ -44,7 +44,7 @@ declare namespace Classes {
 		): HTMLLabelElement;
 		_createLabeledCheckbox( labelText: string, checkboxClassName: string, moduleKey: string, checked: boolean ): HTMLLabelElement;
 		_initDragToReorder(): void;
-		_rowAfterPoint( y: number ): HTMLElement | null;
+		_rowAfterPoint( y: number ): Element | null;
 		_persistModuleOrder( status?: string ): Promise<void>;
 		_refreshModules( paths: string[], settings: Types.ModuleSettings ): Promise<void>;
 		renderModuleSettings( moduleDefs: Types.ModuleDescriptor[], settings: Types.ModuleSettings ): void;

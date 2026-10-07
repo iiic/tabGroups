@@ -1,3 +1,7 @@
+// Moduly zaregistrované přes registerModule() (base.mjs) — sdílené všemi
+// skripty stránky, i těmi, které base.mjs načtou zvlášť.
+declare var __extensionModules: Types.ModuleDescriptor[];
+
 declare namespace Enums {
 	type ActivationMode = "background" | "focus" | "icon_click" | "popup" | "install" | "disabled";
 	type RenderLocation = "popup" | "sidebar" | "options" | "onboarding";
@@ -6,7 +10,10 @@ declare namespace Enums {
 }
 
 declare namespace Types {
-	type WithFields<T extends typeof HTMLElement, Fields> = T & (
+	// Statické členy T (Pick zahodí konstrukční signaturu) a jediná konstrukční
+	// signatura s poli — průnik s celým T by měl dvě signatury s různým
+	// výsledkem a třída by z něj nešla odvodit (TS2510).
+	type WithFields<T extends typeof HTMLElement, Fields> = Pick<T, keyof T> & (
 		new ( ...args: ConstructorParameters<T> ) => InstanceType<T> & Fields
 	);
 	type SpecificationContext = {
@@ -56,6 +63,9 @@ declare namespace Types {
 		defaultOutputElement?: Types.OutputElementOption["value"];
 		defaultShowHeading?: boolean;
 		settingsSchema?: SettingField[];
+		multiInstance?: boolean;
+		instanceSettingsSchema?: SettingField[];
+		dependsOn?: Array<{ module: string; reason: string }>;
 		usesPermissions?: PermissionSet[];
 		pageInit?: ( context: { api: ModuleApi; location: Enums.RenderLocation } ) => void | Promise<void>;
 		[key: string]: unknown;
@@ -89,6 +99,8 @@ declare namespace Types {
 			onChange( handler: () => void ): () => void;
 		};
 	};
+	// Element modulu (custom element podle mod.tag) — init() má jen BaseElement.
+	type ModuleElement = HTMLElement & Partial<Pick<Classes.BaseElement, "init">>;
 	type ModuleEntry = { entry: string; path: string; name: string; instance: string | null; key: string };
 	type ResolvedModuleEntry = ModuleEntry & { mod: ModuleDescriptor };
 	type ModuleRowCandidate = { offset: number; row: Element | null };
@@ -177,7 +189,7 @@ declare namespace Classes {
 			output: HTMLElement,
 			before?: Node | null,
 			key?: string
-		): HTMLElement;
+		): Types.ModuleElement;
 		renderModulesFor( location: Enums.RenderLocation, output: HTMLElement ): Promise<void>;
 		_updateModuleSlot(
 			slot: Types.ModuleSlot,
@@ -192,7 +204,18 @@ declare namespace Classes {
 
 declare namespace Functions {
 	namespace Base {
-		type registerBackgroundScript = ( definition: {
+		type registerModule = ( moduleDef: Types.ModuleDescriptor ) => void;
+		type getModuleMode = (
+			settings: Types.ModuleSettings,
+			moduleName: string,
+			moduleDefaultMode?: Enums.ActivationMode
+		) => Enums.ActivationMode;
+		namespace BaseController {
+			namespace renderModulesFor {
+				type update = () => Promise<void>;
+			}
+		}
+		type registerBackgroundScript =( definition: {
 			name: string;
 			setup: ( input: { api: Types.ModuleApi } ) => void | Promise<void>;
 		} ) => void;

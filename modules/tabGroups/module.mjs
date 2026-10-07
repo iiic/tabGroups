@@ -20,16 +20,16 @@ export const DESCRIPTION = t( "tabGroups_description" );
 // background/focus/popup nuance (stejně jako backByBackspace). Element
 // (přehled skupin aktuálního okna) nezávisí na aktivní záložce.
 export const ACTIVATION_SPEC = NOT_DISABLED_SPEC;
-/** @type {Types.ModuleDescriptor['DEFAULT_ACTIVATION_MODE']} */
+/** @type {Types.ModuleDescriptor['defaultActivationMode']} */
 export const DEFAULT_ACTIVATION_MODE = "background";
-/** @type {Types.ModuleDescriptor['DEFAULT_DISPLAY_LOCATION']} */
+/** @type {Types.ModuleDescriptor['defaultDisplayLocation']} */
 export const DEFAULT_DISPLAY_LOCATION = "sidebar";
 
 // Krátký přehled (řada barevných štítků a dvě tlačítka), má být vidět hned
 // celý — blokový element. Nadpis ne, výpis začíná jménem modulu.
-/** @type {Types.ModuleDescriptor['DEFAULT_OUTPUT_ELEMENT']} */
+/** @type {Types.ModuleDescriptor['defaultOutputElement']} */
 export const DEFAULT_OUTPUT_ELEMENT = "block";
-/** @type {Types.ModuleDescriptor['DEFAULT_SHOW_HEADING']} */
+/** @type {Types.ModuleDescriptor['defaultShowHeading']} */
 export const DEFAULT_SHOW_HEADING = false;
 
 // Vzhled přehledu i editoru nastavení (barevné štítky skupin).
@@ -74,9 +74,11 @@ export const BOOKMARK_GROUPS_KEY = "bookmarkGroups";
 
 // Element → background část: přeskup karty hned (tlačítko „Přeskupit teď“).
 // Odpověď: Types.TabGroups.RegroupResult.
+/** @type {"TAB_GROUPS_REGROUP_NOW"} */
 export const REGROUP_MESSAGE = "TAB_GROUPS_REGROUP_NOW";
 // Element → background část: zablikat skupinami, které modul řídí (tlačítko
 // „Identifikovat řízené skupiny“). Odpověď: Types.TabGroups.IdentifyResult.
+/** @type {"TAB_GROUPS_IDENTIFY"} */
 export const IDENTIFY_MESSAGE = "TAB_GROUPS_IDENTIFY";
 
 // Klíče vlastního stavu modulu (api.state/api.sessionState) — zapisuje je

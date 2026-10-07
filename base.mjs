@@ -874,7 +874,7 @@ export class BaseController {
 	async loadSettings() {
 		return new Promise((resolve) => {
 			chrome.storage.local.get([SETTINGS_KEY], (/** @type {Types.StorageLocal} */ result) => {
-				this._settings = result[SETTINGS_KEY] || {};
+				this._settings = /** @type {Types.ModuleSettings} */ (result[SETTINGS_KEY] || {});
 				resolve(this._settings);
 			});
 		});
@@ -893,7 +893,7 @@ export class BaseController {
 		return new Promise((resolve, reject) => {
 			chrome.storage.local.get([MODULES_JSON_KEY], (/** @type {Types.StorageLocal} */ result) => {
 				if (result[MODULES_JSON_KEY]) {
-					resolve(result[MODULES_JSON_KEY]);
+					resolve(/** @type {string} */ (result[MODULES_JSON_KEY]));
 				} else {
 					// Seznam v úložišti je jen tehdy, když se od modules.json liší
 					// (viz saveModulesJson) — jinak platí přímo modules.json.
@@ -910,7 +910,7 @@ export class BaseController {
 			res = await fetch(chrome.runtime.getURL("modules.json"));
 		} catch (err) {
 			// Chybějící soubor v balíčku je chyba sítě, ne odpověď 404.
-			throw new Error(t("core_default_modules_load_failed", /** @type {Error} */ (err).message));
+			throw new Error(t("core_default_modules_load_failed", /** @type {Error} */ (err).message), { cause: err });
 		}
 		if (!res.ok) {
 			throw new Error(t("core_default_modules_load_failed", res.status));
@@ -1168,7 +1168,7 @@ export class BaseController {
 			frame.dataset.moduleKey = key;
 		}
 		if (outputElement.collapsible) {
-			/** @type {HTMLDetailsElement} */ (frame).open = outputElement.open;
+			/** @type {HTMLDetailsElement} */ (frame).open = outputElement.open === true;
 		}
 
 		const heading = document.createElement(outputElement.collapsible ? "summary" : "div");
@@ -1346,7 +1346,7 @@ export function createModuleApi(moduleName, instance = null) {
 	async function readAllSettings() {
 		return new Promise((resolve) => {
 			chrome.storage.local.get([SETTINGS_KEY], (/** @type {Types.StorageLocal} */ result) => {
-				resolve(result[SETTINGS_KEY] || {});
+				resolve(/** @type {Types.ModuleSettings} */ (result[SETTINGS_KEY] || {}));
 			});
 		});
 	}
@@ -1366,10 +1366,16 @@ export function createModuleApi(moduleName, instance = null) {
 			return area;
 		};
 		return {
+			/**
+			 * @template T
+			 * @param {string} key
+			 * @param {T} [defaultValue]
+			 * @returns {Promise<T>}
+			 */
 			async get(key, defaultValue) {
 				const storageKey = getModuleStateKey(moduleName, key);
 				const result = /** @type {Record<string, unknown>} */ (await storageArea().get(storageKey));
-				return result[storageKey] !== undefined ? result[storageKey] : defaultValue;
+				return /** @type {T} */ (result[storageKey] !== undefined ? result[storageKey] : defaultValue);
 			},
 			async set(key, value) {
 				await storageArea().set({ [getModuleStateKey(moduleName, key)]: value });
@@ -1475,8 +1481,9 @@ export function createModuleApi(moduleName, instance = null) {
 				// Přetypování místo @type: posluchač smí vrátit true (asynchronní
 				// sendResponse), tvar z @types/chrome ale deklaruje návrat void.
 				const listener = /** @type {Types.RuntimeMessageListener} */ ((message, sender, sendResponse) => {
-					if (message && message.type === type) {
-						return handler(message, sender, sendResponse);
+					const typed = /** @type {Types.AnyMessage | null | undefined} */ (message);
+					if (typed && typed.type === type) {
+						return handler(typed, sender, sendResponse);
 					}
 				});
 				chrome.runtime.onMessage.addListener(listener);
@@ -1609,7 +1616,7 @@ export class BaseElement extends /** @type {Types.WithFields<typeof HTMLElement,
 	}
 
 	/** @type {Classes.BaseElement['init']} */
-	async init({ outputEl, name, mode, location, instance }) {
+	async init({ name, mode, location, instance }) {
 		this._name = name;
 		this._mode = mode || "popup";
 		// Id instance modulu s vícenásobnými instancemi (viz

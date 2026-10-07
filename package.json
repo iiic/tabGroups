@@ -1,12 +1,84 @@
 {
 	"name": "tabgroups-extension",
-	"private": true,
+	"version": "1.0.0",
+	"description": "Extension for browsers to sort tabs into groups by time (day)",
+	"keywords": [
+		"browser-extension",
+		"webextension",
+		"firefox",
+		"tabs",
+		"tab-groups",
+		"sidebar"
+	],
+	"homepage": "https://github.com/iiic/tabGroups#readme",
+	"bugs": {
+		"url": "https://github.com/iiic/tabGroups/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/iiic/tabGroups.git"
+	},
+	"license": "CC0-1.0",
+	"author": "iiic",
 	"type": "module",
+	"main": "sdk.mjs",
+	"files": [
+		"_locales/",
+		"css/",
+		"modules/",
+		"!**/*.globals.d.ts",
+		"*.html",
+		"*.mjs",
+		"background.js",
+		"manifest.json",
+		"default-settings.json",
+		"modules.json",
+		"icon.png"
+	],
 	"scripts": {
-		"typecheck": "tsc --noEmit"
+		"check": "npm run validate && npm run typecheck && npm run lint && npm test",
+		"validate": "node scripts/validate.mjs",
+		"lint": "npm run lint:js && npm run lint:css && npm run lint:html && npm run lint:ext",
+		"lint:js": "eslint .",
+		"lint:css": "stylelint \"**/*.css\"",
+		"lint:html": "html-validate \"*.html\"",
+		"lint:ext": "web-ext lint",
+		"typecheck": "tsc --noEmit",
+		"test": "node --test \"test/**/*.test.mjs\"",
+		"test:coverage": "node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" \"test/**/*.test.mjs\"",
+		"start": "web-ext run",
+		"build": "web-ext build",
+		"version": "node scripts/sync-version.mjs && git add manifest.json",
+		"prepare": "git config core.hooksPath .githooks || exit 0",
+		"prepublishOnly": "npm run check"
+	},
+	"webExt": {
+		"ignoreFiles": [
+			"coverage",
+			"coverage/**",
+			"scripts",
+			"scripts/**",
+			"test",
+			"test/**",
+			"**/*.globals.d.ts",
+			"eslint.config.js",
+			"tsconfig.json",
+			"package.json",
+			"package-lock.json"
+		],
+		"build": {
+			"overwriteDest": true
+		}
 	},
 	"devDependencies": {
+		"@eslint/js": "^10.0.1",
 		"@types/chrome": "^0.3.4",
-		"typescript": "^7.0.2"
+		"eslint": "^10.12.0",
+		"globals": "^17.13.0",
+		"html-validate": "^11.16.2",
+		"stylelint": "^17.16.0",
+		"stylelint-config-recommended": "^18.0.0",
+		"typescript": "^7.0.2",
+		"web-ext": "^10.7.0"
 	}
 }
