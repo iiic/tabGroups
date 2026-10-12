@@ -1,6 +1,6 @@
 {
 	"name": "tabgroups-extension",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Extension for browsers to sort tabs into groups by time (day)",
 	"keywords": [
 		"browser-extension",
