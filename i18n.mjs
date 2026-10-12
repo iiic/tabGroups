@@ -216,13 +216,59 @@ export function tp(key, count, ...substitutions) {
 // ="klíč" hodnotu atributu (title, placeholder, aria-label, alt, value).
 const I18N_ATTRIBUTES = ["title", "placeholder", "aria-label", "alt", "value"];
 
+// Povolené značky a jejich atributy v data-i18n-html textech. Nic jiného
+// (script, on* atributy, style…) se do stránky nedostane — ani z překladu.
+/** @type {Record<string, string[]>} */
+const I18N_HTML_TAGS = { A: ["href", "target", "rel"], B: [], STRONG: [], I: [], EM: [], SMALL: [], CODE: [], BR: [] };
+
+// Bezpečná náhrada innerHTML: text se rozparsuje přes DOMParser (nic se v něm
+// nespustí) a do stránky se překopírují jen povolené uzly. U nepovolené značky
+// zůstane jen její obsah.
+/**
+ * @param {Node} source
+ * @param {Node} target
+ */
+function copyAllowedNodes(source, target) {
+	for (const node of source.childNodes) {
+		if (node.nodeType === Node.TEXT_NODE) {
+			target.appendChild(document.createTextNode(node.textContent || ""));
+		} else if (node instanceof Element) {
+			const allowedAttributes = I18N_HTML_TAGS[node.tagName];
+			if (!allowedAttributes) {
+				copyAllowedNodes(node, target);
+				continue;
+			}
+			const el = document.createElement(node.tagName.toLowerCase());
+			for (const name of allowedAttributes) {
+				const value = node.getAttribute(name);
+				if (value === null) continue;
+				if (name === "href" && /^\s*(javascript|data|vbscript):/i.test(value)) continue;
+				el.setAttribute(name, value);
+			}
+			copyAllowedNodes(node, el);
+			target.appendChild(el);
+		}
+	}
+}
+
+/**
+ * @param {Element} el
+ * @param {string} html
+ */
+function setSafeHtml(el, html) {
+	const parsed = new DOMParser().parseFromString(html, "text/html");
+	const fragment = document.createDocumentFragment();
+	copyAllowedNodes(parsed.body, fragment);
+	el.replaceChildren(fragment);
+}
+
 /** @type {Functions.I18n.applyI18n} */
 export function applyI18n(root = document) {
 	for (const el of root.querySelectorAll("[data-i18n]")) {
 		el.textContent = t(el.getAttribute("data-i18n") || "");
 	}
 	for (const el of root.querySelectorAll("[data-i18n-html]")) {
-		el.innerHTML = t(el.getAttribute("data-i18n-html") || "");
+		setSafeHtml(el, t(el.getAttribute("data-i18n-html") || ""));
 	}
 	for (const attr of I18N_ATTRIBUTES) {
 		for (const el of root.querySelectorAll(`[data-i18n-${attr}]`)) {

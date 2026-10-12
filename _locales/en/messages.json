@@ -87,7 +87,7 @@
 		"message": "tabGroups - welcome page (onboarding)"
 	},
 	"onboarding_empty_html": {
-		"message": "Nothing is shown on the welcome page yet. Send modules here in the <a href=\"./options.html\" target=\"_blank\">extension settings</a> with the “Show module output” option of each module."
+		"message": "Automatically sorts tabs into groups by time (day). You can select colors of tabs, rename them, resort, identify, minimal privileges, dynamically assigned based on the functions you need and those you don't."
 	},
 	"options_page_title": {
 		"message": "tabGroups settings"
@@ -126,7 +126,7 @@
 		"message": " (recommended by the module)"
 	},
 	"options_hint_not_displayed": {
-		"message": "Nothing is ticked, so the module is not shown anywhere. Depending on its activation mode it may still work in the background."
+		"message": "Automatically sorts tabs into groups by time (day). You can select colors of tabs, rename them, resort, identify, minimal privileges, dynamically assigned based on the functions you need and those you don't."
 	},
 	"options_hint_disabled": {
 		"message": "The module is turned off (activation mode “Never start”), so it is not shown anywhere."

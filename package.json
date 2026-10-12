@@ -65,7 +65,8 @@
 			"eslint.config.js",
 			"tsconfig.json",
 			"package.json",
-			"package-lock.json"
+			"package-lock.json",
+			"*.md"
 		],
 		"build": {
 			"overwriteDest": true
