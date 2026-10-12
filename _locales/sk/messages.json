@@ -1,6 +1,6 @@
 {
 	"extension_name": {
-		"message": "tabGroups – AnalyticExtension"
+		"message": "tabGroups"
 	},
 	"extension_description": {
 		"message": "Karty, ktoré nie sú vo vlastnej skupine, sám zoraďuje do 9 skupín (dnes, včera, … v minulom roku) podľa toho, kedy boli otvorené, alebo — voľba v Nastaveniach — kedy boli naposledy použité, a po polnoci ich posúva do ďalších. V Nastaveniach sa dajú pridať aj skupiny zo záložiek: karty so záložkou vo zvolenom priečinku (voliteľne aj s adresou na doméne záložky) majú vlastnú skupinu. Automatické skupiny držia vpravo od vlastných, od najstaršej po najnovšiu."
@@ -69,7 +69,7 @@
 		"message": "chrome.storage.$1 nie je v tomto kontexte dostupné."
 	},
 	"popup_page_title": {
-		"message": "AnalyticExtension Popup"
+		"message": "tabGroups Popup"
 	},
 	"popup_json_error": {
 		"message": "Chyba v JSON: $1"
@@ -81,16 +81,16 @@
 		"message": "Chyba v module: $1"
 	},
 	"sidebar_page_title": {
-		"message": "AnalyticExtension - sidebar (bočná lišta)"
+		"message": "tabGroups - sidebar (bočná lišta)"
 	},
 	"onboarding_page_title": {
-		"message": "AnalyticExtension - uvítacia stránka (onboarding)"
+		"message": "tabGroups - uvítacia stránka (onboarding)"
 	},
 	"onboarding_empty_html": {
 		"message": "Na uvítacej stránke sa zatiaľ nič nevypisuje. Moduly sem pošleš v <a href=\"./options.html\" target=\"_blank\">Nastaveniach rozšírenia</a> voľbou „Vypisovať dáta modulu“ pri každom module."
 	},
 	"options_page_title": {
-		"message": "Nastavenia celého AnalyticExtension"
+		"message": "Nastavenia celého tabGroups"
 	},
 	"options_heading": {
 		"message": "Nastavenia rozšírenia tabGroups"

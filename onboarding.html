@@ -3,32 +3,106 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title data-i18n="onboarding_page_title">AnalyticExtension - welcome page (onboarding)</title>
+	<title data-i18n="onboarding_page_title">tabGroups - welcome page (onboarding)</title>
 	<link rel="stylesheet" href="./css/mvp.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/theme-light.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/onboarding.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/module-frame.css" crossorigin="anonymous">
-	<!-- Volba vzhledu (světlý/tmavý) — přepíná ji modul styleSwitch (modules/styleSwitch/pageStyles.mjs), href musí být na všech stránkách stejné. -->
+	<!-- Appearance choice (light/dark) — switched by the styleSwitch module (modules/styleSwitch/pageStyles.mjs), href must be the same on all pages. -->
 	<link rel="alternate stylesheet" href="./css/theme-light.css" title="Světlý" crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/theme-dark.css" title="Tmavý" media="(prefers-color-scheme: dark)" crossorigin="anonymous">
 </head>
 
 <body>
-	<!-- Jazyk rozhraní — stejná nabídka jako nahoře na stránce Nastavení
-	     (initUiLanguageSelect() v i18n.mjs). Nahoře, ať si ho nový uživatel
-	     přepne dřív, než začne číst výpisy modulů. -->
-	<div class="onboarding-language">
-		<label><span data-i18n="core_ui_language">Language</span>
-			<select id="ui-language"></select>
-		</label>
-	</div>
+	<header>
+		<!-- UI language — the same menu as at the top of the Options page
+	     (initUiLanguageSelect() in i18n.mjs). Placed at the top so a new user
+	     can switch it before starting to read the module outputs. -->
+		<div class="onboarding-language">
+			<label><span data-i18n="core_ui_language">Language</span>
+				<select id="ui-language"></select>
+			</label>
+		</div>
+	</header>
 
-	<div id="modules-output"></div>
+	<main>
 
-	<!-- Ukáže onboarding.mjs, když se na uvítací stránku nevypíše žádný modul. -->
-	<p id="onboarding-empty" class="onboarding-empty" hidden data-i18n-html="onboarding_empty_html">
-		Nothing is shown on the welcome page yet. Send modules here in the <a href="./options.html" target="_blank">extension settings</a> with the “Show module output” option of each module.
-	</p>
+		<section id="modules-output"></section>
+
+		<section>
+			Extension for browsers to sort tabs into groups by time (day)
+		</section>
+
+		<hr>
+
+		<div id="figure">
+			<header>
+				<h1>tabGroups</h1>
+			</header>
+			<figure>
+				<img alt="Snapshot of extension" src="./img/snapshot.png">
+				<figcaption><i>tabs sorted in groups</i></figcaption>
+			</figure>
+		</div>
+
+		<!-- Shown by onboarding.mjs when no module outputs anything to the welcome page. -->
+		<p id="onboarding-empty" class="onboarding-empty" hidden data-i18n-html="onboarding_empty_html">
+			Thank you for using this extension. Take a look at the <a href="./options.html" target="_blank">extension settings</a>, where you can adjust more options than just the language.
+		</p>
+
+		<article id="docs">
+			<h2>Docs</h2>
+			<p>There are 2 ways to automatically sort tabs into groups:</p>
+			<ul>
+				<li>
+					<span>By tab creation</span> <small>&mdash; the tab stays in a group based on when it was opened. So, for example, yesterday's tab stays in yesterday's group even if I use it today.</small>
+				</li>
+				<li>
+					<span>By last use of the tab</span> <small>&mdash; the tab stays in a group based on when it was last used. So, for example, yesterday's tab automatically becomes today's tab if I use it today.</small>
+				</li>
+			</ul>
+			<br>
+			<aside>
+				<p>An important checkbox is "allow dragging tabs". When it is checked, you can drag tabs between the groups created automatically by this plugin, for example move today's tab into the "a year ago" group. When unchecked, such a move is rejected and the tab stays in the group it belongs to.</p>
+			</aside>
+
+			<br>
+			<h3 id="individual">Individual settings</h3>
+			<p>For each group you can choose a color or a specific group name. You can also set whether the group should be collapsed by default. That can be handy for tabs older than a year… for example.</p>
+
+			<br>
+			<h3 id="prefix">Prefix</h3>
+			<p>Exactly what it sounds like: a prefix for tab group names, for example a unicode icon or anything else. If you have many tab groups, it prevents accidentally confusing them with others.</p>
+
+			<h3 id="advanced">Advanced settings</h3>
+			<p>An advanced feature is the ability to sort tabs into groups according to bookmarks, or according to domains in bookmarks.</p>
+			<p>If you want to use sorting tabs by bookmarks, you will be asked to grant this extension an additional permission to access bookmarks. By default, this extension neither requires nor needs access to bookmarks.</p>
+		</article>
+
+		<hr>
+
+		<section id="developer">
+			<header>
+				<h3>A word from the developer</h3>
+			</header>
+
+			<main>
+				<p>This plugin is carved out of a larger extension built for programmers, analysts and website administrators. That one is quite complicated and many users wouldn't use it, but you often told me that this part, the tab sorting, is great and would be useful to more people. So here it is, I hope you enjoy it.</p>
+				<p>If you feel like looking at the source code or modifying it, go ahead: <a href="https://github.com/iiic/tabGroups">https://github.com/iiic/tabGroups</a>.</p>
+				<p>Development should be made easier by TypeScript annotations (in otherwise plain JavaScript) and a few simple unit tests included in the repository.</p>
+				<p>The project is also published as an npm package and you can get it with the console command <code>npm i tabgroups-extension</code>, details in the online npm registry: <a href="https://www.npmjs.com/package/tabgroups-extension">https://www.npmjs.com/package/tabgroups-extension</a></p>
+				<p>If you speak a language this plugin doesn't support yet and would like to make a translation, I'll gladly add it to a new version of this extension.</p>
+			</main>
+		</section>
+
+	</main>
+
+	<footer>
+		<hr>
+		<p>Created by <a href="https://iiic.dev/#tabGroups" target="_blank">ic</a><br></p>
+		uses "Phosphor icons" https://github.com/phosphor-icons for the extension icon
+		and mvp.css https://github.com/andybrewer/mvp for the extension UI styling
+	</footer>
 
 	<script type="module" src="./onboarding.mjs" crossorigin="anonymous"></script>
 </body>

@@ -1,6 +1,6 @@
 {
 	"extension_name": {
-		"message": "tabGroups – AnalyticExtension"
+		"message": "tabGroups"
 	},
 	"extension_description": {
 		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were opened or — an option in Settings — when they were last used, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
@@ -69,7 +69,7 @@
 		"message": "chrome.storage.$1 is not available in this context."
 	},
 	"popup_page_title": {
-		"message": "AnalyticExtension Popup"
+		"message": "tabGroups Popup"
 	},
 	"popup_json_error": {
 		"message": "JSON error: $1"
@@ -81,16 +81,16 @@
 		"message": "Error in module: $1"
 	},
 	"sidebar_page_title": {
-		"message": "AnalyticExtension - sidebar"
+		"message": "tabGroups - sidebar"
 	},
 	"onboarding_page_title": {
-		"message": "AnalyticExtension - welcome page (onboarding)"
+		"message": "tabGroups - welcome page (onboarding)"
 	},
 	"onboarding_empty_html": {
 		"message": "Nothing is shown on the welcome page yet. Send modules here in the <a href=\"./options.html\" target=\"_blank\">extension settings</a> with the “Show module output” option of each module."
 	},
 	"options_page_title": {
-		"message": "AnalyticExtension settings"
+		"message": "tabGroups settings"
 	},
 	"options_heading": {
 		"message": "tabGroups extension settings"

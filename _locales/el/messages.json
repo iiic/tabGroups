@@ -1,6 +1,6 @@
 {
 	"extension_name": {
-		"message": "tabGroups – AnalyticExtension"
+		"message": "tabGroups"
 	},
 	"extension_description": {
 		"message": "Ταξινομεί αυτόματα τις καρτέλες που δεν βρίσκονται σε δική σας ομάδα σε 9 ομάδες (σήμερα, χθες, … πέρσι) ανάλογα με το πότε άνοιξαν ή — επιλογή στις Ρυθμίσεις — πότε χρησιμοποιήθηκαν τελευταία, και τις μετακινεί μετά τα μεσάνυχτα. Στις Ρυθμίσεις μπορείτε επίσης να προσθέσετε ομάδες από σελιδοδείκτες: οι καρτέλες με σελιδοδείκτη σε επιλεγμένο φάκελο (προαιρετικά και οποιαδήποτε διεύθυνση στον τομέα του σελιδοδείκτη) αποκτούν δική τους ομάδα. Οι αυτόματες ομάδες μένουν στα δεξιά των δικών σας ομάδων, από την παλαιότερη στη νεότερη."
@@ -69,7 +69,7 @@
 		"message": "Το chrome.storage.$1 δεν είναι διαθέσιμο σε αυτό το περιβάλλον."
 	},
 	"popup_page_title": {
-		"message": "AnalyticExtension Popup"
+		"message": "tabGroups Popup"
 	},
 	"popup_json_error": {
 		"message": "Σφάλμα JSON: $1"
@@ -81,16 +81,16 @@
 		"message": "Σφάλμα στη μονάδα: $1"
 	},
 	"sidebar_page_title": {
-		"message": "AnalyticExtension - πλευρικό πάνελ"
+		"message": "tabGroups - πλευρικό πάνελ"
 	},
 	"onboarding_page_title": {
-		"message": "AnalyticExtension - σελίδα καλωσορίσματος (onboarding)"
+		"message": "tabGroups - σελίδα καλωσορίσματος (onboarding)"
 	},
 	"onboarding_empty_html": {
 		"message": "Στη σελίδα καλωσορίσματος δεν εμφανίζεται ακόμη τίποτα. Στείλτε εδώ μονάδες από τις <a href=\"./options.html\" target=\"_blank\">ρυθμίσεις της επέκτασης</a> με την επιλογή «Εμφάνιση εξόδου μονάδας» κάθε μονάδας."
 	},
 	"options_page_title": {
-		"message": "Ρυθμίσεις AnalyticExtension"
+		"message": "Ρυθμίσεις tabGroups"
 	},
 	"options_heading": {
 		"message": "Ρυθμίσεις της επέκτασης tabGroups"

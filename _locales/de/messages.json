@@ -1,6 +1,6 @@
 {
 	"extension_name": {
-		"message": "tabGroups – AnalyticExtension"
+		"message": "tabGroups"
 	},
 	"extension_description": {
 		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie geöffnet oder (Option in den Einstellungen) zuletzt verwendet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
@@ -69,7 +69,7 @@
 		"message": "chrome.storage.$1 ist in diesem Kontext nicht verfügbar."
 	},
 	"popup_page_title": {
-		"message": "AnalyticExtension-Pop-up"
+		"message": "tabGroups-Pop-up"
 	},
 	"popup_json_error": {
 		"message": "JSON-Fehler: $1"
@@ -81,16 +81,16 @@
 		"message": "Fehler im Modul: $1"
 	},
 	"sidebar_page_title": {
-		"message": "AnalyticExtension – Seitenleiste"
+		"message": "tabGroups – Seitenleiste"
 	},
 	"onboarding_page_title": {
-		"message": "AnalyticExtension – Willkommensseite (Onboarding)"
+		"message": "tabGroups – Willkommensseite (Onboarding)"
 	},
 	"onboarding_empty_html": {
 		"message": "Auf der Willkommensseite wird noch nichts angezeigt. Senden Sie Module in den <a href=\"./options.html\" target=\"_blank\">Einstellungen der Erweiterung</a> mit der Option „Modulausgabe anzeigen“ des jeweiligen Moduls hierher."
 	},
 	"options_page_title": {
-		"message": "AnalyticExtension-Einstellungen"
+		"message": "tabGroups-Einstellungen"
 	},
 	"options_heading": {
 		"message": "Einstellungen der tabGroups-Erweiterung"
