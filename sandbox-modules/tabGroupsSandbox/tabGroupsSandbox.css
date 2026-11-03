@@ -1,0 +1,247 @@
+/* Look of the overview of the tab groups — a file of the package (registerModule({ styles }), see
+   STYLES in module.mjs): the sandbox applies it to its own page after mvp.css, so it reaches nothing
+   outside the module's sandbox frame. Colors from the appearance variables the sandbox page gets from
+   the page that embeds it (--color-…, see collectSandboxTheme() in base.mjs), so they fit both the
+   light and the dark look. Everything is nested under the element's tag like in a module from the
+   package.
+
+   The chips: group chips in the order of the tab strip (the oldest on the left); the colors of the
+   groups (the chips and the previews of the editor of the settings) roughly as in the browser's tab
+   strip (Chrome's light look), with readable text, the same in the light and dark look, so the overview
+   matches what the user sees in the strip. */
+
+extension-tab-groups-sandbox {
+	.tab-groups-color--grey {
+		background: #5f6368;
+		color: #fff;
+	}
+	.tab-groups-color--blue {
+		background: #1a73e8;
+		color: #fff;
+	}
+	.tab-groups-color--red {
+		background: #d93025;
+		color: #fff;
+	}
+	.tab-groups-color--yellow {
+		background: #f9ab00;
+		color: #000;
+	}
+	.tab-groups-color--green {
+		background: #1e8e3e;
+		color: #fff;
+	}
+	.tab-groups-color--pink {
+		background: #d01884;
+		color: #fff;
+	}
+	.tab-groups-color--purple {
+		background: #9334e6;
+		color: #fff;
+	}
+	.tab-groups-color--cyan {
+		background: #007b83;
+		color: #fff;
+	}
+	.tab-groups-color--orange {
+		background: #fa903e;
+		color: #000;
+	}
+	.tab-groups-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px;
+		margin: 4px 0;
+		padding: 0;
+		list-style: none;
+	}
+	.tab-groups-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		margin: 0;
+		padding: 1px 9px;
+		border-radius: 999px;
+		font-size: 0.9em;
+		white-space: nowrap;
+	}
+	.tab-groups-count {
+		font-weight: bold;
+	}
+	.tab-groups-status {
+		margin: 4px 0;
+		font-size: 0.9em;
+		color: var(--color-text-muted);
+	}
+	.tab-groups-status--problem {
+		color: var(--color-error);
+	}
+	.tab-groups-status button {
+		margin: 4px 0 0;
+	}
+	.tab-groups-actions button {
+		margin: 4px 6px 0 0;
+		font-size: 0.9em;
+	}
+
+	/* The editor of the settings (settingsView.mjs, in Settings): the fields one below another, the captions of the
+	   tables like the labels of the fields of Settings. */
+	.tab-groups-setting {
+		display: block;
+		margin: 0 0 10px;
+	}
+	.tab-groups-setting--checkbox {
+		display: flex;
+		align-items: baseline;
+		gap: 6px;
+	}
+	.tab-groups-setting input[type="text"] {
+		width: 14rem;
+		max-width: 100%;
+	}
+	.tab-groups-setting-caption {
+		margin: 12px 0 2px;
+		font-weight: bold;
+	}
+
+	/* The names and colors of the periods: a row = a period, the group name, a color with a preview. */
+	.tab-groups-editor {
+		/* The circle with the color preview next to the select (.tab-groups-swatch) — sizes in px,
+		   so they can be used in calculating the select's width too (a different font size than the cell). */
+		--tab-groups-swatch-size: 16px;
+		--tab-groups-swatch-gap: 6px;
+
+		.tab-groups-editor-hint {
+			margin: 2px 0 6px;
+			font-size: 0.9em;
+			color: var(--color-text-muted);
+		}
+		table {
+			border-collapse: collapse;
+		}
+		th,
+		td {
+			padding: 2px 8px 2px 0;
+			text-align: left;
+			vertical-align: middle;
+		}
+		thead th {
+			font-size: 0.85em;
+			font-weight: normal;
+			color: var(--color-text-label);
+		}
+		tbody th {
+			font-weight: normal;
+			white-space: nowrap;
+		}
+		input,
+		select {
+			margin: 0;
+		}
+		.tab-groups-editor-title {
+			width: 14rem;
+			max-width: 100%;
+		}
+		.tab-groups-editor-duplicate {
+			outline: 2px solid var(--color-error);
+		}
+		/* The color select and the preview on one line — mvp.css gives a select display: block and
+		   width: 100 %. The selects in the table
+		   are equally wide by the longest one: a percentage width does not count toward the column
+		   width (it is taken as auto), so the column is as wide as the widest select
+		   with the preview and each select fills it up to the preview. min-width: on a narrow
+		   page a select with a percentage width would otherwise be squeezed below its text. */
+		.tab-groups-editor-color {
+			white-space: nowrap;
+		}
+		.tab-groups-editor-color select {
+			display: inline-block;
+			width: calc(100% - var(--tab-groups-swatch-size) - var(--tab-groups-swatch-gap));
+			min-width: max-content;
+			vertical-align: middle;
+		}
+		.tab-groups-editor-collapsed {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			margin: 0;
+			font-size: 0.9em;
+			font-weight: normal;
+			color: inherit;
+			white-space: nowrap;
+			cursor: pointer;
+		}
+		.tab-groups-editor-collapsed input {
+			margin: 0;
+		}
+		.tab-groups-editor-message {
+			margin-top: 4px;
+			font-size: 0.85em;
+			color: var(--color-error);
+		}
+		.tab-groups-editor-message:empty {
+			display: none;
+		}
+	}
+
+	/* The groups from bookmarks: a table as for the periods
+	   (it also has the .tab-groups-editor class), plus a folder select, a domain checkbox,
+	   the × button on a row and "Add group from bookmarks". */
+	.tab-groups-bookmarks-editor {
+		.tab-groups-editor-title {
+			width: 11rem;
+		}
+		.tab-groups-bookmarks-folder {
+			min-width: 12rem;
+			max-width: 22rem;
+		}
+		.tab-groups-bookmarks-domain {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			margin: 0;
+			font-size: 0.9em;
+			font-weight: normal;
+			color: inherit;
+			white-space: nowrap;
+			cursor: pointer;
+		}
+		.tab-groups-bookmarks-domain input {
+			margin: 0;
+		}
+		button {
+			margin: 0;
+			padding: 2px 9px;
+			font-size: 0.9em;
+			font-weight: normal;
+			line-height: 1.4;
+			background: var(--color-button-secondary);
+			color: var(--color-button-secondary-text);
+			border: 1px solid var(--color-input-border);
+			border-radius: 4px;
+		}
+		button:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+		.tab-groups-bookmarks-remove {
+			font-size: 16px;
+		}
+		.tab-groups-bookmarks-add {
+			margin-top: 6px;
+		}
+		[hidden] {
+			display: none;
+		}
+	}
+
+	/* The circle with the color preview next to the select in the editor (sizes in .tab-groups-editor). */
+	.tab-groups-swatch {
+		display: inline-block;
+		width: var(--tab-groups-swatch-size, 16px);
+		height: var(--tab-groups-swatch-size, 16px);
+		margin-left: var(--tab-groups-swatch-gap, 6px);
+		border-radius: 50%;
+		vertical-align: middle;
+	}
+}

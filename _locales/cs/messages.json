@@ -1,6 +1,6 @@
 {
 	"extension_name": {
-		"message": "tabGroups"
+		"message": "Tab Groups"
 	},
 	"extension_description": {
 		"message": "Karty, které nejsou ve vlastní skupině, sám řadí do 9 skupin (dnes, včera, … v minulém roce) podle toho, kdy byly otevřené, nebo — volba v Nastavení — kdy byly naposledy použité, a po půlnoci je posouvá do dalších. V Nastavení jde přidat i skupiny ze záložek: karty se záložkou ve zvolené složce (volitelně i s adresou na doméně záložky) mají vlastní skupinu. Automatické skupiny drží vpravo od vlastních, od nejstarší po nejnovější."
@@ -32,6 +32,9 @@
 	"core_location_sidebar": {
 		"message": "V postranním panelu"
 	},
+	"core_location_floating": {
+		"message": "V plovoucím okně"
+	},
 	"core_location_options": {
 		"message": "Na stránce Nastavení"
 	},
@@ -53,6 +56,12 @@
 	"core_output_details_open": {
 		"message": "Uzavíratelný element, otevřený"
 	},
+	"core_pin_module": {
+		"message": "Připnout nahoru"
+	},
+	"core_unpin_module": {
+		"message": "Odepnout"
+	},
 	"core_default_modules_load_failed": {
 		"message": "Nelze načíst výchozí modules.json: $1"
 	},
@@ -68,8 +77,29 @@
 	"core_storage_unavailable": {
 		"message": "chrome.storage.$1 není v tomhle kontextu dostupné."
 	},
+	"core_background_no_response": {
+		"message": "background.js neodpověděl"
+	},
+	"core_backup_invalid": {
+		"message": "Záloha modulu $1 nemá platný tvar."
+	},
+	"core_backup_records_failed": {
+		"message": "Záznamy modulu $1 nejde přenést: $2"
+	},
+	"core_debugger_targets_failed": {
+		"message": "Seznam cílů debuggeru nejde zjistit."
+	},
+	"core_debugger_commands_failed": {
+		"message": "Příkazy debuggeru nejde provést."
+	},
+	"core_close": {
+		"message": "Zavřít"
+	},
+	"core_resize_handle": {
+		"message": "Přetažením změníte velikost"
+	},
 	"popup_page_title": {
-		"message": "tabGroups Popup"
+		"message": "Tab Groups Popup"
 	},
 	"popup_json_error": {
 		"message": "Chyba v JSON: $1"
@@ -81,25 +111,649 @@
 		"message": "Chyba v modulu: $1"
 	},
 	"sidebar_page_title": {
-		"message": "tabGroups - sidebar (postranní lišta)"
+		"message": "Tab Groups - sidebar (postranní lišta)"
+	},
+	"sidebar_disabled_notice": {
+		"message": "Postranní panel je v Nastavení vypnutý (volba „Nepoužívat postranní panel“) — moduly se tu nevypisují."
+	},
+	"sidebar_disabled_remove_icon": {
+		"message": "Ikonku rozšíření z lišty postranního panelu Firefoxu odeberete tak, že na ni kliknete pravým tlačítkem a zvolíte odebrání z postranního panelu (Firefox 143 a novější)."
+	},
+	"sidebar_disabled_open_options": {
+		"message": "Otevřít Nastavení"
 	},
 	"onboarding_page_title": {
-		"message": "tabGroups - uvítací stránka (onboarding)"
+		"message": "Tab Groups - uvítací stránka (onboarding)"
 	},
 	"onboarding_empty_html": {
 		"message": "Na uvítací stránce se zatím nic nevypisuje. Moduly sem pošleš v <a href=\"./options.html\" target=\"_blank\">Nastavení rozšíření</a> volbou „Vypisovat data modulu“ u každého modulu."
 	},
 	"options_page_title": {
-		"message": "Nastavení celého tabGroups"
+		"message": "Nastavení celého Tab Groups"
 	},
 	"options_heading": {
-		"message": "Nastavení rozšíření tabGroups"
+		"message": "Nastavení celého Tab Groups"
 	},
 	"core_ui_language": {
 		"message": "Jazyk"
 	},
 	"core_ui_language_browser": {
 		"message": "$1 - jazyk prohlížeče"
+	},
+	"core_sandbox_bad_file_name": {
+		"message": "Soubor „$1“ musí být modul sám — <jméno>.js nebo <jméno>.mjs, jméno modulu v camelCase (např. mySandbox.mjs) — nebo .zip s jeho balíčkem."
+	},
+	"core_sandbox_too_large": {
+		"message": "Soubor je příliš velký ($1, nejvýš $2)."
+	},
+	"core_sandbox_empty": {
+		"message": "Soubor je prázdný."
+	},
+	"core_sandbox_not_utf8": {
+		"message": "Soubor „$1“ není text v UTF-8."
+	},
+	"core_sandbox_zip_invalid": {
+		"message": "Soubor není platný ZIP archiv."
+	},
+	"core_sandbox_zip_corrupt": {
+		"message": "Soubor „$1“ v archivu je poškozený."
+	},
+	"core_sandbox_zip_unsupported": {
+		"message": "Archiv je ZIP64 nebo rozdělený na části — vytvoř obyčejný .zip (umí to každý běžný nástroj)."
+	},
+	"core_sandbox_zip_encrypted": {
+		"message": "Soubor „$1“ v archivu je zašifrovaný."
+	},
+	"core_sandbox_zip_compression": {
+		"message": "Soubor „$1“ v archivu používá nepodporovanou kompresi — podporované jsou jen „store“ a „deflate“."
+	},
+	"core_sandbox_zip_too_many_files": {
+		"message": "Archiv má příliš mnoho položek ($1, nejvýš $2)."
+	},
+	"core_sandbox_bad_path": {
+		"message": "Neplatné jméno souboru v balíčku: „$1“ — jen písmena, číslice, „.“, „_“, „-“ a složky."
+	},
+	"core_sandbox_duplicate_path": {
+		"message": "Soubor „$1“ je v balíčku dvakrát (jména lišící se jen velikostí písmen jsou stejný soubor)."
+	},
+	"core_sandbox_no_entry": {
+		"message": "Balíček nemá vstupní soubor — v jeho kořeni má být $1.mjs nebo $1.js (jméno modulu je jméno složky v archivu, jinak archivu)."
+	},
+	"core_sandbox_ambiguous_entry": {
+		"message": "Balíček má $1 i $2 — nech jen jeden vstupní soubor."
+	},
+	"core_sandbox_bad_messages": {
+		"message": "$1 musí mít tvar { \"jazyk\": { \"klíč\": \"text\" } }."
+	},
+	"core_sandbox_import_outside": {
+		"message": "$1: import „$2“ vede mimo balíček modulu — importovat jde jen relativní cesty k souborům balíčku a \"../../sdk.mjs\" (SDK)."
+	},
+	"core_sandbox_import_missing": {
+		"message": "$1: import „$2“ — soubor v balíčku není."
+	},
+	"core_sandbox_import_type": {
+		"message": "$1: import „$2“ — importovat jde jen JS moduly (.mjs, .js) a JSON; CSS patří do registerModule({ styles })."
+	},
+	"core_sandbox_import_cycle": {
+		"message": "JS moduly balíčku se importují dokola: $1."
+	},
+	"core_sandbox_skipped_files": {
+		"message": "Tyto soubory mají nepodporovaný typ a byly vynechány: $1"
+	},
+	"core_sandbox_unused_scripts": {
+		"message": "Tyto skripty nic neimportuje, nespustí se: $1"
+	},
+	"core_sandbox_dynamic_import": {
+		"message": "$1: import() s vypočtenou adresou nenačte soubory balíčku — jen import(\"./soubor.mjs\") s pevnou cestou."
+	},
+	"core_sandbox_js_with_module": {
+		"message": "$1 používá import/export — podle konvence rozšíření má mít příponu .mjs."
+	},
+	"core_sandbox_mjs_without_module": {
+		"message": "$1 nepoužívá import/export — podle konvence rozšíření má mít příponu .js."
+	},
+	"core_sandbox_es_module": {
+		"message": "$1 používá import/export — klasický skript (.js) dostane SDK jako sandboxSdk; modul s importy musí být JS modul (.mjs)."
+	},
+	"core_sandbox_read_failed": {
+		"message": "Soubor nejde přečíst: $1"
+	},
+	"core_sandbox_name_taken": {
+		"message": "Jméno „$1“ (element <$2>) už používá jiný modul — přejmenuj modul i jeho soubor."
+	},
+	"core_sandbox_timeout": {
+		"message": "Modul v sandboxu neodpověděl do $1 s."
+	},
+	"core_sandbox_api_denied": {
+		"message": "Nahrané moduly nemůžou používat api.$1."
+	},
+	"core_extension_page_not_allowed": {
+		"message": "„$1“ není stránka rozšíření, kterou smí modul otevřít."
+	},
+	"core_sandbox_capability_denied": {
+		"message": "„$1“: uživatel tuto funkci modulu nepovolil (Nastavení → Nahrané moduly)."
+	},
+	"core_sandbox_capability_pending": {
+		"message": "„$1“: funkce čeká na rozhodnutí uživatele v Nastavení → Nahrané moduly — do té doby se odmítá."
+	},
+	"core_sandbox_capability_undeclared": {
+		"message": "„$1“: modul tuto funkci nedeklaruje — přidej ji do registerModule({ capabilities })."
+	},
+	"core_sandbox_capability_forbidden": {
+		"message": "„$1“ nejde nahranému modulu povolit: $2"
+	},
+	"core_sandbox_capability_unknown": {
+		"message": "„$1“: jádro nahraným modulům takovou funkci nenabízí."
+	},
+	"core_sandbox_capability_block_page": {
+		"message": "stránka rozšíření patří jádru — modul běží v jiném dokumentu, DOM prvek nejde poslat zprávou, požadavek nikdy není synchronní a modul by viděl data ostatních modulů."
+	},
+	"core_sandbox_capability_block_gesture": {
+		"message": "prohlížeč ji dovolí jen přímo v obsluze kliknutí — požadavek ze sandboxu dorazí do jádra jako zpráva, ne jako kliknutí (Firefox ho odmítne). Na otevření popupu, postranní lišty a plovoucího okna nabízí jádro popup.open, sidebar.toggle a floatingWindow.toggle na tlačítku, které modulu kreslí (api.buttons)."
+	},
+	"core_sandbox_capability_block_extension": {
+		"message": "úložiště, zprávy a ovládání celého rozšíření — modul by dostal data a nastavení všech modulů, mohl by se vydávat za jiný modul nebo žádat o oprávnění."
+	},
+	"core_sandbox_capability_block_page_code": {
+		"message": "kód a obsah webových stránek — modul by spouštěl kód na libovolné stránce."
+	},
+	"core_sandbox_capability_block_browser_data": {
+		"message": "soukromá data prohlížeče (cookies všech webů, historie, data procházení) — přístup k nim nejde omezit jen na to, co modul potřebuje."
+	},
+	"core_sandbox_capability_block_network": {
+		"message": "síťová pravidla a zachytávání požadavků — mění nebo čtou provoz všech stránek."
+	},
+	"core_sandbox_capability_about_tabs_create": {
+		"message": "Otevírat nové záložky s webovými adresami (http, https), i na pozadí."
+	},
+	"core_sandbox_capability_about_tabs_activate": {
+		"message": "Přepnout na záložku prohlížeče (vybrat ji a přenést její okno do popředí) — z plovoucího okna jen jeho vlastní záložku."
+	},
+	"core_sandbox_capability_about_strazci_internetu_report": {
+		"message": "Otevřít formulář Strážců internetu pro anonymní nahlášení stránky a vepsat do něj její adresu (formulář odešlete sami)."
+	},
+	"core_sandbox_capability_bad_tab": {
+		"message": "tabs.activate: „$1“ není záložka, na kterou jde přepnout."
+	},
+	"core_sandbox_capability_about_clipboard_write_text": {
+		"message": "Zapisovat text do schránky (nahradí to, co v ní je)."
+	},
+	"core_sandbox_capability_about_downloads_download": {
+		"message": "Ukládat soubor, který modul vytvoří (text nebo bajty, nejvýš $1), do stažených souborů."
+	},
+	"core_sandbox_capability_bad_url": {
+		"message": "tabs.create: otevřít jde jen webovou adresu (http, https), ne „$1“."
+	},
+	"core_sandbox_capability_bad_text": {
+		"message": "clipboard.writeText: čeká text."
+	},
+	"core_sandbox_capability_bad_content": {
+		"message": "downloads.download: obsah musí být text nebo bajty (Uint8Array, ArrayBuffer)."
+	},
+	"core_sandbox_capability_bad_file_name": {
+		"message": "downloads.download: „$1“ není jméno souboru — bez složek, bez znaků, které Windows ve jménech souborů nedovolí, a ne s tečkou na začátku."
+	},
+	"core_sandbox_capability_bad_type": {
+		"message": "downloads.download: „$1“ není typ obsahu (typ/podtyp)."
+	},
+	"core_sandbox_capability_too_large": {
+		"message": "Obsah je příliš velký ($1, nejvýš $2)."
+	},
+	"core_sandbox_capability_bad_marks": {
+		"message": "imageInfo.markImages: čeká seznam obrázků { url, name, marks: [{ icon, label, detail }] } v mezích limitů — chybně: $1."
+	},
+	"core_sandbox_capability_unavailable": {
+		"message": "„$1“ na této stránce není k dispozici."
+	},
+	"core_sandbox_capabilities_differ": {
+		"message": "Modul v různých jazycích deklaruje různé funkce mimo sandbox (capabilities) — seznam musí být stejný."
+	},
+	"core_sandbox_capability_declared_base": {
+		"message": "„$1“ patří do základního api nahraných modulů — deklarovat ji není třeba."
+	},
+	"core_sandbox_capability_declared_forbidden": {
+		"message": "„$1“ nejde nahranému modulu povolit, modul se bez ní musí obejít: $2"
+	},
+	"core_sandbox_capability_declared_unknown": {
+		"message": "Jádro nahraným modulům „$1“ nenabízí — její požadavky se odmítnou (a zaznamenají)."
+	},
+	"core_sandbox_capability_click_only": {
+		"message": "„$1“ běží jen z tlačítka, které modulu kreslí jádro (api.buttons) — prohlížeč ji dovolí jen přímo v obsluze kliknutí."
+	},
+	"core_sandbox_capability_listener": {
+		"message": "„$1“ je listener — modul se k němu přihlásí přes capabilities.listen()."
+	},
+	"core_sandbox_capability_not_listener": {
+		"message": "„$1“ není listener — modul o ni žádá přes capabilities.call()."
+	},
+	"core_sandbox_capability_no_tab": {
+		"message": "Nejde zjistit záložku, ke které se stránka vztahuje."
+	},
+	"core_sandbox_capability_about_floating_window_toggle": {
+		"message": "Otevřít a zavřít plovoucí okno rozšíření na aktuální záložce — jen když klikneš na tlačítko modulu. Při prvním použití se prohlížeč zeptá na přístup k webovým stránkám."
+	},
+	"core_sandbox_capability_about_sidebar_toggle": {
+		"message": "Otevřít a zavřít postranní lištu rozšíření — jen když klikneš na tlačítko modulu."
+	},
+	"core_sandbox_capability_about_popup_open": {
+		"message": "Otevřít popup rozšíření — jen když klikneš na tlačítko modulu."
+	},
+	"core_sandbox_capability_about_popup_close": {
+		"message": "Zavřít popup, ve kterém je modul vypsaný."
+	},
+	"core_sandbox_capability_about_addons_open": {
+		"message": "Otevřít toto rozšíření ve správě doplňků prohlížeče — kde to prohlížeč nedovolí, dostane modul jen její adresu."
+	},
+	"core_sandbox_capability_about_options_open": {
+		"message": "Otevřít stránku Nastavení rozšíření (otevřená se přepne do popředí)."
+	},
+	"core_sandbox_capability_about_storage_usage_get": {
+		"message": "Zjistit, kolik zabírají vlastní úložiště rozšíření — jen počet položek a velikosti (localStorage, databáze záznamů v IndexedDB, navigator.storage.estimate(), chrome.storage.local), nikdy jejich obsah."
+	},
+	"core_sandbox_capability_about_storage_usage_on_change": {
+		"message": "Dozvědět se, že se změnilo některé z úložišť rozšíření — které (localStorage, záznamy v IndexedDB, chrome.storage.local), nikdy co se změnilo."
+	},
+	"core_sandbox_capability_about_build_settings_get": {
+		"message": "Přečíst nastavení sestavení modulů pro jejich samostatná rozšíření (modules/<modul>/standalone.json — jsou jen v rozšíření spuštěném rozbalené ze složky projektu) a jestli rozšíření takhle běží."
+	},
+	"core_sandbox_capability_about_floating_window_get_all_states": {
+		"message": "Číst uložené pozice, velikosti a stav plovoucího okna rozšíření pro všechny domény — tedy seznam domén, na kterých bylo použito."
+	},
+	"core_sandbox_capability_about_floating_window_update_states": {
+		"message": "Měnit a mazat uloženou pozici, velikost a stav plovoucího okna pro jednotlivé domény — plovoucí okno se tam pak podle toho otevře. Každou změnu jádro zkontroluje."
+	},
+	"core_sandbox_capability_about_floating_window_on_change": {
+		"message": "Dostat uložené pozice, velikosti a stav plovoucího okna znovu po každé změně (např. když ho posuneš na jiné záložce)."
+	},
+	"core_sandbox_capability_about_pwa_info_list_records": {
+		"message": "Číst weby s instalovatelnou webovou aplikací (PWA), které za běhu zaznamenal modul PWA Info — jejich adresy, manifesty a ikony, stránky, na kterých se objevily, a čas a počet návštěv."
+	},
+	"core_sandbox_capability_about_pwa_info_get_status": {
+		"message": "Zjistit, jestli modul PWA Info zaznamenává nové weby — jestli je v seznamu modulů, zapnutý a má v nastavení zapnuté zaznamenávání."
+	},
+	"core_sandbox_capability_about_pwa_info_on_change": {
+		"message": "Dozvědět se hned, když modul PWA Info zaznamená nebo doplní web (na kterékoli záložce — tedy když navštívíš web s aplikací), nebo když se změní jeho nastavení."
+	},
+	"core_sandbox_capability_about_domain_info_get_page": {
+		"message": "Číst domény stránky v aktuální záložce, jak je zná modul Domain Info — které z nich stránka použila a jak, údaje, které o nich načetl z RDAP serverů (držitelé a kontakty se jmény, adresami, e-maily a telefony, registrátoři, data, jmenné servery) i s historií, a pozastavené servery; jen domény té stránky."
+	},
+	"core_sandbox_capability_about_domain_info_collect": {
+		"message": "Nechat modul Domain Info hned načíst domény stránky v aktuální záložce z RDAP serverů (tlačítko „Načíst údaje z RDAP“) — pošle názvy domén RDAP serverům ze svého nastavení, v rámci jejich limitů."
+	},
+	"core_sandbox_capability_about_domain_info_resume_server": {
+		"message": "Ukončit pozastavení RDAP serveru z nastavení modulu Domain Info, který neodpověděl, aby se ho zeptal hned znovu (tlačítko „Zkusit hned“)."
+	},
+	"core_sandbox_capability_about_domain_info_set_data_saver": {
+		"message": "Zapnout nebo vypnout šetření dat modulu Domain Info (totéž nastavení jako v Nastavení) — se zapnutým sám nedělá žádné dotazy na RDAP servery a načítá jen na tvou žádost (tlačítko „Načíst údaje z RDAP“)."
+	},
+	"core_sandbox_capability_about_domain_info_on_change": {
+		"message": "Dozvědět se hned, když modul Domain Info uloží údaje o doméně ukazované stránky (na kterékoli záložce), když stránka v aktuální záložce použije další doménu nebo se přepne na jinou záložku, nebo když se změní jeho nastavení."
+	},
+	"core_sandbox_capability_about_domain_info_list_records": {
+		"message": "Číst všechno, co modul Domain Info zaznamenal — údaje, které načetl z RDAP serverů o všech doménách (držitelé a kontakty se jmény, adresami, e-maily a telefony, registrátoři, data, jmenné servery) i s historií, stránky, na kterých domény našel, uložené kopie kontaktů a nepovedená načtení; nejen domény jedné stránky."
+	},
+	"core_sandbox_capability_about_image_info_get_page": {
+		"message": "Číst obrázky stránky v aktuální záložce, jak je vypíše modul Image Info — jejich adresy, kde a jak je stránka používá, jak se načetly, jejich HTTP hlavičky odpovědi a metadata jejich souborů (fotoaparáty, data, polohy GPS, autory, popisy); jen obrázky té stránky."
+	},
+	"core_sandbox_capability_about_image_info_fetch_image": {
+		"message": "Stáhnout obrázek stránky v aktuální záložce znovu (tlačítko „Načíst informace“) a přečíst jeho HTTP hlavičky odpovědi a metadata jeho souboru — když ho stránka načetla před zaznamenáváním nebo prohlížeč jeho soubor nemá; jen obrázky, které ukazuje výpis té stránky. Obrázek se ze svého serveru přenese znovu."
+	},
+	"core_sandbox_capability_about_image_info_read_image": {
+		"message": "Přečíst soubor obrázku stránky v aktuální záložce a ukázat ve výpisu jeho miniaturu — z toho, co už prohlížeč má (jeho cache, adresa data: nebo blob:), nebo tlačítkem „Zobrazit“ znovu staženého ze svého serveru (uloží se i jeho HTTP hlavičky a metadata); jen obrázky, které ukazuje výpis té stránky."
+	},
+	"core_sandbox_capability_about_image_info_save_image": {
+		"message": "Uložit obrázek stránky v aktuální záložce jako stažený soubor (tlačítko „Uložit obrázek“ / „Stáhnout“) — z toho, co už prohlížeč má (jeho cache, adresa data: nebo blob:), jinak se ze svého serveru stáhne znovu; jen obrázky, které ukazuje výpis té stránky."
+	},
+	"core_sandbox_capability_about_image_info_remove_image": {
+		"message": "Odebrat obrázek stránky v aktuální záložce z té stránky (tlačítko „Odebrat z dokumentu“): jeho prvky zmizí, obrázek z CSS se vypne — stránka tak zůstane, dokud se znovu nenačte; jen obrázky, které ukazuje výpis té stránky."
+	},
+	"core_sandbox_capability_about_image_info_block_image": {
+		"message": "Trvale zablokovat obrázek z výpisu (tlačítko „Blokovat obrázek trvale“): jeho adresa se přidá do pravidla „Image info sandbox - blocked images“ modulu Declarative Net Request — prohlížeč ho pak nenačte na žádné stránce, dokud se adresa z pravidla v Nastavení neodebere; jen obrázky, které ukazuje výpis stránky."
+	},
+	"core_sandbox_capability_about_image_info_mark_images": {
+		"message": "Ukázat značky nad obrázky stránky v aktuální záložce přímo na té stránce (sloupce „Ukázat ve stránce“ a „Ukázat na stránce nad většími obrázky“ upozorňování): štítek s ikonkami nad obrázkem a krátké texty pod kurzorem myši se jménem modulu — jen obrázky, které ukazuje výpis té stránky, a jen dokud je výpis otevřený."
+	},
+	"core_sandbox_capability_about_image_info_on_change": {
+		"message": "Dozvědět se hned, když stránka v aktuální záložce načte další obrázky, nebo když se změní nastavení modulu Image Info, seznam modulů nebo oprávnění."
+	},
+	"core_sandbox_capability_about_image_info_on_view": {
+		"message": "Vědět, které obrázky stránky v aktuální záložce jsou právě vidět a nad kterým je kurzor myši (nebo na který uživatel klepl) — modul Image Info na té stránce sleduje posouvání a ukazatel, dokud je výpis otevřený."
+	},
+	"core_sandbox_capability_about_studies_manager_list_records": {
+		"message": "Číst vědecké studie, které modul Studies Manager zaznamenal na procházených stránkách — jejich identifikátory (DOI, PubMed, arXiv), názvy, autory, časopisy, abstrakty a další metadata a stránky, na kterých se objevily (jejich adresy a titulky — část historie prohlížení), kdy a kolikrát."
+	},
+	"core_sandbox_capability_about_studies_manager_get_status": {
+		"message": "Zjistit, jestli modul Studies Manager zaznamenává nové studie — jestli je v seznamu modulů, zapnutý a má v nastavení zapnuté zaznamenávání."
+	},
+	"core_sandbox_capability_about_studies_manager_on_change": {
+		"message": "Dozvědět se hned, když modul Studies Manager zaznamená nebo doplní studie (na kterékoli záložce — tedy když navštívíš stránku se studií), nebo když se změní jeho nastavení."
+	},
+	"core_sandbox_capability_about_studies_manager_enrich": {
+		"message": "Nechat modul Studies Manager hned načíst metadata vybraných studií z doi.org — jejich DOI se odešlou na doi.org a do registru každého DOI (Crossref, DataCite, …)."
+	},
+	"core_sandbox_capability_about_studies_manager_remove_records": {
+		"message": "Odebrat studie zaznamenané modulem Studies Manager — ze seznamu zmizí, dokud na ně znovu nenarazíš."
+	},
+	"core_sandbox_capability_about_contacts_module_list_records": {
+		"message": "Číst kontakty, které modul Contacts Module zaznamenal na procházených stránkách — jména, e-maily, telefony, adresy a další údaje lidí a organizací a stránky, na kterých se objevily (jejich adresy a titulky — část historie prohlížení), kdy a kolikrát."
+	},
+	"core_sandbox_capability_about_contacts_module_get_status": {
+		"message": "Zjistit, jestli modul Contacts Module zaznamenává nové kontakty — jestli je v seznamu modulů, zapnutý a má v nastavení zapnuté zaznamenávání."
+	},
+	"core_sandbox_capability_about_contacts_module_on_change": {
+		"message": "Dozvědět se hned, když modul Contacts Module zaznamená kontakty (na kterékoli záložce — tedy když navštívíš stránku s vizitkou), nebo když se změní jeho nastavení."
+	},
+	"core_sandbox_capability_about_contacts_module_remove_records": {
+		"message": "Odebrat kontakty zaznamenané modulem Contacts Module — ze seznamu zmizí, dokud na ně znovu nenarazíš."
+	},
+	"core_sandbox_capability_about_contacts_module_edit_record": {
+		"message": "Měnit údaje kontaktů zaznamenaných modulem Contacts Module (jméno, e-maily, telefony, weby, …) a jejich štítky — místo údajů nalezených na stránkách se zobrazí tvoje úpravy."
+	},
+	"core_sandbox_capability_about_contacts_module_load_orcid": {
+		"message": "Načíst veřejný záznam ORCID iD kontaktu zaznamenaného modulem Contacts Module (pub.orcid.org se dozví, na které iD se ptáš) a přidat jeho údaje (jméno, další jména, životopis, weby, e-maily, zaměstnání, …) ke kontaktu."
+	},
+	"core_sandbox_capability_about_contacts_module_load_gravatar": {
+		"message": "Načíst celý veřejný profil Gravatar kontaktu zaznamenaného modulem Contacts Module (gravatar.com se dozví, na který profil se ptáš) a přidat jeho údaje (jméno, bio, weby, e-maily, telefony, práci, ověřené účty, …) ke kontaktu."
+	},
+	"core_sandbox_capability_about_contacts_module_load_mastodon": {
+		"message": "Načíst celý účet profilu ve fediversu (Mastodon) kontaktu zaznamenaného modulem Contacts Module z jeho instance (server z adresy se dozví, na který účet se ptáš) a přidat jeho údaje (jméno, bio, obrázek, weby a e-maily z polí, ověřené odkazy, …) ke kontaktu."
+	},
+	"core_sandbox_capability_about_contacts_module_load_keyoxide": {
+		"message": "Načíst profil na Keyoxide kontaktu zaznamenaného modulem Contacts Module z keyoxide.org (dozví se, na který profil se ptáš, stáhne jeho klíč a ověří jeho tvrzení) a přidat jeho údaje (jméno, popis, obrázek, e-maily, klíč, ověřené účty a domény) ke kontaktu."
+	},
+	"core_sandbox_capability_about_contacts_module_merge_records": {
+		"message": "Sloučit dva kontakty zaznamenané modulem Contacts Module do jednoho — starší kontakt dostane stránky, údaje a propojené účty novějšího (kde se liší, hodnoty, které vybereš) a novější se odebere."
+	},
+	"core_sandbox_capability_about_contacts_module_import_contacts": {
+		"message": "Importovat kontakty do modulu Contacts Module — kontakty souboru, který vybereš ve správci (vCard nebo CSV z jeho exportu), se spojí se zaznamenanými kontakty, nebo se uloží jako nové."
+	},
+	"core_sandbox_capability_about_contacts_module_set_data_saver": {
+		"message": "Zapnout nebo vypnout šetření dat modulu Contacts Module (totéž nastavení jako v Nastavení) — se zapnutým bere kontakty jen z otevřených stránek a sám nic dalšího nestahuje."
+	},
+	"core_sandbox_capability_about_service_worker_control_get_overview": {
+		"message": "vypíše service workery, které najde Service Worker Control — weby se service workerem v otevřených záložkách (s oprávněním „debugger“ i všechny běžící) a ty viděné dřív, s titulky jejich stránek a ikonami"
+	},
+	"core_sandbox_capability_about_service_worker_control_stop_worker": {
+		"message": "zastaví běžící service worker přehledu (Chrome k němu krátce připojí debugger)"
+	},
+	"core_sandbox_capability_about_service_worker_control_start_worker": {
+		"message": "spustí zastavený service worker přehledu přes otevřenou stránku jeho webu"
+	},
+	"core_sandbox_capability_about_service_worker_control_unregister": {
+		"message": "odregistruje service workery přehledu — weby si je při další návštěvě zaregistrují znovu, pokud jejich doména není blokovaná"
+	},
+	"core_sandbox_capability_about_service_worker_control_block_domain": {
+		"message": "zablokuje doménu webu z přehledu — přidá se do seznamu Service Worker Control v Nastavení, její stránky pak nemají Service Worker API a její service workery se odregistrují"
+	},
+	"core_sandbox_capability_about_service_worker_control_forget_site": {
+		"message": "zapomene zapamatovaný web přehledu — jeho záznam Service Worker Control se odstraní"
+	},
+	"core_sandbox_capability_about_service_worker_control_on_change": {
+		"message": "dozví se, když se service worker přehledu zastaví nebo spustí, když se změní záznamy webů (stáhla se ikona) a když se změní nastavení nebo oprávnění Service Worker Control"
+	},
+	"core_sandbox_capability_about_tab_groups_get_overview": {
+		"message": "vypíše automatické skupiny karet, které Tab Groups řídí v aktuálním okně — jejich názvy, barvy a počty karet, kolik je vlastních skupin a nezařazených karet —, jak se karty řadí a která oprávnění Tab Groups chybí (ne adresy ani titulky karet)"
+	},
+	"core_sandbox_capability_about_tab_groups_regroup": {
+		"message": "nechá Tab Groups hned seřadit karty všech oken do jeho skupin"
+	},
+	"core_sandbox_capability_about_tab_groups_identify": {
+		"message": "nechá skupiny, které Tab Groups řídí, ve všech oknech krátce zablikat"
+	},
+	"core_sandbox_capability_about_tab_groups_get_settings": {
+		"message": "přečte nastavení Tab Groups — jak se karty řadí, názvy a barvy skupin, skupiny ze záložek s názvy složek záložek (s oprávněním k záložkám)"
+	},
+	"core_sandbox_capability_about_tab_groups_set_settings": {
+		"message": "změní nastavení Tab Groups (Tab Groups každou hodnotu zkontroluje stejně jako v Nastavení)"
+	},
+	"core_sandbox_capability_about_tab_groups_open_permissions": {
+		"message": "otevře stránku, kde Tab Groups žádá o svá oprávnění"
+	},
+	"core_sandbox_capability_about_tab_groups_on_change": {
+		"message": "dozví se, když se změní skupina nebo karta okna a když se změní nastavení nebo oprávnění Tab Groups"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_status": {
+		"message": "přečte, která pravidla Declarative Net Request míří na stránku aktivní karty a co dělají (hlavičky, GET parametry, blokování), která z nich jsou dočasně zrušená a jak pravidla dopadla v prohlížeči"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_rules": {
+		"message": "přečte všechna pravidla Declarative Net Request — domény, adresy a složky záložek, na které míří, hlavičky a parametry, které nastavují — s názvy složek záložek (s oprávněním k záložkám), udělenými oprávněními a dočasně zrušenými pravidly"
+	},
+	"core_sandbox_capability_about_declarative_net_request_set_rules": {
+		"message": "nahradí pravidla Declarative Net Request (každé pravidlo zkontroluje stejně jako v Nastavení) — prohlížeč pak podle nich mění hlavičky a GET parametry požadavků a blokuje požadavky na všech stránkách"
+	},
+	"core_sandbox_capability_about_declarative_net_request_suspend_rule": {
+		"message": "dočasně zruší pravidlo Declarative Net Request na hodinu — prohlížeč ho do té doby nepoužije"
+	},
+	"core_sandbox_capability_about_declarative_net_request_restore_rule": {
+		"message": "ukončí dočasné zrušení pravidla Declarative Net Request — prohlížeč ho zase použije"
+	},
+	"core_sandbox_capability_about_declarative_net_request_reload_tab": {
+		"message": "obnoví stránku aktivní karty okna, aby pravidla Declarative Net Request platila pro všechny její požadavky"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_log": {
+		"message": "přečte vlastní log událostí Declarative Net Request — požadavky na všech stránkách, na které se použila jeho pravidla s logem událostí: adresy požadavků a stránek, ze kterých přišly, karty a časy"
+	},
+	"core_sandbox_capability_about_declarative_net_request_clear_log": {
+		"message": "smaže záznam vlastního logu událostí Declarative Net Request, nebo celý log"
+	},
+	"core_sandbox_capability_about_declarative_net_request_on_change": {
+		"message": "dozví se, když se změní pravidla nebo nastavení Declarative Net Request, když se pravidlo dočasně zruší nebo obnoví, když se změní jeho log událostí, když se změní seznam modulů nebo oprávnění a když se změní záložky"
+	},
+	"core_sandbox_capability_about_content_filters_set": {
+		"message": "Vkládat scriptlety uBlock Origin a skrývat prvky na stránkách hostitelů, které modul jmenuje (jen těch, ke kterým žádá přístup), podle pravidel seznamů, které jmenuje — rozšíření seznamy z těch adres (https) stahuje a udržuje aktuální, i když modul není zobrazený. Modul pro stránky nepřináší žádný kód, ale scriptlety „trusted-…“ ze seznamu, který označí za důvěryhodný, můžou na těch stránkách změnit jakýkoli text nebo kód. Může také označit ikonku záložky stránek, ve kterých pravidla běží."
+	},
+	"core_sandbox_capability_about_content_filters_get_status": {
+		"message": "Číst stav svých obsahových filtrů — jak se vkládají do stránek (nebo proč ne), seznamy pravidel s datem stažení a počtem pravidel, co se z nich sestavilo."
+	},
+	"core_sandbox_capability_about_content_filters_update": {
+		"message": "Nechat seznamy pravidel svých obsahových filtrů hned znovu stáhnout (jinak se stahují, až vyprší)."
+	},
+	"core_sandbox_capability_about_content_filters_on_change": {
+		"message": "Dozvědět se hned, když se jeho obsahové filtry změní (stažený seznam, znovu sestavená pravidla, jiný způsob vkládání), nebo když se změní jeho nastavení."
+	},
+	"core_sandbox_capability_about_network_filters_set": {
+		"message": "Blokovat požadavky na všech stránkách podle síťových pravidel seznamů, které modul jmenuje — rozšíření seznamy z těch adres (https) stahuje a udržuje aktuální, i když modul není zobrazený, a samo je převádí na blokovací pravidla declarativeNetRequest. Modul nedává žádná pravidla, jen seznamy, takže požadavek nemůže přesměrovat ani změnit — seznam ale může zablokovat jakoukoli stránku nebo cokoli, co načítá. Jen pro modul, který deklaruje oprávnění blokovat požadavky na všech stránkách."
+	},
+	"core_sandbox_capability_about_network_filters_get_status": {
+		"message": "Číst stav svých síťových filtrů — kolik jeho pravidel v prohlížeči platí (nebo proč žádné), seznamy pravidel s datem stažení a počtem pravidel, co nešlo převést, domény, na kterých se nic neblokuje."
+	},
+	"core_sandbox_capability_about_network_filters_update": {
+		"message": "Nechat seznamy pravidel svých síťových filtrů hned znovu stáhnout (jinak se stahují, až vyprší)."
+	},
+	"core_sandbox_capability_about_network_filters_on_change": {
+		"message": "Dozvědět se hned, když se jeho síťové filtry změní (stažený seznam, znovu převedená pravidla), nebo když se změní jeho nastavení."
+	},
+	"core_sandbox_capability_about_scheduled_urls_get_overview": {
+		"message": "zobrazí seznam vašich zařízení s tímto rozšířením (jejich názvy, prohlížeče a systémy, kdy byla naposledy používána) a adresy pro ně naplánované, včetně historie těch otevřených — prohlížeč je přenáší mezi zařízeními vašeho účtu (synchronizace Chrome, Firefox Sync)"
+	},
+	"core_sandbox_capability_about_scheduled_urls_add": {
+		"message": "naplánuje adresu pro vaše zařízení — rozšíření ji na každém z nich v daný čas otevře v nové záložce na pozadí, i když modul není zobrazený"
+	},
+	"core_sandbox_capability_about_scheduled_urls_remove": {
+		"message": "odebere naplánované adresy"
+	},
+	"core_sandbox_capability_about_scheduled_urls_rename_device": {
+		"message": "přejmenuje některé z vašich zařízení v seznamu"
+	},
+	"core_sandbox_capability_about_scheduled_urls_forget_device": {
+		"message": "zapomene jiné z vašich zařízení a adresy pro něj naplánované"
+	},
+	"core_sandbox_capability_about_scheduled_urls_check": {
+		"message": "nechá rozšíření hned otevřít adresy tohoto zařízení, jejichž čas nastal"
+	},
+	"core_sandbox_capability_about_scheduled_urls_pair_vs_code": {
+		"message": "spáruje modul s VS Code na tomto počítači (plugin tohoto rozšíření pro VS Code) — rozšíření pak kopíruje vaše zařízení a naplánované adresy mezi prohlížečem a VS Code, jehož Settings Sync je přenáší do vašich dalších instancí VS Code; k pluginu se připojuje jen na adrese 127.0.0.1"
+	},
+	"core_sandbox_capability_about_scheduled_urls_unpair_vs_code": {
+		"message": "zruší spárování s VS Code na tomto počítači"
+	},
+	"core_sandbox_capability_about_scheduled_urls_on_change": {
+		"message": "dozví se, když se změní zařízení nebo naplánované adresy, i na jiném zařízení"
+	},
+	"core_sandbox_capability_about_dns_overview_get_page": {
+		"message": "Číst hostitele, se kterými se spojila stránka v aktuální záložce, jak rozšíření sleduje její požadavky — adresy serverů, odpovědi z HTTP cache, jména, která se nepodařilo přeložit, ve Firefoxu i co o nich drží DNS cache prohlížeče a jestli spojení použila šifrované DNS — s odpověďmi dotazů na DNS, které se pro ně načetly; jen hostitele té stránky. Zakázání zastaví sledování stránek."
+	},
+	"core_sandbox_capability_about_dns_overview_load": {
+		"message": "Nechat rozšíření hned se zeptat DNS na hostitele stránky v aktuální záložce (tlačítko „🔄“) — mimo cache prohlížeče, a když prohlížeč používá DNS over HTTPS, tak i přes systémový resolver (Firefox); jen hostitele, se kterými se stránka spojila. Zakázání zastaví i automatické načítání s pravděpodobností nastavenou u modulu."
+	},
+	"core_sandbox_capability_about_dns_overview_on_change": {
+		"message": "Dozvědět se hned, když se stránka v aktuální záložce spojí s dalším hostitelem nebo přijdou nová data DNS jejích hostitelů, a když se změní, co rozšíření může (nastavení, oprávnění)."
+	},
+	"core_sandbox_domain_info_inactive": {
+		"message": "domainInfo.collect: modul Domain Info není v seznamu modulů nebo je vypnutý — nic nenačítá."
+	},
+	"core_sandbox_domain_info_bad_server": {
+		"message": "domainInfo.resumeServer: „$1“ není RDAP server z nastavení modulu Domain Info."
+	},
+	"core_sandbox_domain_info_invalid_data_saver": {
+		"message": "Neplatné šetření dat (domainInfo.setDataSaver): true nebo false."
+	},
+	"core_content_filters_invalid": {
+		"message": "Neplatná konfigurace obsahových filtrů (contentFilters.set): $1"
+	},
+	"core_content_filters_host_undeclared": {
+		"message": "contentFilters.set: modul nedeklaruje přístup k „$1“ v usesPermissions — obsahové filtry fungují jen na stránkách, ke kterým modul žádá přístup."
+	},
+	"core_content_filters_no_background": {
+		"message": "Část rozšíření na pozadí neodpověděla — obsahové filtry teď nejde použít."
+	},
+	"core_network_filters_invalid": {
+		"message": "Neplatná konfigurace síťových filtrů (networkFilters.set): $1"
+	},
+	"core_network_filters_permissions_undeclared": {
+		"message": "networkFilters.set: modul nedeklaruje v usesPermissions oprávnění blokovat požadavky na všech stránkách (declarativeNetRequestWithHostAccess a <all_urls>) — síťové filtry blokují na všech stránkách."
+	},
+	"core_network_filters_no_background": {
+		"message": "Část rozšíření na pozadí neodpověděla — síťové filtry teď nejde použít."
+	},
+	"core_scheduled_urls_no_background": {
+		"message": "Část rozšíření na pozadí neodpověděla — naplánované adresy nejde zkontrolovat."
+	},
+	"core_sandbox_dns_overview_invalid_hosts": {
+		"message": "dnsOverview.load: { hosts } — 1 až $1 jmen hostitelů."
+	},
+	"core_sandbox_buttons_invalid": {
+		"message": "Neplatná tlačítka modulu (api.buttons.set()): $1"
+	},
+	"core_sandbox_buttons_too_many": {
+		"message": "Modul chce $1 tlačítek — nejvýš $2."
+	},
+	"core_sandbox_ui_invalid": {
+		"message": "Neplatný obsah modulu (api.ui.render()): $1"
+	},
+	"core_sandbox_ui_too_large": {
+		"message": "Obsah modulu (api.ui.render()) je moc velký — nejvýš $1 uzlů, $2 úrovní vnoření a $3 znaků textu."
+	},
+	"core_sandbox_floating_window_invalid": {
+		"message": "Neplatná změna uložených stavů plovoucího okna (floatingWindow.updateStates): $1"
+	},
+	"core_sandbox_floating_window_too_many": {
+		"message": "Modul mění najednou $1 uložených stavů plovoucího okna — nejvýš $2."
+	},
+	"core_sandbox_studies_manager_invalid_dois": {
+		"message": "Neplatná žádost o metadata studií (studiesManager.enrich): nejvýš $1 DOI ve tvaru 10.xxxx/…"
+	},
+	"core_sandbox_studies_manager_invalid_ids": {
+		"message": "Neplatné odebrání studií (studiesManager.removeRecords): nejvýš $1 id záznamů (kladná celá čísla)."
+	},
+	"core_sandbox_contacts_module_invalid_ids": {
+		"message": "Neplatné odebrání kontaktů (contactsModule.removeRecords): nejvýš $1 id záznamů (kladná celá čísla)."
+	},
+	"core_sandbox_contacts_module_invalid_edit": {
+		"message": "Neplatná úprava kontaktu (contactsModule.editRecord): { id, key, edits, tags } — id a klíč záznamu, edits objekt nebo null, tags seznam textů (aspoň jedno z obou)."
+	},
+	"core_sandbox_contacts_module_invalid_orcid": {
+		"message": "Neplatný požadavek na ORCID iD (contactsModule.loadOrcid): { id, key, orcid } — id a klíč záznamu, orcid adresa https://orcid.org/<iD>."
+	},
+	"core_sandbox_contacts_module_invalid_gravatar": {
+		"message": "Neplatný požadavek na profil Gravatar (contactsModule.loadGravatar): { id, key, url } — id a klíč záznamu, url adresa https://gravatar.com/<jméno>."
+	},
+	"core_sandbox_contacts_module_invalid_mastodon": {
+		"message": "Neplatný požadavek na účet ve fediversu (contactsModule.loadMastodon): { id, key, url } — id a klíč záznamu, url adresa https://<instance>/@<účet>."
+	},
+	"core_sandbox_contacts_module_invalid_keyoxide": {
+		"message": "Neplatný požadavek na profil na Keyoxide (contactsModule.loadKeyoxide): { id, key, url } — id a klíč záznamu, url adresa https://keyoxide.org/<otisk, e-mail nebo aspe:…>."
+	},
+	"core_sandbox_contacts_module_invalid_merge": {
+		"message": "Neplatné sloučení kontaktů (contactsModule.mergeRecords): { id, key, otherId, otherKey, choices } — id a klíče dvou různých záznamů, choices objekt, jehož hodnoty jsou id jednoho z nich nebo „both“."
+	},
+	"core_sandbox_contacts_module_invalid_import": {
+		"message": "Neplatný import kontaktů (contactsModule.importContacts): pole 1 až $1 kontaktů (objektů), dohromady nejvýš $2 MB."
+	},
+	"core_sandbox_contacts_module_invalid_data_saver": {
+		"message": "Neplatné šetření dat (contactsModule.setDataSaver): true nebo false."
+	},
+	"core_sandbox_service_worker_control_invalid": {
+		"message": "Neplatné „$1“ — čeká se text, který jmenuje položku přehledu."
+	},
+	"core_sandbox_result_not_cloneable": {
+		"message": "Výsledek api.$1 nejde předat do sandboxu."
+	},
+	"core_sandbox_missing": {
+		"message": "Nahraný modul „$1“ není uložený — nahraj ho znovu v Nastavení."
+	},
+	"core_sandbox_left_page": {
+		"message": "Stránka sandboxu přešla jinam — modul byl zastaven."
+	},
+	"core_sandbox_module_failed": {
+		"message": "Nahraný modul $1 nemůže běžet:"
+	},
+	"core_sandbox_problem_not_sandboxed": {
+		"message": "Stránka sandboxu není izolovaná (nemá neprůhledný origin) — kód modulu se nespustil."
+	},
+	"core_sandbox_problem_eval_blocked": {
+		"message": "Prohlížeč nedovolí spustit kód ve stránce sandboxu — nahrané moduly potřebují sandboxové stránky rozšíření (Chrome, Firefox 154 nebo novější)."
+	},
+	"core_sandbox_problem_evaluation": {
+		"message": "Chyba při vyhodnocení modulu: $1"
+	},
+	"core_sandbox_problem_no_registration": {
+		"message": "Modul při vyhodnocení nezavolal registerModule()."
+	},
+	"core_sandbox_problem_multiple_registrations": {
+		"message": "Modul zavolal registerModule() víckrát."
+	},
+	"core_sandbox_problem_not_object": {
+		"message": "registerModule() nedostal objekt."
+	},
+	"core_sandbox_problem_name_mismatch": {
+		"message": "registerModule({ name: \"$1\" }) — jméno musí být stejné jako jméno souboru: \"$2\"."
+	},
+	"core_sandbox_problem_tag_mismatch": {
+		"message": "registerModule({ tag: \"$1\" }) — tag musí být getTagName(name): \"$2\"."
+	},
+	"core_sandbox_problem_not_defined": {
+		"message": "Element <$1> není před registerModule() definovaný přes customElements.define()."
+	},
+	"core_sandbox_problem_not_base_element": {
+		"message": "Třída elementu <$1> nedědí od BaseElement ze SDK sandboxu."
+	},
+	"core_sandbox_problem_unsupported": {
+		"message": "registerModule({ $1 }) nahrané moduly nemají (byl by to kód mimo sandbox)."
+	},
+	"core_sandbox_problem_custom_field": {
+		"message": "Pole nastavení „$1“ je typu „custom“ — nahrané moduly mají jen pole text, textarea, number, checkbox a select."
+	},
+	"core_sandbox_problem_not_data": {
+		"message": "registerModule({ $1 }) smí obsahovat jen data (JSON) — žádné funkce ani objekty tříd."
+	},
+	"core_sandbox_problem_bad_spec": {
+		"message": "activationSpec musí být složený ze specifikací sandboxSdk (ModeSpecification, WEB_PAGE_SPEC, …) s platnými hodnotami."
+	},
+	"core_sandbox_problem_bad_style": {
+		"message": "registerModule({ styles }) — „$1“ není CSS soubor z balíčku modulu."
+	},
+	"core_sandbox_problem_init_failed": {
+		"message": "init() modulu selhal: $1"
+	},
+	"core_sandbox_problem_unknown": {
+		"message": "Sandbox ohlásil neznámý problém."
+	},
+	"options_modules_output": {
+		"message": "Výstup modulů"
+	},
+	"options_section_empty": {
+		"message": "Žádný modul sem nic nevypisuje"
 	},
 	"options_modules_list_json": {
 		"message": "Seznam modulů (JSON)"
@@ -110,8 +764,17 @@
 	"options_reset_list": {
 		"message": "Obnovit výchozí seznam"
 	},
+	"options_modules_json_hint_disable": {
+		"message": "Modul vypnete snáz v „Pokročilé nastavení modulů“ → „Aktivační režim modulu“ volbou „Nespouštět vůbec (modul neaktivní)“. Zůstane v seznamu na svém místě a znovu ho zapnete jedním přepnutím."
+	},
+	"options_modules_json_hint_performance": {
+		"message": "Odebrání ze seznamu ale ušetří víc výkonu: content script vypnutého modulu se dál vkládá do každé stránky (a teprve tam zjistí, že nemá nic dělat) a postranní panel, plovoucí okno a Nastavení dál načítají jeho soubor. Modul, který v seznamu není, se nenačítá vůbec. Rozdíl je znát hlavně u modulů, které pracují ve stránkách."
+	},
 	"options_modules_settings": {
-		"message": "Pokročilá nastavení"
+		"message": "Pokročilé nastavení"
+	},
+	"options_filter_label": {
+		"message": "Filtrovat podle názvu"
 	},
 	"options_save_settings": {
 		"message": "Uložit nastavení"
@@ -119,8 +782,17 @@
 	"options_reset_defaults": {
 		"message": "Obnovit výchozí"
 	},
+	"options_reset_defaults_confirm": {
+		"message": "Stiskněte znovu pro potvrzení"
+	},
+	"options_unsaved_changes": {
+		"message": "Nezapomeňte uložit provedené změny"
+	},
 	"options_custom_module_settings": {
-		"message": "Nastavení tabGroups"
+		"message": "Hlavní nastavení"
+	},
+	"options_save_module_settings": {
+		"message": "Uložit nastavení modulů"
 	},
 	"options_recommended_suffix": {
 		"message": " (doporučeno modulem)"
@@ -130,6 +802,36 @@
 	},
 	"options_hint_disabled": {
 		"message": "Modul je vypnutý (aktivační režim „Nespouštět vůbec“) — nevypíše se nikde."
+	},
+	"options_sidebar_disabled": {
+		"message": "Nepoužívat postranní panel"
+	},
+	"options_sidebar_disabled_hint_firefox": {
+		"message": "Moduly se v postranním panelu nevypíšou, místo nich ukáže jen upozornění (otevřený panel se zavře). Ikonku rozšíření v liště postranního panelu Firefox rozšíření skrýt nedovolí — odeberte ji sami: klikněte na ni pravým tlačítkem a zvolte odebrání z postranního panelu (Firefox 143 a novější). Vrátit ji jde v úpravách postranního panelu. Zaškrtnutá umístění „V postranním panelu“ u modulů zůstanou uložená pro případ, že panel zase zapnete."
+	},
+	"options_sidebar_disabled_hint_chrome": {
+		"message": "Moduly se v postranním panelu nevypíšou a panel rozšíření zmizí z nabídky postranních panelů prohlížeče. Zaškrtnutá umístění „V postranním panelu“ u modulů zůstanou uložená pro případ, že panel zase zapnete."
+	},
+	"options_sidebar_disabled_saved": {
+		"message": "Postranní panel je vypnutý."
+	},
+	"options_sidebar_enabled_saved": {
+		"message": "Postranní panel je zapnutý."
+	},
+	"options_location_sidebar_off": {
+		"message": "Postranní panel je vypnutý (volba „Nepoužívat postranní panel“ nahoře na stránce)."
+	},
+	"options_hint_sidebar_only": {
+		"message": "Zaškrtnutý je jen postranní panel, a ten je vypnutý — modul se nikde nevypisuje. Podle aktivačního režimu může dál pracovat na pozadí."
+	},
+	"options_details_scope_visit": {
+		"message": "k návštěvě stránky"
+	},
+	"options_details_scope_domain": {
+		"message": "k doméně"
+	},
+	"options_details_scope_browser": {
+		"message": "k prohlížeči"
 	},
 	"options_error": {
 		"message": "Chyba: $1"
@@ -179,6 +881,15 @@
 	"options_dependency_dependents": {
 		"message": "Závisí na něm"
 	},
+	"options_details_consumes": {
+		"message": "Přebírá data $1 od modulů"
+	},
+	"options_details_no_provider": {
+		"message": "zatím žádný modul v seznamu je nenabízí"
+	},
+	"options_details_provides": {
+		"message": "Poskytuje data $1 modulům"
+	},
 	"options_optional_permission": {
 		"message": "Nepovinné oprávnění"
 	},
@@ -221,11 +932,20 @@
 	"options_display_locations": {
 		"message": "Vypisovat data modulu (můžeš zaškrtnout víc míst):"
 	},
+	"options_display_locations_alone": {
+		"message": "Vypisovat data modulu, dokud pracuje samostatně (můžeš zaškrtnout víc míst):"
+	},
+	"options_display_locations_delegated": {
+		"message": "Vypisovat data modulu, když ho zobrazuje i $1 (můžeš zaškrtnout víc míst):"
+	},
 	"options_order_saved": {
 		"message": "Pořadí modulů uloženo."
 	},
 	"options_no_module_settings": {
 		"message": "Žádný modul aktuálně nenabízí vlastní nastavení."
+	},
+	"options_setting_shared": {
+		"message": "Sdílené nastavení — stejnou hodnotu má i $1; změna platí pro všechny."
 	},
 	"options_custom_field_invalid": {
 		"message": "render() musí vrátit element s metodou getValue()"
@@ -233,11 +953,38 @@
 	"options_custom_field_failed": {
 		"message": "Pole nelze zobrazit: $1"
 	},
+	"options_setting_notifications_unsupported": {
+		"message": "Prohlížeč oznámení nepodporuje — modul je posílat nebude."
+	},
+	"options_setting_notifications_granted": {
+		"message": "Oznámení jsou povolená — modul je posílá bez zvuku."
+	},
+	"options_setting_notifications_blocked": {
+		"message": "Prohlížeč oznámení rozšíření blokuje — modul je posílat nebude, dokud je nepovolíš v nastavení prohlížeče (oprávnění k oznámením)."
+	},
+	"options_setting_notifications_ask": {
+		"message": "Oznámení modulu musí povolit prohlížeč."
+	},
+	"options_setting_notifications_button": {
+		"message": "Povolit oznámení"
+	},
+	"options_setting_notifications_button_title": {
+		"message": "Oprávnění k oznámením (notifications) — oznámení jsou bez zvuku"
+	},
 	"options_module_settings_saved": {
 		"message": "Nastavení modulů uloženo."
 	},
 	"options_module_settings_reset": {
 		"message": "Nastavení modulů obnoveno na výchozí."
+	},
+	"options_reset_module_settings_and_data": {
+		"message": "Reset do výchozího nastavení (včetně smazání dat)"
+	},
+	"options_reset_module_confirm": {
+		"message": "Jste si jisti? Stiskněte znovu pro potvrzení"
+	},
+	"options_module_reset_confirmed": {
+		"message": "Modul resetován a data smazána."
 	},
 	"options_settings_saved": {
 		"message": "Nastavení uloženo."
@@ -245,325 +992,316 @@
 	"options_settings_reset": {
 		"message": "Nastavení obnoveno na výchozí."
 	},
-	"tabGroups_description": {
-		"message": "Karty, které nejsou ve vlastní skupině, sám řadí do 9 skupin (dnes, včera, … v minulém roce) podle toho, kdy byly otevřené, nebo — volba v Nastavení — kdy byly naposledy použité, a po půlnoci je posouvá do dalších. V Nastavení jde přidat i skupiny ze záložek: karty se záložkou ve zvolené složce (volitelně i s adresou na doméně záložky) mají vlastní skupinu. Automatické skupiny drží vpravo od vlastních, od nejstarší po nejnovější."
+	"options_sandbox_heading": {
+		"message": "Nahrané moduly (sandbox)"
 	},
-	"tabGroups_setting_group_by": {
-		"message": "Řadit karty do skupin podle"
+	"options_sandbox_hint": {
+		"message": "Modul nahraný ze souboru běží v izolované stránce (sandboxu) bez přístupu k rozšíření — o všechno ostatní (svoje nastavení, uložená data, aktuální záložku, …) žádá jádro rozšíření. Jinak je to modul jako ostatní: v seznamu modulů, s aktivačním režimem, místy výstupu a vlastním nastavením. Nahraj jeden skript pojmenovaný podle modulu (<jméno>.js, nebo <jméno>.mjs jako JS modul), nebo .zip se složkou modulu — další JS moduly, CSS, obrázky a texty (messages.json). Ukázky jsou v sandbox-modules/ v repozitáři rozšíření."
 	},
-	"tabGroups_setting_group_by_opened": {
-		"message": "vzniku karty — karta zůstane ve skupině dne, kdy byla otevřená"
+	"options_sandbox_upload": {
+		"message": "Nahrát modul (.js, .mjs nebo .zip)"
 	},
-	"tabGroups_setting_group_by_last_used": {
-		"message": "posledního použití karty — karta, na kterou se přepneš, se přesune do skupiny „dnes“"
+	"options_sandbox_checking": {
+		"message": "Kontroluji „$1“ v sandboxu…"
 	},
-	"tabGroups_setting_manual_moves": {
-		"message": "Možnost přetahovat karty mezi automatickými skupinami — karta přetažená do skupiny jiného dne (třeba z „dnes“ do „včera“) v ní zůstane (při řazení podle posledního použití, dokud se na ni znovu nepřepneš)"
+	"options_sandbox_installed": {
+		"message": "Modul „$1“ byl nahrán a přidán na konec seznamu modulů."
 	},
-	"tabGroups_setting_title_prefix": {
-		"message": "Předpona před názvy všech automatických skupin (i skupin ze záložek), oddělená mezerou — prázdná = bez předpony"
+	"options_sandbox_uploaded": {
+		"message": "Modul „$1“ byl nahrán."
 	},
-	"tabGroups_setting_title_prefix_placeholder": {
-		"message": "bez předpony"
+	"options_sandbox_updated": {
+		"message": "Modul „$1“ byl aktualizován — jeho nastavení i data zůstávají. Otevřené stránky ukážou novou verzi po opětovném načtení."
 	},
-	"tabGroups_setting_groups": {
-		"message": "Automatické skupiny karet (název, barva a uzavřená skupina pro každé období)"
+	"options_sandbox_failed": {
+		"message": "Modul nebyl nahrán:"
 	},
-	"tabGroups_setting_bookmark_groups": {
-		"message": "Skupiny ze záložek (název skupiny, složka záložek, volba pro celou doménu, barva a uzavřená skupina)"
+	"options_sandbox_warnings": {
+		"message": "Varování:"
 	},
-	"tabGroups_color_grey": {
-		"message": "šedá"
+	"options_sandbox_none": {
+		"message": "Zatím není nahraný žádný modul."
 	},
-	"tabGroups_color_blue": {
-		"message": "modrá"
+	"options_sandbox_meta": {
+		"message": "$1 · $2 · nahráno $3 · SHA-256 $4…"
 	},
-	"tabGroups_color_red": {
-		"message": "červená"
+	"options_sandbox_bundled_meta": {
+		"message": "Součást rozšíření · souborů: $1 · $2 · nainstalováno $3 · SHA-256 $4…"
 	},
-	"tabGroups_color_yellow": {
-		"message": "žlutá"
+	"options_sandbox_package": {
+		"message": "$1 (souborů: $2)"
 	},
-	"tabGroups_color_green": {
-		"message": "zelená"
+	"options_sandbox_listed": {
+		"message": "V seznamu modulů."
 	},
-	"tabGroups_color_pink": {
-		"message": "růžová"
+	"options_sandbox_not_listed": {
+		"message": "Není v seznamu modulů — nikde se nenačítá."
 	},
-	"tabGroups_color_purple": {
-		"message": "fialová"
+	"options_sandbox_files_missing": {
+		"message": "Jeho soubory nejsou uložené (např. po obnově zálohy rozšíření, která obsahuje jen nastavení) — nahraj modul znovu."
 	},
-	"tabGroups_color_cyan": {
-		"message": "azurová"
+	"options_sandbox_add_to_list": {
+		"message": "Přidat do seznamu modulů"
 	},
-	"tabGroups_color_orange": {
-		"message": "oranžová"
+	"options_sandbox_added": {
+		"message": "Modul „$1“ byl přidán na konec seznamu modulů."
 	},
-	"tabGroups_bucket_today_title": {
-		"message": "dnes"
+	"options_sandbox_removed": {
+		"message": "Modul „$1“ byl odebrán i s nastavením (jeho uložená data zůstávají)."
 	},
-	"tabGroups_bucket_today_range": {
-		"message": "dnes"
+	"options_sandbox_row_note": {
+		"message": "Nahraný modul ($1) — běží v sandboxu, viz „Nahrané moduly (sandbox)“."
 	},
-	"tabGroups_bucket_yesterday_title": {
-		"message": "včera"
+	"options_sandbox_row_note_bundled": {
+		"message": "Modul rozšíření, který běží v sandboxu — rozšíření ho instaluje samo, viz „Nahrané moduly (sandbox)“."
 	},
-	"tabGroups_bucket_yesterday_range": {
-		"message": "včera"
+	"options_sandbox_capabilities_title": {
+		"message": "Funkce mimo sandbox"
 	},
-	"tabGroups_bucket_day_before_yesterday_title": {
-		"message": "předevčírem"
+	"options_sandbox_capability_choice_pending": {
+		"message": "Nerozhodnuto — odmítá se"
 	},
-	"tabGroups_bucket_day_before_yesterday_range": {
-		"message": "předevčírem"
+	"options_sandbox_capability_choice_default": {
+		"message": "Výchozí — povoleno (součást rozšíření)"
 	},
-	"tabGroups_bucket_this_week_title": {
-		"message": "v tomto týdnu"
+	"options_sandbox_capability_choice_allow": {
+		"message": "Povolit"
 	},
-	"tabGroups_bucket_this_week_range": {
-		"message": "dřív v tomto týdnu (od pondělí)"
+	"options_sandbox_capability_choice_deny": {
+		"message": "Zakázat"
 	},
-	"tabGroups_bucket_last_week_title": {
-		"message": "v minulém týdnu"
+	"options_sandbox_capability_select_label": {
+		"message": "Rozhodnutí o $1"
 	},
-	"tabGroups_bucket_last_week_range": {
-		"message": "v minulém týdnu"
+	"options_sandbox_capability_risk_low": {
+		"message": "nízké riziko"
 	},
-	"tabGroups_bucket_this_month_title": {
-		"message": "v tomto měsíci"
+	"options_sandbox_capability_risk_medium": {
+		"message": "střední riziko"
 	},
-	"tabGroups_bucket_this_month_range": {
-		"message": "dřív v tomto měsíci"
+	"options_sandbox_capability_risk_high": {
+		"message": "vysoké riziko"
 	},
-	"tabGroups_bucket_last_month_title": {
-		"message": "v minulém měsíci"
+	"options_sandbox_capability_base": {
+		"message": "Patří do základního api — vždy povolená, deklarovat ji není třeba."
 	},
-	"tabGroups_bucket_last_month_range": {
-		"message": "v minulém měsíci"
+	"options_sandbox_capability_forbidden": {
+		"message": "Nejde povolit: $1"
 	},
-	"tabGroups_bucket_this_year_title": {
-		"message": "v tomto roce"
+	"options_sandbox_capability_unknown": {
+		"message": "Jádro tuto funkci nenabízí — její požadavky se odmítají."
 	},
-	"tabGroups_bucket_this_year_range": {
-		"message": "dřív v tomto roce"
+	"options_sandbox_capability_outcome_allowed": {
+		"message": "spuštěno"
 	},
-	"tabGroups_bucket_last_year_title": {
-		"message": "v minulém roce"
+	"options_sandbox_capability_outcome_failed": {
+		"message": "selhalo"
 	},
-	"tabGroups_bucket_last_year_range": {
-		"message": "v minulém roce a dřív"
+	"options_sandbox_capability_outcome_denied": {
+		"message": "odmítnuto (zakázáno)"
 	},
-	"tabGroups_loading": {
-		"message": "$1: Načítám skupiny karet..."
+	"options_sandbox_capability_outcome_pending": {
+		"message": "odmítnuto (nerozhodnuto)"
 	},
-	"tabGroups_disabled": {
-		"message": "$1: Vypnut"
+	"options_sandbox_capability_outcome_undeclared": {
+		"message": "odmítnuto (nedeklarováno)"
 	},
-	"tabGroups_intro_opened": {
-		"message": "$1: karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly otevřené."
+	"options_sandbox_capability_outcome_forbidden": {
+		"message": "odmítnuto (nejde povolit)"
 	},
-	"tabGroups_intro_last_used": {
-		"message": "$1: karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly naposledy použité."
+	"options_sandbox_capability_outcome_unknown": {
+		"message": "odmítnuto (neznámá)"
 	},
-	"tabGroups_intro_opened_bookmarks": {
-		"message": "$1: karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly otevřené, karty se záložkou ve zvolených složkách do skupin ze záložek."
+	"options_sandbox_capability_outcome_user_allowed": {
+		"message": "povoleno uživatelem"
 	},
-	"tabGroups_intro_last_used_bookmarks": {
-		"message": "$1: karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly naposledy použité, karty se záložkou ve zvolených složkách do skupin ze záložek."
+	"options_sandbox_capability_outcome_user_denied": {
+		"message": "zakázáno uživatelem"
 	},
-	"tabGroups_unsupported": {
-		"message": "Tenhle prohlížeč rozšířením spravovat skupiny karet nedovolí (Chrome od verze 89, Firefox od verze 139 na počítači)."
+	"options_sandbox_capability_outcome_user_reset": {
+		"message": "rozhodnutí zrušeno"
 	},
-	"tabGroups_missing_permission": {
-		"message": "Chybí oprávnění ke skupinám karet — zatím se nic neřadí."
+	"options_sandbox_capability_outcome_unavailable": {
+		"message": "odmítnuto (tady není k dispozici)"
 	},
-	"tabGroups_grant_tab_groups": {
-		"message": "Povolit skupiny karet"
+	"options_sandbox_capability_outcome_click_only": {
+		"message": "odmítnuto (jen z tlačítka)"
 	},
-	"tabGroups_missing_alarms": {
-		"message": "Bez oprávnění k budíku se skupiny po půlnoci posunou až při další práci s kartami."
+	"options_sandbox_capability_last": {
+		"message": "naposledy $1"
 	},
-	"tabGroups_grant_alarms": {
-		"message": "Posouvat přesně o půlnoci"
+	"options_sandbox_capabilities_other": {
+		"message": "Požadavky mimo deklaraci:"
 	},
-	"tabGroups_missing_bookmarks": {
-		"message": "Skupiny ze záložek potřebují přístup k záložkám a k adresám karet — zatím se nepoužívají."
+	"options_sandbox_capabilities_clear": {
+		"message": "Vymazat záznam"
 	},
-	"tabGroups_grant_bookmarks": {
-		"message": "Povolit záložky a adresy karet"
+	"options_services_heading": {
+		"message": "Export funkcí tohoto rozšíření"
 	},
-	"tabGroups_regroup_now": {
-		"message": "Přeskupit teď"
+	"options_services_hint": {
+		"message": "Tohle rozšíření může své moduly nabídnout celému rozšíření AnalyticExtension, když je nainstalované: až to povolíš v Nastavení AnalyticExtension, zobrazí je ve svém popupu, postranním panelu a Nastavení, práci pro ně ale dělá dál tohle rozšíření se svými oprávněními a nastavením. Jde jen o export odtud ven — moduly jiných rozšíření do tohoto rozšíření přidat nejde."
 	},
-	"tabGroups_group_settings": {
-		"message": "Nastavení skupin"
+	"options_services_meta": {
+		"message": "$1 · verze $2 · nabídnuto $3"
 	},
-	"tabGroups_identify": {
-		"message": "Identifikovat řízené skupiny"
+	"options_services_status_pending": {
+		"message": "Čeká na tvé rozhodnutí — tohle rozšíření z něj nic nezobrazuje ani nevolá. To druhé ale běží dál samo, takže moduly, které nahrazuje, zatím pracují v obou."
 	},
-	"tabGroups_identify_title": {
-		"message": "Skupiny, které modul automaticky řídí, ve všech oknech krátce zablikají"
+	"options_services_status_approved": {
+		"message": "Povoleno — jeho moduly se zobrazují tady."
 	},
-	"tabGroups_overview_elsewhere": {
-		"message": "Přehled skupin okna je v popupu, postranním panelu nebo v Nastavení."
+	"options_services_status_approved_absent": {
+		"message": "Povoleno, ale teď není k dispozici (odinstalované nebo vypnuté) — místo jeho modulů se zobrazují vlastní moduly tohoto rozšíření."
 	},
-	"tabGroups_overview_not_sorted": {
-		"message": "Karty v tomhle okně se ještě nezařadily — zkus „Přeskupit teď“."
+	"options_services_status_denied": {
+		"message": "Zakázáno — nic z něj neběží."
 	},
-	"tabGroups_overview_no_groups": {
-		"message": "V tomhle okně zatím není žádná automatická skupina (karty jsou ve vlastních skupinách nebo připnuté)."
+	"options_services_modules": {
+		"message": "Moduly: $1"
 	},
-	"tabGroups_chip_opened": {
-		"message": "Karty otevřené $1: $2"
+	"options_services_replaces": {
+		"message": "Běží místo: $1 (po povolení se odeberou z tvého seznamu modulů a samy se nevrátí, ani když to druhé rozšíření zmizí)"
 	},
-	"tabGroups_chip_last_used": {
-		"message": "Karty naposledy použité $1: $2"
+	"options_services_backup": {
+		"message": "Uchovává data modulů: $1 (Import Export je zálohuje a obnovuje přímo v tom rozšíření)"
 	},
-	"tabGroups_chip_bookmarks": {
-		"message": "Karty $1: $2"
+	"options_services_services_title": {
+		"message": "Co pro své moduly dělá (se svými oprávněními):"
 	},
-	"tabGroups_user_groups": {
-		"message": "Vlastních skupin vlevo od nich: $1"
+	"options_services_uses_title": {
+		"message": "Co používá z modulů tohoto rozšíření (s jejich daty):"
 	},
-	"tabGroups_no_response": {
-		"message": "Background část modulu neodpověděla — zkus rozšíření znovu načíst."
+	"options_services_allow": {
+		"message": "Povolit"
 	},
-	"tabGroups_regrouped": {
-		"message": "Karty jsou přeskupené."
+	"options_services_deny": {
+		"message": "Zakázat"
 	},
-	"tabGroups_nothing_to_regroup": {
-		"message": "Všechny karty už jsou ve správné skupině."
+	"options_services_open": {
+		"message": "Otevřít jeho Nastavení"
 	},
-	"tabGroups_identified_one": {
-		"message": "Zablikala $1 skupina řízená modulem (ve všech oknech)."
+	"options_services_allowed_problems": {
+		"message": "Povoleno, ale některé moduly nejde nainstalovat:"
 	},
-	"tabGroups_identified_few": {
-		"message": "Zablikaly $1 skupiny řízené modulem (ve všech oknech)."
+	"options_services_allowed_removed": {
+		"message": "Odebráno ze seznamu modulů: $1 — místo nich pracuje rozšíření $2. Když ho odinstaluješ, samy se nezapnou; vrátíš je do seznamu modulů tady v Nastavení."
 	},
-	"tabGroups_identified_other": {
-		"message": "Zablikalo $1 skupin řízených modulem (ve všech oknech)."
+	"options_services_provider_unnamed": {
+		"message": "poskytovatel služeb"
 	},
-	"tabGroups_identified_none": {
-		"message": "Modul teď neřídí žádnou skupinu."
+	"options_services_client_approved": {
+		"message": "Moduly tohoto rozšíření ($1) zobrazuje $2 ve svém popupu a postranním panelu místo tohoto rozšíření. Jejich nastavení jde měnit tady i v Nastavení $2."
 	},
-	"tabGroups_identify_error": {
-		"message": "Identifikace skupin selhala: $1"
+	"options_services_client_approved_none": {
+		"message": "$1 tohle rozšíření povolil, ale teď žádný jeho modul nezobrazuje (nejsou v jeho seznamu modulů nebo jsou vypnuté) — zobrazuje je tohle rozšíření samo."
 	},
-	"tabGroups_problem_disabled": {
-		"message": "Modul je vypnutý nebo není v seznamu modulů — karty se neřadí."
+	"options_services_client_pending": {
+		"message": "Tohle rozšíření nabídlo své moduly rozšíření $1 — povol ho v Nastavení $1 (Moduly z jiných rozšíření). Do té doby je zobrazuje samo."
 	},
-	"tabGroups_problem_unavailable": {
-		"message": "Chybí oprávnění ke skupinám karet."
+	"options_services_client_denied": {
+		"message": "$1 odmítl zobrazovat moduly tohoto rozšíření — zobrazuje je samo."
 	},
-	"tabGroups_problem_error": {
-		"message": "Přeskupení selhalo: $1"
+	"options_services_client_unknown": {
+		"message": "AnalyticExtension, kterému tohle rozšíření nabízí své moduly, není nainstalované nebo neodpovědělo — moduly zobrazuje jen tohle rozšíření samo."
 	},
-	"tabGroups_unknown_error": {
-		"message": "neznámá chyba"
+	"options_services_client_register": {
+		"message": "Nabídnout znovu"
 	},
-	"tabGroups_bookmarks_fallback_title": {
-		"message": "Záložky"
+	"options_sandbox_capabilities_pending": {
+		"message": "Modul žádá o funkce mimo sandbox: $1. Jádro je odmítá, dokud je níže v seznamu nahraných modulů nepovolíš."
 	},
-	"tabGroups_bookmarks_describe_domain": {
-		"message": "na doménách záložek ze složky „$1“"
+	"background_debugger_extension_pages_only": {
+		"message": "api.debugger smí používat jen stránky rozšíření."
 	},
-	"tabGroups_bookmarks_describe_folder": {
-		"message": "ze záložek ve složce „$1“"
+	"background_debugger_unavailable": {
+		"message": "chrome.debugger není dostupné — chybí oprávnění „debugger“, nebo ho prohlížeč nemá."
 	},
-	"tabGroups_folder_untitled": {
-		"message": "(bez názvu)"
+	"background_network_rules_extension_pages_only": {
+		"message": "api.networkRules smí používat jen stránky rozšíření."
 	},
-	"tabGroups_folder_in_account": {
-		"message": "$1 (v účtu)"
+	"background_content_filters_declared": {
+		"message": "Modul deklaruje konfiguraci obsahových filtrů v registerModule() — jádro ji použije samo, contentFilters.set ji nemění."
 	},
-	"tabGroups_folder_device_only": {
-		"message": "$1 (jen v zařízení)"
+	"background_content_filters_extension_pages_only": {
+		"message": "Obsahové filtry (contentFilters.*) smí používat jen stránky rozšíření."
 	},
-	"tabGroups_editor_hint": {
-		"message": "Karty, které nejsou ve vlastní skupině, se samy řadí do skupiny období podle toho, kdy byly otevřené, nebo kdy byly naposledy použité (volba výš). Modul své skupiny pozná podle názvu — nepojmenovávej stejně žádnou vlastní skupinu."
+	"background_content_filters_unknown_module": {
+		"message": "Obsahové filtry jsou jen pro nahrané moduly — „$1“ takový není."
 	},
-	"tabGroups_editor_period": {
-		"message": "Období"
+	"background_network_filters_declared": {
+		"message": "Modul deklaruje konfiguraci síťových filtrů v registerModule() — jádro ji použije samo, networkFilters.set ji nemění."
 	},
-	"tabGroups_editor_group_name": {
-		"message": "Název skupiny"
+	"background_network_filters_extension_pages_only": {
+		"message": "Síťové filtry (networkFilters.*) smí používat jen stránky rozšíření."
 	},
-	"tabGroups_editor_color": {
-		"message": "Barva"
+	"background_scheduled_urls_extension_pages_only": {
+		"message": "Naplánované adresy jde kontrolovat jen ze stránek rozšíření."
 	},
-	"tabGroups_editor_title_aria": {
-		"message": "Název skupiny pro období $1"
+	"background_dns_overview_extension_pages_only": {
+		"message": "DNS přehled jde číst jen ze stránek rozšíření."
 	},
-	"tabGroups_editor_color_aria": {
-		"message": "Barva skupiny pro období $1"
+	"background_dns_overview_invalid_request": {
+		"message": "Neplatný požadavek DNS přehledu (záložka, hostitelé)."
 	},
-	"tabGroups_editor_color_default": {
-		"message": "$1 (výchozí)"
+	"background_dns_overview_no_dns": {
+		"message": "Tento prohlížeč nemá browser.dns — vlastní dotazy na DNS fungují jen ve Firefoxu."
 	},
-	"tabGroups_editor_collapsed_aria": {
-		"message": "Uzavřená skupina pro období $1"
+	"background_network_filters_unknown_module": {
+		"message": "Síťové filtry jsou jen pro nahrané moduly — „$1“ takový není."
 	},
-	"tabGroups_editor_duplicates": {
-		"message": "Názvy skupin se nesmí opakovat ($1) — opakovaný název se uloží jako výchozí název období."
+	"background_missing_module_name": {
+		"message": "Chybí jméno modulu."
 	},
-	"tabGroups_quoted": {
-		"message": "„$1“"
+	"core_service_unknown": {
+		"message": "Služba $1 neexistuje."
 	},
-	"tabGroups_editor_collapsed_title": {
-		"message": "Nová skupina vznikne sbalená — když v ní ale je právě otevřená karta, zůstane rozbalená, ať prohlížeč nepřepne jinam. Už existující skupinu modul nesbaluje ani nerozbaluje."
+	"core_service_no_answer": {
+		"message": "Služba $1 neodpověděla."
 	},
-	"tabGroups_editor_collapsed": {
-		"message": "uzavřená skupina"
+	"core_service_unavailable": {
+		"message": "Funkce $1 teď není k dispozici — žádný modul ji nenabízí, ani v jiném rozšíření."
 	},
-	"tabGroups_bookmarks_hint": {
-		"message": "Karta, jejíž adresa je záložkou ve vybrané složce (i v podsložkách), jde do skupiny ze záložek místo do skupiny období; porovnává se celá adresa bez části za #. Když karta patří do víc skupin, platí první řádek. Skupiny ze záložek stojí v liště mezi vlastními skupinami a obdobími."
+	"core_service_timeout": {
+		"message": "Rozšíření $1 neodpovědělo včas."
 	},
-	"tabGroups_bookmarks_folder": {
-		"message": "Složka záložek"
+	"core_service_registration_invalid": {
+		"message": "Neplatná registrace rozšíření ($1)."
 	},
-	"tabGroups_bookmarks_empty": {
-		"message": "Žádná skupina ze záložek."
+	"core_service_package_missing": {
+		"message": "Soubory modulu $1 chybí — rozšíření je nabídne znovu."
 	},
-	"tabGroups_bookmarks_add": {
-		"message": "Přidat skupinu ze záložek"
+	"core_service_not_provider": {
+		"message": "Rozšíření $1 není poskytovatelem služeb tohoto rozšíření."
 	},
-	"tabGroups_bookmarks_choose_folder": {
-		"message": "— vyber složku záložek —"
+	"core_service_not_declared": {
+		"message": "Funkci $1 rozšíření předem neohlásilo — nabídne se s ní znovu."
 	},
-	"tabGroups_bookmarks_folder_not_found": {
-		"message": "$1 (složka nenalezena)"
+	"core_service_client_not_allowed": {
+		"message": "Rozšíření $1 nesmí používat funkce tohoto rozšíření — povol ho v Nastavení (Moduly z jiných rozšíření)."
 	},
-	"tabGroups_bookmarks_folder_name": {
-		"message": "název složky"
+	"core_service_standalone": {
+		"message": "Rozšíření $1 jen nabízí své moduly jinému rozšíření — moduly ani požadavky jiných rozšíření nepřijímá."
 	},
-	"tabGroups_bookmarks_duplicates": {
-		"message": "Názvy skupin se nesmí opakovat ani shodovat s názvem období ($1) — opakovaný název dostane pořadové číslo."
+	"core_service_backup_refused": {
+		"message": "Data modulu $1 toto rozšíření pro svého poskytovatele služeb neuchovává."
 	},
-	"tabGroups_bookmarks_without_folder": {
-		"message": "Řádek bez vybrané složky se nepoužije."
+	"core_service_backup_no_answer": {
+		"message": "Rozšíření $1 neodpovědělo k datům modulu $2."
 	},
-	"tabGroups_bookmarks_title_aria": {
-		"message": "Název skupiny ze záložek (prázdný = název složky)"
+	"core_service_delegated": {
+		"message": "$1 se zobrazuje v rozšíření $2."
 	},
-	"tabGroups_bookmarks_whole_domain_title": {
-		"message": "Do skupiny přijde i karta s jinou adresou na doméně některé záložky ze složky: při záložce some.tld třeba some.tld/slozka/soubor.html. Předpona www. se nepočítá (some.tld i www.some.tld jsou stejná doména), jiné subdomény ano."
+	"core_service_provider_unnamed": {
+		"message": "poskytovateli služeb"
 	},
-	"tabGroups_bookmarks_whole_domain": {
-		"message": "všechny url na doméně záložky"
+	"core_service_pending_notice": {
+		"message": "⚠ Rozšíření $1 nabízí tomuto rozšíření své moduly a čeká na tvé rozhodnutí. Dokud ho nepovolíš nebo nezamítneš, pracuje $2 v obou rozšířeních zároveň (tatáž práce dvakrát)."
 	},
-	"tabGroups_bookmarks_color_aria": {
-		"message": "Barva skupiny ze záložek"
+	"core_service_pending_notice_none": {
+		"message": "Rozšíření $1 nabízí tomuto rozšíření své moduly a čeká na tvé rozhodnutí."
 	},
-	"tabGroups_bookmarks_collapsed_aria": {
-		"message": "Uzavřená skupina ze záložek"
-	},
-	"tabGroups_bookmarks_remove": {
-		"message": "Odebrat skupinu ze záložek"
-	},
-	"tabGroups_bookmarks_missing_permission": {
-		"message": "Skupiny ze záložek potřebují přístup k záložkám a k adresám karet — bez něj se nepoužijí a složku nejde vybrat."
-	},
-	"tabGroups_bookmarks_permission_here": {
-		"message": "Tady ho udělit nejde — povol ho v Nastavení, popupu nebo postranním panelu."
+	"core_service_pending_decide": {
+		"message": "Rozhodnout v Nastavení"
 	}
 }

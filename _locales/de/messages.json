@@ -1,6 +1,6 @@
 {
 	"extension_name": {
-		"message": "tabGroups"
+		"message": "Tab Groups"
 	},
 	"extension_description": {
 		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie geöffnet oder (Option in den Einstellungen) zuletzt verwendet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
@@ -32,6 +32,9 @@
 	"core_location_sidebar": {
 		"message": "In der Seitenleiste"
 	},
+	"core_location_floating": {
+		"message": "Im schwebenden Fenster"
+	},
 	"core_location_options": {
 		"message": "Auf der Einstellungsseite"
 	},
@@ -53,6 +56,12 @@
 	"core_output_details_open": {
 		"message": "Ausklappbares Element, ausgeklappt"
 	},
+	"core_pin_module": {
+		"message": "Oben anheften"
+	},
+	"core_unpin_module": {
+		"message": "Lösen"
+	},
 	"core_default_modules_load_failed": {
 		"message": "Die Standarddatei modules.json kann nicht geladen werden: $1"
 	},
@@ -68,8 +77,29 @@
 	"core_storage_unavailable": {
 		"message": "chrome.storage.$1 ist in diesem Kontext nicht verfügbar."
 	},
+	"core_background_no_response": {
+		"message": "background.js hat nicht geantwortet"
+	},
+	"core_backup_invalid": {
+		"message": "Die Sicherung des Moduls $1 ist ungültig."
+	},
+	"core_backup_records_failed": {
+		"message": "Die Einträge des Moduls $1 können nicht übertragen werden: $2"
+	},
+	"core_debugger_targets_failed": {
+		"message": "Die Liste der Debugger-Ziele kann nicht abgerufen werden."
+	},
+	"core_debugger_commands_failed": {
+		"message": "Die Debugger-Befehle können nicht ausgeführt werden."
+	},
+	"core_close": {
+		"message": "Schließen"
+	},
+	"core_resize_handle": {
+		"message": "Ziehen, um die Größe zu ändern"
+	},
 	"popup_page_title": {
-		"message": "tabGroups-Pop-up"
+		"message": "Tab Groups-Pop-up"
 	},
 	"popup_json_error": {
 		"message": "JSON-Fehler: $1"
@@ -81,25 +111,649 @@
 		"message": "Fehler im Modul: $1"
 	},
 	"sidebar_page_title": {
-		"message": "tabGroups – Seitenleiste"
+		"message": "Tab Groups – Seitenleiste"
+	},
+	"sidebar_disabled_notice": {
+		"message": "Die Seitenleiste ist in den Einstellungen ausgeschaltet („Seitenleiste nicht verwenden“), daher werden hier keine Module angezeigt."
+	},
+	"sidebar_disabled_remove_icon": {
+		"message": "Um das Symbol der Erweiterung aus der Leiste der Firefox-Seitenleiste zu entfernen, klicken Sie mit der rechten Maustaste darauf und entfernen Sie es aus der Seitenleiste (Firefox 143 und neuer)."
+	},
+	"sidebar_disabled_open_options": {
+		"message": "Einstellungen öffnen"
 	},
 	"onboarding_page_title": {
-		"message": "tabGroups – Willkommensseite (Onboarding)"
+		"message": "Tab Groups – Willkommensseite (Onboarding)"
 	},
 	"onboarding_empty_html": {
 		"message": "Auf der Willkommensseite wird noch nichts angezeigt. Senden Sie Module in den <a href=\"./options.html\" target=\"_blank\">Einstellungen der Erweiterung</a> mit der Option „Modulausgabe anzeigen“ des jeweiligen Moduls hierher."
 	},
 	"options_page_title": {
-		"message": "tabGroups-Einstellungen"
+		"message": "Tab Groups-Einstellungen"
 	},
 	"options_heading": {
-		"message": "Einstellungen der tabGroups-Erweiterung"
+		"message": "Tab Groups-Einstellungen"
 	},
 	"core_ui_language": {
 		"message": "Sprache"
 	},
 	"core_ui_language_browser": {
 		"message": "$1 - Browsersprache"
+	},
+	"core_sandbox_bad_file_name": {
+		"message": "Die Datei „$1“ muss das Modul selbst sein — <Name>.js oder <Name>.mjs, der Modulname in camelCase (z. B. mySandbox.mjs) — oder eine .zip-Datei mit seinem Paket."
+	},
+	"core_sandbox_too_large": {
+		"message": "Die Datei ist zu groß ($1, höchstens $2)."
+	},
+	"core_sandbox_empty": {
+		"message": "Die Datei ist leer."
+	},
+	"core_sandbox_not_utf8": {
+		"message": "Die Datei „$1“ ist kein Text in UTF-8."
+	},
+	"core_sandbox_zip_invalid": {
+		"message": "Die Datei ist kein gültiges ZIP-Archiv."
+	},
+	"core_sandbox_zip_corrupt": {
+		"message": "Die Datei „$1“ im Archiv ist beschädigt."
+	},
+	"core_sandbox_zip_unsupported": {
+		"message": "Das Archiv ist ein ZIP64 oder in Teile aufgeteilt — erstellen Sie eine gewöhnliche .zip-Datei (das kann jedes übliche Werkzeug)."
+	},
+	"core_sandbox_zip_encrypted": {
+		"message": "Die Datei „$1“ im Archiv ist verschlüsselt."
+	},
+	"core_sandbox_zip_compression": {
+		"message": "Die Datei „$1“ im Archiv verwendet eine nicht unterstützte Komprimierung — unterstützt werden nur „store“ und „deflate“."
+	},
+	"core_sandbox_zip_too_many_files": {
+		"message": "Das Archiv hat zu viele Einträge ($1, höchstens $2)."
+	},
+	"core_sandbox_bad_path": {
+		"message": "Ungültiger Dateiname im Paket: „$1“ — nur Buchstaben, Ziffern, „.“, „_“, „-“ und Ordner."
+	},
+	"core_sandbox_duplicate_path": {
+		"message": "Die Datei „$1“ ist zweimal im Paket (Namen, die sich nur in der Groß-/Kleinschreibung unterscheiden, sind dieselbe Datei)."
+	},
+	"core_sandbox_no_entry": {
+		"message": "Das Paket hat keine Einstiegsdatei — erwartet wird $1.mjs oder $1.js in seinem Stamm (der Modulname ist der Name des Ordners im Archiv, sonst des Archivs)."
+	},
+	"core_sandbox_ambiguous_entry": {
+		"message": "Das Paket enthält sowohl $1 als auch $2 — behalten Sie nur eine Einstiegsdatei."
+	},
+	"core_sandbox_bad_messages": {
+		"message": "$1 muss die Form { \"Sprache\": { \"Schlüssel\": \"Text\" } } haben."
+	},
+	"core_sandbox_import_outside": {
+		"message": "$1: Import „$2“ führt aus dem Modulpaket hinaus — importiert werden können nur relative Pfade zu Dateien des Pakets und \"../../sdk.mjs\" (das SDK)."
+	},
+	"core_sandbox_import_missing": {
+		"message": "$1: Import „$2“ — die Datei ist nicht im Paket."
+	},
+	"core_sandbox_import_type": {
+		"message": "$1: Import „$2“ — importiert werden können nur JS-Module (.mjs, .js) und JSON; CSS gehört in registerModule({ styles })."
+	},
+	"core_sandbox_import_cycle": {
+		"message": "Die JS-Module des Pakets importieren sich gegenseitig im Kreis: $1."
+	},
+	"core_sandbox_skipped_files": {
+		"message": "Diese Dateien haben einen nicht unterstützten Typ und wurden ausgelassen: $1"
+	},
+	"core_sandbox_unused_scripts": {
+		"message": "Diese Skripte importiert nichts, sie werden nicht ausgeführt: $1"
+	},
+	"core_sandbox_dynamic_import": {
+		"message": "$1: import() mit einer berechneten Adresse kann keine Dateien des Pakets laden — nur import(\"./datei.mjs\") mit festem Pfad."
+	},
+	"core_sandbox_js_with_module": {
+		"message": "$1 verwendet import/export — nach der Konvention der Erweiterung sollte der Name auf .mjs enden."
+	},
+	"core_sandbox_mjs_without_module": {
+		"message": "$1 verwendet kein import/export — nach der Konvention der Erweiterung sollte der Name auf .js enden."
+	},
+	"core_sandbox_es_module": {
+		"message": "$1 verwendet import/export — ein klassisches Skript (.js) erhält das SDK als sandboxSdk; ein Modul mit Importen muss ein JS-Modul (.mjs) sein."
+	},
+	"core_sandbox_read_failed": {
+		"message": "Die Datei kann nicht gelesen werden: $1"
+	},
+	"core_sandbox_name_taken": {
+		"message": "Der Name „$1“ (Element <$2>) wird bereits von einem anderen Modul verwendet — benennen Sie das Modul und seine Datei um."
+	},
+	"core_sandbox_timeout": {
+		"message": "Das Modul hat in der Sandbox nicht innerhalb von $1 s geantwortet."
+	},
+	"core_sandbox_api_denied": {
+		"message": "Hochgeladene Module können api.$1 nicht verwenden."
+	},
+	"core_extension_page_not_allowed": {
+		"message": "„$1“ ist keine Seite der Erweiterung, die ein Modul öffnen darf."
+	},
+	"core_sandbox_capability_denied": {
+		"message": "„$1“: Der Benutzer hat diese Funktion dem Modul nicht erlaubt (Einstellungen → Hochgeladene Module)."
+	},
+	"core_sandbox_capability_pending": {
+		"message": "„$1“: Die Funktion wartet auf die Entscheidung des Benutzers in Einstellungen → Hochgeladene Module — bis dahin wird sie abgelehnt."
+	},
+	"core_sandbox_capability_undeclared": {
+		"message": "„$1“: Das Modul deklariert diese Funktion nicht — fügen Sie sie zu registerModule({ capabilities }) hinzu."
+	},
+	"core_sandbox_capability_forbidden": {
+		"message": "„$1“ kann einem hochgeladenen Modul nicht erlaubt werden: $2"
+	},
+	"core_sandbox_capability_unknown": {
+		"message": "„$1“: Der Kern bietet hochgeladenen Modulen keine solche Funktion an."
+	},
+	"core_sandbox_capability_block_page": {
+		"message": "die Seite der Erweiterung gehört dem Kern — das Modul läuft in einem anderen Dokument, ein DOM-Knoten lässt sich nicht in einer Nachricht übergeben, eine Anfrage ist nie synchron und das Modul sähe die Daten der anderen Module."
+	},
+	"core_sandbox_capability_block_gesture": {
+		"message": "der Browser erlaubt sie nur direkt im Handler eines Klicks — eine Anfrage aus der Sandbox erreicht den Kern als Nachricht, nicht als Klick (Firefox lehnt sie ab). Zum Öffnen des Pop-ups, der Seitenleiste und des schwebenden Fensters bietet der Kern popup.open, sidebar.toggle und floatingWindow.toggle auf einer Schaltfläche an, die er für das Modul zeichnet (api.buttons)."
+	},
+	"core_sandbox_capability_block_extension": {
+		"message": "Speicher, Nachrichten und Steuerung der ganzen Erweiterung — das Modul bekäme die Daten und Einstellungen aller Module, könnte sich als anderes Modul ausgeben oder Berechtigungen anfordern."
+	},
+	"core_sandbox_capability_block_page_code": {
+		"message": "Code und Inhalt von Webseiten — das Modul würde Code auf beliebigen Seiten ausführen."
+	},
+	"core_sandbox_capability_block_browser_data": {
+		"message": "private Browserdaten (Cookies aller Websites, Verlauf, Browserdaten) — der Zugriff darauf lässt sich nicht auf das beschränken, was das Modul braucht."
+	},
+	"core_sandbox_capability_block_network": {
+		"message": "Netzwerkregeln und das Abfangen von Anfragen — sie ändern oder lesen den Verkehr aller Seiten."
+	},
+	"core_sandbox_capability_about_tabs_create": {
+		"message": "Neue Tabs mit Webadressen (http, https) öffnen, auch im Hintergrund."
+	},
+	"core_sandbox_capability_about_tabs_activate": {
+		"message": "Einen Tab des Browsers in den Vordergrund holen (ihn auswählen und sein Fenster fokussieren) — aus dem schwebenden Fenster nur dessen eigenen Tab."
+	},
+	"core_sandbox_capability_about_strazci_internetu_report": {
+		"message": "Das Formular von Strážci internetu für eine anonyme Meldung einer Seite öffnen und ihre Adresse eintragen (das Formular senden Sie selbst ab)."
+	},
+	"core_sandbox_capability_bad_tab": {
+		"message": "tabs.activate: „$1“ ist kein Tab, zu dem gewechselt werden kann."
+	},
+	"core_sandbox_capability_about_clipboard_write_text": {
+		"message": "Text in die Zwischenablage schreiben (er ersetzt deren Inhalt)."
+	},
+	"core_sandbox_capability_about_downloads_download": {
+		"message": "Eine Datei, die das Modul erstellt (Text oder Bytes, höchstens $1), in die Downloads speichern."
+	},
+	"core_sandbox_capability_bad_url": {
+		"message": "tabs.create: Es lassen sich nur Webadressen (http, https) öffnen, nicht „$1“."
+	},
+	"core_sandbox_capability_bad_text": {
+		"message": "clipboard.writeText: erwartet Text."
+	},
+	"core_sandbox_capability_bad_content": {
+		"message": "downloads.download: Der Inhalt muss Text oder Bytes sein (Uint8Array, ArrayBuffer)."
+	},
+	"core_sandbox_capability_bad_file_name": {
+		"message": "downloads.download: „$1“ ist kein Dateiname — ohne Ordner, ohne Zeichen, die Windows in Dateinamen nicht erlaubt, und nicht mit einem Punkt am Anfang."
+	},
+	"core_sandbox_capability_bad_type": {
+		"message": "downloads.download: „$1“ ist kein Inhaltstyp (Typ/Untertyp)."
+	},
+	"core_sandbox_capability_too_large": {
+		"message": "Der Inhalt ist zu groß ($1, höchstens $2)."
+	},
+	"core_sandbox_capability_bad_marks": {
+		"message": "imageInfo.markImages: erwartet eine Liste von Bildern { url, name, marks: [{ icon, label, detail }] } innerhalb der Grenzen — falsch: $1."
+	},
+	"core_sandbox_capability_unavailable": {
+		"message": "„$1“ ist auf dieser Seite nicht verfügbar."
+	},
+	"core_sandbox_capabilities_differ": {
+		"message": "Das Modul deklariert in verschiedenen Sprachen verschiedene Funktionen außerhalb der Sandbox (capabilities) — die Liste muss gleich sein."
+	},
+	"core_sandbox_capability_declared_base": {
+		"message": "„$1“ gehört zur Basis-API hochgeladener Module — sie muss nicht deklariert werden."
+	},
+	"core_sandbox_capability_declared_forbidden": {
+		"message": "„$1“ kann einem hochgeladenen Modul nicht erlaubt werden, das Modul muss ohne sie auskommen: $2"
+	},
+	"core_sandbox_capability_declared_unknown": {
+		"message": "Der Kern bietet hochgeladenen Modulen „$1“ nicht an — ihre Anfragen werden abgelehnt (und protokolliert)."
+	},
+	"core_sandbox_capability_click_only": {
+		"message": "„$1“ läuft nur über eine Schaltfläche, die der Kern für das Modul zeichnet (api.buttons) — der Browser erlaubt sie nur direkt im Handler eines Klicks."
+	},
+	"core_sandbox_capability_listener": {
+		"message": "„$1“ ist ein Listener — das Modul abonniert ihn mit capabilities.listen()."
+	},
+	"core_sandbox_capability_not_listener": {
+		"message": "„$1“ ist kein Listener — das Modul fordert die Funktion mit capabilities.call() an."
+	},
+	"core_sandbox_capability_no_tab": {
+		"message": "Der Tab, auf den sich die Seite bezieht, lässt sich nicht ermitteln."
+	},
+	"core_sandbox_capability_about_floating_window_toggle": {
+		"message": "Das schwebende Fenster der Erweiterung im aktuellen Tab öffnen und schließen — nur wenn Sie auf die Schaltfläche des Moduls klicken. Beim ersten Mal fragt der Browser Sie nach dem Zugriff auf Webseiten."
+	},
+	"core_sandbox_capability_about_sidebar_toggle": {
+		"message": "Die Seitenleiste der Erweiterung öffnen und schließen — nur wenn Sie auf die Schaltfläche des Moduls klicken."
+	},
+	"core_sandbox_capability_about_popup_open": {
+		"message": "Das Pop-up der Erweiterung öffnen — nur wenn Sie auf die Schaltfläche des Moduls klicken."
+	},
+	"core_sandbox_capability_about_popup_close": {
+		"message": "Das Pop-up schließen, in dem das Modul angezeigt wird."
+	},
+	"core_sandbox_capability_about_addons_open": {
+		"message": "Diese Erweiterung in der Add-on-Verwaltung des Browsers öffnen — wo der Browser es nicht erlaubt, erhält das Modul nur ihre Adresse."
+	},
+	"core_sandbox_capability_about_options_open": {
+		"message": "Die Einstellungsseite der Erweiterung öffnen (eine bereits geöffnete kommt in den Vordergrund)."
+	},
+	"core_sandbox_capability_about_storage_usage_get": {
+		"message": "Ermitteln, wie viel die eigenen Speicher der Erweiterung belegen – nur die Anzahl der Einträge und die Größen (localStorage, die IndexedDB-Datenbank der Datensätze, navigator.storage.estimate(), chrome.storage.local), nie ihr Inhalt."
+	},
+	"core_sandbox_capability_about_storage_usage_on_change": {
+		"message": "Erfahren, dass sich einer der Speicher der Erweiterung geändert hat – welcher (localStorage, die Datensätze in IndexedDB, chrome.storage.local), nie was sich geändert hat."
+	},
+	"core_sandbox_capability_about_build_settings_get": {
+		"message": "Die Build-Einstellungen der Module für ihre eigenständigen Erweiterungen lesen (modules/<Modul>/standalone.json – sie gibt es nur in einer entpackt aus dem Projektordner ausgeführten Erweiterung) und ob die Erweiterung so läuft."
+	},
+	"core_sandbox_capability_about_floating_window_get_all_states": {
+		"message": "Die gespeicherten Positionen, Größen und Zustände des schwebenden Fensters der Erweiterung für alle Domains lesen — also die Liste der Domains, auf denen es verwendet wurde."
+	},
+	"core_sandbox_capability_about_floating_window_update_states": {
+		"message": "Die gespeicherte Position, Größe und den Zustand des schwebenden Fensters für einzelne Domains ändern oder löschen — das schwebende Fenster öffnet sich dort dann entsprechend. Jede Änderung wird geprüft."
+	},
+	"core_sandbox_capability_about_floating_window_on_change": {
+		"message": "Die gespeicherten Positionen, Größen und Zustände des schwebenden Fensters nach jeder Änderung erneut erhalten (z. B. wenn Sie es in einem anderen Tab verschieben)."
+	},
+	"core_sandbox_capability_about_pwa_info_list_records": {
+		"message": "Die Websites mit einer installierbaren Web-App (PWA) lesen, die das Modul PWA Info beim Surfen aufgezeichnet hat — ihre Adressen, Manifeste und Symbole, die Seiten, auf denen sie vorkamen, sowie Zeitpunkt und Anzahl der Besuche."
+	},
+	"core_sandbox_capability_about_pwa_info_get_status": {
+		"message": "Herausfinden, ob das Modul PWA Info neue Websites aufzeichnet — ob es in der Modulliste steht, eingeschaltet ist und in seinen Einstellungen die Aufzeichnung eingeschaltet hat."
+	},
+	"core_sandbox_capability_about_pwa_info_on_change": {
+		"message": "Sofort erfahren, wenn das Modul PWA Info eine Website aufzeichnet oder ergänzt (in einem beliebigen Tab — also wenn Sie eine Website mit App besuchen) oder wenn sich seine Einstellungen ändern."
+	},
+	"core_sandbox_capability_about_domain_info_get_page": {
+		"message": "Die Domains der Seite im aktuellen Tab lesen, wie das Modul Domain Info sie kennt — welche davon die Seite wie verwendet hat, die Daten, die es dazu von RDAP-Servern geladen hat (Inhaber und Kontakte mit Namen, Adressen, E-Mails und Telefonnummern, Registrare, Daten, Nameserver) samt Verlauf, und die pausierten Server; nur die Domains dieser Seite."
+	},
+	"core_sandbox_capability_about_domain_info_collect": {
+		"message": "Das Modul Domain Info die Domains der Seite im aktuellen Tab sofort von RDAP-Servern laden lassen (die Schaltfläche „Daten von RDAP laden“) — es sendet die Domainnamen an die RDAP-Server aus seinen Einstellungen, innerhalb ihrer Limits."
+	},
+	"core_sandbox_capability_about_domain_info_resume_server": {
+		"message": "Die Pause eines RDAP-Servers aus den Einstellungen des Moduls Domain Info beenden, der nicht geantwortet hat, damit er sofort erneut angefragt wird (die Schaltfläche „Jetzt erneut versuchen“)."
+	},
+	"core_sandbox_capability_about_domain_info_set_data_saver": {
+		"message": "Das Datensparen des Moduls Domain Info ein- oder ausschalten (dieselbe Einstellung wie in den Einstellungen) — eingeschaltet stellt es selbst keine Anfragen an die RDAP-Server und lädt nur auf Ihre Anforderung (die Schaltfläche „Daten von RDAP laden“)."
+	},
+	"core_sandbox_capability_about_domain_info_on_change": {
+		"message": "Sofort erfahren, wenn das Modul Domain Info Daten zu einer Domain der angezeigten Seite speichert (in einem beliebigen Tab), wenn die Seite im aktuellen Tab eine weitere Domain verwendet oder zu einem anderen Tab gewechselt wird, oder wenn sich seine Einstellungen ändern."
+	},
+	"core_sandbox_capability_about_domain_info_list_records": {
+		"message": "Alles lesen, was das Modul Domain Info aufgezeichnet hat – die Daten, die es von RDAP-Servern über alle Domains geladen hat (Inhaber und Kontakte mit Namen, Adressen, E-Mails und Telefonnummern, Registrare, Daten, Nameserver) samt Verlauf, die Seiten, auf denen die Domains gefunden wurden, die gespeicherten Kopien der Kontakte und die fehlgeschlagenen Ladevorgänge; nicht nur die Domains einer Seite."
+	},
+	"core_sandbox_capability_about_image_info_get_page": {
+		"message": "Die Bilder der Seite im aktuellen Tab lesen, wie das Modul Image Info sie auflistet — ihre Adressen, wo und wie die Seite sie verwendet, wie sie geladen wurden, ihre HTTP-Antwortheader und die Metadaten ihrer Dateien (Kameras, Daten, GPS-Positionen, Autoren, Beschreibungen); nur die Bilder dieser Seite."
+	},
+	"core_sandbox_capability_about_image_info_fetch_image": {
+		"message": "Ein Bild der Seite im aktuellen Tab erneut herunterladen (die Schaltfläche „Informationen laden“) und seine HTTP-Antwortheader und die Metadaten seiner Datei lesen — wenn die Seite es vor der Aufzeichnung geladen hat oder der Browser seine Datei nicht hat; nur die Bilder, die die Liste dieser Seite zeigt. Das Bild wird erneut von seinem Server übertragen."
+	},
+	"core_sandbox_capability_about_image_info_read_image": {
+		"message": "Die Datei eines Bildes der Seite im aktuellen Tab lesen, um in der Liste seine Miniatur zu zeigen — aus dem, was der Browser schon hat (sein Cache, eine data:- oder blob:-Adresse), oder mit der Schaltfläche „Anzeigen“ erneut von seinem Server heruntergeladen (auch seine HTTP-Header und Metadaten werden behalten); nur die Bilder, die die Liste dieser Seite zeigt."
+	},
+	"core_sandbox_capability_about_image_info_save_image": {
+		"message": "Ein Bild der Seite im aktuellen Tab als Download speichern (die Schaltfläche „Bild speichern“ / „Herunterladen“) — aus dem, was der Browser schon hat (sein Cache, eine data:- oder blob:-Adresse), sonst erneut von seinem Server heruntergeladen; nur die Bilder, die die Liste dieser Seite zeigt."
+	},
+	"core_sandbox_capability_about_image_info_remove_image": {
+		"message": "Ein Bild der Seite im aktuellen Tab von dieser Seite entfernen (die Schaltfläche „Aus dem Dokument entfernen“): seine Elemente verschwinden, ein Bild aus CSS wird abgeschaltet — die Seite bleibt so, bis sie neu geladen wird; nur die Bilder, die die Liste dieser Seite zeigt."
+	},
+	"core_sandbox_capability_about_image_info_block_image": {
+		"message": "Ein Bild der Liste dauerhaft blockieren (die Schaltfläche „Bild dauerhaft blockieren“): seine Adresse kommt in die Regel „Image info sandbox - blocked images“ des Moduls Declarative Net Request — der Browser lädt es dann auf keiner Seite mehr, bis die Adresse in den Einstellungen aus der Regel entfernt wird; nur die Bilder, die die Liste der Seite zeigt."
+	},
+	"core_sandbox_capability_about_image_info_mark_images": {
+		"message": "Markierungen über den Bildern der Seite im aktuellen Tab direkt auf dieser Seite zeigen (die Spalten „Auf der Seite zeigen“ und „Auf der Seite über größeren Bildern zeigen“ der Hinweise): ein Badge mit Symbolen über einem Bild und kurze Texte unter dem Mauszeiger mit dem Namen des Moduls — nur die Bilder, die die Liste dieser Seite zeigt, und nur solange die Liste geöffnet ist."
+	},
+	"core_sandbox_capability_about_image_info_on_change": {
+		"message": "Sofort erfahren, wenn die Seite im aktuellen Tab weitere Bilder lädt, oder wenn sich die Einstellungen des Moduls Image Info, die Modulliste oder die Berechtigungen ändern."
+	},
+	"core_sandbox_capability_about_image_info_on_view": {
+		"message": "Wissen, welche Bilder der Seite im aktuellen Tab gerade sichtbar sind und über welchem der Mauszeiger steht (oder welches angetippt wurde) — das Modul Image Info verfolgt auf dieser Seite das Scrollen und den Zeiger, solange die Liste geöffnet ist."
+	},
+	"core_sandbox_capability_about_studies_manager_list_records": {
+		"message": "Die wissenschaftlichen Studien lesen, die das Modul Studies Manager auf den besuchten Seiten aufgezeichnet hat — ihre Kennungen (DOI, PubMed, arXiv), Titel, Autoren, Zeitschriften, Abstracts und weitere Metadaten sowie die Seiten, auf denen sie vorkamen (ihre Adressen und Titel — ein Teil des Browserverlaufs), mit Zeitpunkt und Anzahl."
+	},
+	"core_sandbox_capability_about_studies_manager_get_status": {
+		"message": "Herausfinden, ob das Modul Studies Manager neue Studien aufzeichnet — ob es in der Modulliste steht, eingeschaltet ist und in seinen Einstellungen die Aufzeichnung eingeschaltet hat."
+	},
+	"core_sandbox_capability_about_studies_manager_on_change": {
+		"message": "Sofort erfahren, wenn das Modul Studies Manager Studien aufzeichnet oder ergänzt (in einem beliebigen Tab — also wenn Sie eine Seite mit einer Studie besuchen) oder wenn sich seine Einstellungen ändern."
+	},
+	"core_sandbox_capability_about_studies_manager_enrich": {
+		"message": "Das Modul Studies Manager die Metadaten der gewählten Studien sofort von doi.org laden lassen — ihre DOIs werden an doi.org und an die Registrierungsstelle jeder DOI (Crossref, DataCite, …) gesendet."
+	},
+	"core_sandbox_capability_about_studies_manager_remove_records": {
+		"message": "Vom Modul Studies Manager aufgezeichnete Studien entfernen — sie verschwinden aus der Liste, bis Sie wieder auf sie stoßen."
+	},
+	"core_sandbox_capability_about_contacts_module_list_records": {
+		"message": "Die Kontakte lesen, die das Modul Contacts Module auf den besuchten Seiten aufgezeichnet hat — Namen, E-Mail-Adressen, Telefonnummern, Anschriften und weitere Angaben von Personen und Organisationen sowie die Seiten, auf denen sie vorkamen (ihre Adressen und Titel — ein Teil des Browserverlaufs), mit Zeitpunkt und Anzahl."
+	},
+	"core_sandbox_capability_about_contacts_module_get_status": {
+		"message": "Herausfinden, ob das Modul Contacts Module neue Kontakte aufzeichnet — ob es in der Modulliste steht, eingeschaltet ist und in seinen Einstellungen die Aufzeichnung eingeschaltet hat."
+	},
+	"core_sandbox_capability_about_contacts_module_on_change": {
+		"message": "Sofort erfahren, wenn das Modul Contacts Module Kontakte aufzeichnet (in einem beliebigen Tab — also wenn Sie eine Seite mit einer Visitenkarte besuchen) oder wenn sich seine Einstellungen ändern."
+	},
+	"core_sandbox_capability_about_contacts_module_remove_records": {
+		"message": "Vom Modul Contacts Module aufgezeichnete Kontakte entfernen — sie verschwinden aus der Liste, bis Sie wieder auf sie stoßen."
+	},
+	"core_sandbox_capability_about_contacts_module_edit_record": {
+		"message": "Angaben von Kontakten ändern, die das Modul Contacts Module aufgezeichnet hat (Name, E-Mails, Telefonnummern, Webadressen, …), und ihre Schlagwörter — statt der auf den Seiten gefundenen Angaben werden Ihre Änderungen angezeigt."
+	},
+	"core_sandbox_capability_about_contacts_module_load_orcid": {
+		"message": "Den öffentlichen Datensatz einer ORCID iD eines vom Modul Contacts Module erfassten Kontakts laden (pub.orcid.org erfährt, nach welcher iD gefragt wird) und seine Angaben (Name, weitere Namen, Biografie, Webadressen, E-Mails, Beschäftigung, …) zum Kontakt hinzufügen."
+	},
+	"core_sandbox_capability_about_contacts_module_load_gravatar": {
+		"message": "Das ganze öffentliche Gravatar-Profil eines vom Modul Contacts Module erfassten Kontakts laden (gravatar.com erfährt, nach welchem Profil gefragt wird) und seine Angaben (Name, Bio, Webadressen, E-Mails, Telefonnummern, Beruf, verifizierte Konten, …) zum Kontakt hinzufügen."
+	},
+	"core_sandbox_capability_about_contacts_module_load_mastodon": {
+		"message": "Das ganze Konto eines Profils im Fediverse (Mastodon) eines vom Modul Contacts Module erfassten Kontakts von seiner Instanz laden (der Server der Adresse erfährt, nach welchem Konto gefragt wird) und seine Angaben (Name, Bio, Bild, Webadressen und E-Mails der Felder, verifizierte Links, …) zum Kontakt hinzufügen."
+	},
+	"core_sandbox_capability_about_contacts_module_load_keyoxide": {
+		"message": "Ein Keyoxide-Profil eines vom Modul Contacts Module erfassten Kontakts von keyoxide.org laden (es erfährt, nach welchem Profil gefragt wird, lädt seinen Schlüssel und prüft seine Behauptungen) und seine Angaben (Name, Beschreibung, Bild, E-Mails, Schlüssel, bestätigte Konten und Domains) dem Kontakt hinzufügen."
+	},
+	"core_sandbox_capability_about_contacts_module_merge_records": {
+		"message": "Zwei vom Modul Contacts Module aufgezeichnete Kontakte zu einem zusammenführen — der ältere Kontakt erhält die Seiten, die Angaben und die verknüpften Konten des neueren (wo sie sich unterscheiden, die von Ihnen gewählten Werte), der neuere wird entfernt."
+	},
+	"core_sandbox_capability_about_contacts_module_import_contacts": {
+		"message": "Kontakte in das Modul Contacts Module importieren — die Kontakte einer Datei, die Sie im Manager wählen (eine vCard oder die CSV seines Exports), werden mit den aufgezeichneten Kontakten zusammengeführt oder als neue gespeichert."
+	},
+	"core_sandbox_capability_about_contacts_module_set_data_saver": {
+		"message": "Das Datensparen des Moduls Contacts Module ein- oder ausschalten (dieselbe Einstellung wie in den Einstellungen) — eingeschaltet übernimmt es die Kontakte nur aus den geöffneten Seiten und lädt selbst nichts weiter herunter."
+	},
+	"core_sandbox_capability_about_service_worker_control_get_overview": {
+		"message": "listet die Service Worker auf, die Service Worker Control findet — die Websites mit Service Worker in geöffneten Tabs (mit der Berechtigung „debugger“ auch alle laufenden) und die früher gesehenen, mit den Titeln ihrer Seiten und ihren Symbolen"
+	},
+	"core_sandbox_capability_about_service_worker_control_stop_worker": {
+		"message": "stoppt einen laufenden Service Worker der Übersicht (Chrome hängt kurz den Debugger an)"
+	},
+	"core_sandbox_capability_about_service_worker_control_start_worker": {
+		"message": "startet einen gestoppten Service Worker der Übersicht über eine geöffnete Seite seiner Website"
+	},
+	"core_sandbox_capability_about_service_worker_control_unregister": {
+		"message": "meldet Service Worker der Übersicht ab — die Websites registrieren sie beim nächsten Besuch erneut, sofern ihre Domain nicht blockiert ist"
+	},
+	"core_sandbox_capability_about_service_worker_control_block_domain": {
+		"message": "blockiert die Domain einer Website der Übersicht — sie wird der Liste von Service Worker Control in den Einstellungen hinzugefügt, ihre Seiten haben dann keine Service Worker API und ihre Service Worker werden abgemeldet"
+	},
+	"core_sandbox_capability_about_service_worker_control_forget_site": {
+		"message": "vergisst eine gemerkte Website der Übersicht — ihr Datensatz von Service Worker Control wird entfernt"
+	},
+	"core_sandbox_capability_about_service_worker_control_on_change": {
+		"message": "erfährt, wenn ein Service Worker der Übersicht stoppt oder startet, wenn sich die Datensätze der Websites ändern (ein Symbol wurde heruntergeladen) und wenn sich Einstellungen oder Berechtigungen von Service Worker Control ändern"
+	},
+	"core_sandbox_capability_about_tab_groups_get_overview": {
+		"message": "listet die automatischen Tabgruppen auf, die Tab Groups im aktuellen Fenster verwaltet — ihre Namen, Farben und Anzahl der Tabs, wie viele eigene Gruppen und nicht sortierte Tabs es gibt —, wie Tabs sortiert werden und welche Berechtigungen von Tab Groups fehlen (nicht die Adressen oder Titel der Tabs)"
+	},
+	"core_sandbox_capability_about_tab_groups_regroup": {
+		"message": "lässt Tab Groups die Tabs aller Fenster sofort in seine Gruppen sortieren"
+	},
+	"core_sandbox_capability_about_tab_groups_identify": {
+		"message": "lässt die von Tab Groups verwalteten Gruppen in allen Fenstern kurz aufblinken"
+	},
+	"core_sandbox_capability_about_tab_groups_get_settings": {
+		"message": "liest die Einstellungen von Tab Groups — wie Tabs sortiert werden, die Namen und Farben der Gruppen, die Gruppen aus Lesezeichen mit den Namen der Lesezeichenordner (mit der Berechtigung für Lesezeichen)"
+	},
+	"core_sandbox_capability_about_tab_groups_set_settings": {
+		"message": "ändert die Einstellungen von Tab Groups (Tab Groups prüft jeden Wert genauso wie in den Einstellungen)"
+	},
+	"core_sandbox_capability_about_tab_groups_open_permissions": {
+		"message": "öffnet die Seite, auf der Tab Groups seine Berechtigungen anfordert"
+	},
+	"core_sandbox_capability_about_tab_groups_on_change": {
+		"message": "erfährt, wenn sich eine Tabgruppe oder ein Tab des Fensters ändert und wenn sich Einstellungen oder Berechtigungen von Tab Groups ändern"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_status": {
+		"message": "liest, welche Regeln von Declarative Net Request auf die Seite des aktiven Tabs zielen und was sie tun (Header, GET-Parameter, Blockieren), welche davon ausgesetzt sind und wie die Regeln im Browser angekommen sind"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_rules": {
+		"message": "liest alle Regeln von Declarative Net Request — die Domains, Adressen und Lesezeichenordner, auf die sie zielen, die Header und Parameter, die sie setzen — mit den Namen der Lesezeichenordner (mit der Berechtigung für Lesezeichen), den erteilten Berechtigungen und den ausgesetzten Regeln"
+	},
+	"core_sandbox_capability_about_declarative_net_request_set_rules": {
+		"message": "ersetzt die Regeln von Declarative Net Request (es prüft jede Regel genauso wie in den Einstellungen) — der Browser ändert dann nach ihnen die Header und GET-Parameter von Anfragen und blockiert Anfragen auf allen Seiten"
+	},
+	"core_sandbox_capability_about_declarative_net_request_suspend_rule": {
+		"message": "setzt eine Regel von Declarative Net Request für eine Stunde aus — der Browser wendet sie bis dahin nicht an"
+	},
+	"core_sandbox_capability_about_declarative_net_request_restore_rule": {
+		"message": "beendet die Aussetzung einer Regel von Declarative Net Request — der Browser wendet sie wieder an"
+	},
+	"core_sandbox_capability_about_declarative_net_request_reload_tab": {
+		"message": "lädt die Seite des aktiven Tabs des Fensters neu, damit die Regeln von Declarative Net Request für alle ihre Anfragen gelten"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_log": {
+		"message": "liest das eigene Ereignisprotokoll von Declarative Net Request – die Anfragen auf allen Seiten, auf die seine Regeln mit Ereignisprotokoll angewendet wurden: die Adressen der Anfragen und der Seiten, von denen sie kamen, die Tabs und die Zeiten"
+	},
+	"core_sandbox_capability_about_declarative_net_request_clear_log": {
+		"message": "löscht einen Eintrag des eigenen Ereignisprotokolls von Declarative Net Request oder das ganze Protokoll"
+	},
+	"core_sandbox_capability_about_declarative_net_request_on_change": {
+		"message": "erfährt, wenn sich die Regeln oder Einstellungen von Declarative Net Request ändern, wenn eine Regel ausgesetzt oder wiederhergestellt wird, wenn sich sein Ereignisprotokoll ändert, wenn sich die Modulliste oder die Berechtigungen ändern und wenn sich die Lesezeichen ändern"
+	},
+	"core_sandbox_capability_about_content_filters_set": {
+		"message": "uBlock-Origin-Scriptlets einfügen und Elemente auf den Seiten der Hosts ausblenden, die das Modul nennt (nur derer, für die es Zugriff verlangt), nach den Regeln der Filterlisten, die es nennt — die Erweiterung lädt die Listen von diesen Adressen (https) herunter und hält sie aktuell, auch wenn das Modul nicht angezeigt wird. Das Modul bringt keinen Code für die Seiten mit, aber die „trusted-…“-Scriptlets einer Liste, die es als vertrauenswürdig markiert, können jeden Text und Code dieser Seiten ändern. Es kann auch das Tab-Symbol der Seiten markieren, in denen die Regeln laufen."
+	},
+	"core_sandbox_capability_about_content_filters_get_status": {
+		"message": "Den Zustand seiner Inhaltsfilter lesen — wie sie in Seiten eingefügt werden (oder warum nicht), die Filterlisten mit dem Datum des Herunterladens und der Anzahl der Regeln, was daraus erstellt wurde."
+	},
+	"core_sandbox_capability_about_content_filters_update": {
+		"message": "Die Filterlisten seiner Inhaltsfilter sofort erneut herunterladen lassen (sonst werden sie heruntergeladen, wenn sie ablaufen)."
+	},
+	"core_sandbox_capability_about_content_filters_on_change": {
+		"message": "Sofort erfahren, wenn sich seine Inhaltsfilter ändern (eine heruntergeladene Liste, neu erstellte Regeln, eine andere Art des Einfügens) oder wenn sich seine Einstellungen ändern."
+	},
+	"core_sandbox_capability_about_network_filters_set": {
+		"message": "Anfragen auf allen Seiten nach den Netzwerkregeln der Filterlisten blockieren, die das Modul nennt — die Erweiterung lädt die Listen von diesen Adressen (https) herunter und hält sie aktuell, auch wenn das Modul nicht angezeigt wird, und wandelt sie selbst in declarativeNetRequest-Blockierregeln um. Das Modul gibt keine Regeln, nur die Listen, daher kann es keine Anfrage umleiten oder ändern — eine Liste kann aber jede Seite oder alles, was sie lädt, blockieren. Nur für ein Modul, das die Berechtigungen deklariert, Anfragen auf allen Seiten zu blockieren."
+	},
+	"core_sandbox_capability_about_network_filters_get_status": {
+		"message": "Den Zustand seiner Netzwerkfilter lesen — wie viele seiner Regeln im Browser gelten (oder warum keine), die Filterlisten mit dem Datum des Herunterladens und der Anzahl der Regeln, was sich nicht umwandeln ließ, die Domains, auf denen nichts blockiert wird."
+	},
+	"core_sandbox_capability_about_network_filters_update": {
+		"message": "Die Filterlisten seiner Netzwerkfilter sofort erneut herunterladen lassen (sonst werden sie heruntergeladen, wenn sie ablaufen)."
+	},
+	"core_sandbox_capability_about_network_filters_on_change": {
+		"message": "Sofort erfahren, wenn sich seine Netzwerkfilter ändern (eine heruntergeladene Liste, neu umgewandelte Regeln) oder wenn sich seine Einstellungen ändern."
+	},
+	"core_sandbox_capability_about_scheduled_urls_get_overview": {
+		"message": "listet Ihre Geräte mit dieser Erweiterung auf (ihre Namen, Browser und Systeme, wann sie zuletzt verwendet wurden) und die für sie geplanten Adressen, einschließlich des Verlaufs der geöffneten — der Browser überträgt sie zwischen den Geräten Ihres Kontos (Chrome-Synchronisierung, Firefox Sync)"
+	},
+	"core_sandbox_capability_about_scheduled_urls_add": {
+		"message": "plant eine Adresse für Ihre Geräte — die Erweiterung öffnet sie auf jedem von ihnen zur angegebenen Zeit in einem neuen Tab im Hintergrund, auch wenn das Modul nicht angezeigt wird"
+	},
+	"core_sandbox_capability_about_scheduled_urls_remove": {
+		"message": "entfernt geplante Adressen"
+	},
+	"core_sandbox_capability_about_scheduled_urls_rename_device": {
+		"message": "benennt eines Ihrer Geräte in der Liste um"
+	},
+	"core_sandbox_capability_about_scheduled_urls_forget_device": {
+		"message": "vergisst ein anderes Ihrer Geräte und die dafür geplanten Adressen"
+	},
+	"core_sandbox_capability_about_scheduled_urls_check": {
+		"message": "lässt die Erweiterung die fälligen Adressen dieses Geräts sofort öffnen"
+	},
+	"core_sandbox_capability_about_scheduled_urls_pair_vs_code": {
+		"message": "koppelt das Modul mit VS Code auf diesem Computer (dem Plugin dieser Erweiterung für VS Code) — die Erweiterung kopiert dann Ihre Geräte und geplanten Adressen zwischen dem Browser und VS Code, dessen Settings Sync sie zu Ihren anderen VS-Code-Instanzen überträgt; das Plugin wird nur unter der Adresse 127.0.0.1 erreicht"
+	},
+	"core_sandbox_capability_about_scheduled_urls_unpair_vs_code": {
+		"message": "hebt die Kopplung mit VS Code auf diesem Computer auf"
+	},
+	"core_sandbox_capability_about_scheduled_urls_on_change": {
+		"message": "erfährt, wenn sich die Geräte oder die geplanten Adressen ändern, auch auf einem anderen Gerät"
+	},
+	"core_sandbox_capability_about_dns_overview_get_page": {
+		"message": "Die Hosts lesen, die die Seite im aktuellen Tab kontaktiert hat, wie die Erweiterung ihre Anfragen verfolgt — die Adressen der Server, die Antworten aus dem HTTP-Cache, die Namen, die nicht aufgelöst wurden, in Firefox auch, was der DNS-Cache des Browsers für sie hält und ob die Verbindungen verschlüsseltes DNS verwendet haben — mit den Antworten der für sie geladenen DNS-Abfragen; nur die Hosts dieser Seite. Das Verbieten beendet das Verfolgen der Seiten."
+	},
+	"core_sandbox_capability_about_dns_overview_load": {
+		"message": "Die Erweiterung sofort das DNS nach Hosts der Seite im aktuellen Tab fragen lassen (die Schaltfläche „🔄“) — am Cache des Browsers vorbei, und wenn der Browser DNS over HTTPS verwendet, auch über den System-Resolver (Firefox); nur die Hosts, die die Seite kontaktiert hat. Das Verbieten beendet auch das automatische Laden mit der beim Modul eingestellten Wahrscheinlichkeit."
+	},
+	"core_sandbox_capability_about_dns_overview_on_change": {
+		"message": "Sofort erfahren, wenn die Seite im aktuellen Tab einen weiteren Host kontaktiert oder neue DNS-Daten ihrer Hosts kommen, und wenn sich ändert, was die Erweiterung kann (Einstellungen, Berechtigungen)."
+	},
+	"core_sandbox_domain_info_inactive": {
+		"message": "domainInfo.collect: Das Modul Domain Info ist nicht in der Modulliste oder ausgeschaltet – es lädt nichts."
+	},
+	"core_sandbox_domain_info_bad_server": {
+		"message": "domainInfo.resumeServer: „$1“ ist kein RDAP-Server aus den Einstellungen des Moduls Domain Info."
+	},
+	"core_sandbox_domain_info_invalid_data_saver": {
+		"message": "Ungültiges Datensparen (domainInfo.setDataSaver): true oder false."
+	},
+	"core_content_filters_invalid": {
+		"message": "Ungültige Konfiguration der Inhaltsfilter (contentFilters.set): $1"
+	},
+	"core_content_filters_host_undeclared": {
+		"message": "contentFilters.set: Das Modul deklariert den Zugriff auf „$1“ nicht in usesPermissions — die Inhaltsfilter funktionieren nur auf Seiten, für die das Modul Zugriff verlangt."
+	},
+	"core_content_filters_no_background": {
+		"message": "Der Hintergrundteil der Erweiterung hat nicht geantwortet — die Inhaltsfilter können gerade nicht verwendet werden."
+	},
+	"core_network_filters_invalid": {
+		"message": "Ungültige Konfiguration der Netzwerkfilter (networkFilters.set): $1"
+	},
+	"core_network_filters_permissions_undeclared": {
+		"message": "networkFilters.set: Das Modul deklariert die Berechtigungen, Anfragen auf allen Seiten zu blockieren (declarativeNetRequestWithHostAccess und <all_urls>), nicht in usesPermissions — die Netzwerkfilter blockieren auf allen Seiten."
+	},
+	"core_network_filters_no_background": {
+		"message": "Der Hintergrundteil der Erweiterung hat nicht geantwortet — die Netzwerkfilter können gerade nicht verwendet werden."
+	},
+	"core_scheduled_urls_no_background": {
+		"message": "Der Hintergrundteil der Erweiterung hat nicht geantwortet — die geplanten Adressen können nicht geprüft werden."
+	},
+	"core_sandbox_dns_overview_invalid_hosts": {
+		"message": "dnsOverview.load: { hosts } — 1 bis $1 Hostnamen."
+	},
+	"core_sandbox_buttons_invalid": {
+		"message": "Ungültige Schaltflächen des Moduls (api.buttons.set()): $1"
+	},
+	"core_sandbox_buttons_too_many": {
+		"message": "Das Modul möchte $1 Schaltflächen — höchstens $2."
+	},
+	"core_sandbox_ui_invalid": {
+		"message": "Ungültiger Inhalt des Moduls (api.ui.render()): $1"
+	},
+	"core_sandbox_ui_too_large": {
+		"message": "Der Inhalt des Moduls (api.ui.render()) ist zu groß — höchstens $1 Knoten, $2 Verschachtelungsebenen und $3 Zeichen Text."
+	},
+	"core_sandbox_floating_window_invalid": {
+		"message": "Ungültige Änderung der gespeicherten Zustände des schwebenden Fensters (floatingWindow.updateStates): $1"
+	},
+	"core_sandbox_floating_window_too_many": {
+		"message": "Das Modul ändert $1 gespeicherte Zustände des schwebenden Fensters auf einmal — höchstens $2."
+	},
+	"core_sandbox_studies_manager_invalid_dois": {
+		"message": "Ungültige Anfrage nach den Metadaten von Studien (studiesManager.enrich): höchstens $1 DOIs in der Form 10.xxxx/…"
+	},
+	"core_sandbox_studies_manager_invalid_ids": {
+		"message": "Ungültiges Entfernen von Studien (studiesManager.removeRecords): höchstens $1 Datensatz-IDs (positive ganze Zahlen)."
+	},
+	"core_sandbox_contacts_module_invalid_ids": {
+		"message": "Ungültiges Entfernen von Kontakten (contactsModule.removeRecords): höchstens $1 Datensatz-IDs (positive ganze Zahlen)."
+	},
+	"core_sandbox_contacts_module_invalid_edit": {
+		"message": "Ungültige Änderung eines Kontakts (contactsModule.editRecord): { id, key, edits, tags } — ID und Schlüssel eines Datensatzes, edits ein Objekt oder null, tags eine Liste von Texten (mindestens eines von beiden)."
+	},
+	"core_sandbox_contacts_module_invalid_orcid": {
+		"message": "Ungültige Anfrage nach einer ORCID iD (contactsModule.loadOrcid): { id, key, orcid } — ID und Schlüssel eines Datensatzes, orcid die Adresse https://orcid.org/<iD>."
+	},
+	"core_sandbox_contacts_module_invalid_gravatar": {
+		"message": "Ungültige Anfrage nach einem Gravatar-Profil (contactsModule.loadGravatar): { id, key, url } — ID und Schlüssel eines Datensatzes, url die Adresse https://gravatar.com/<Name>."
+	},
+	"core_sandbox_contacts_module_invalid_mastodon": {
+		"message": "Ungültige Anfrage nach einem Konto im Fediverse (contactsModule.loadMastodon): { id, key, url } — ID und Schlüssel eines Datensatzes, url die Adresse https://<Instanz>/@<Konto>."
+	},
+	"core_sandbox_contacts_module_invalid_keyoxide": {
+		"message": "Ungültige Anfrage nach einem Keyoxide-Profil (contactsModule.loadKeyoxide): { id, key, url } — ID und Schlüssel eines Datensatzes, url die Adresse https://keyoxide.org/<Fingerabdruck, E-Mail oder aspe:…>."
+	},
+	"core_sandbox_contacts_module_invalid_merge": {
+		"message": "Ungültiges Zusammenführen von Kontakten (contactsModule.mergeRecords): { id, key, otherId, otherKey, choices } — IDs und Schlüssel zweier verschiedener Datensätze, choices ein Objekt, dessen Werte die ID eines von ihnen oder „both“ sind."
+	},
+	"core_sandbox_contacts_module_invalid_import": {
+		"message": "Ungültiger Import von Kontakten (contactsModule.importContacts): ein Array von 1 bis $1 Kontakten (Objekten), zusammen höchstens $2 MB."
+	},
+	"core_sandbox_contacts_module_invalid_data_saver": {
+		"message": "Ungültiges Datensparen (contactsModule.setDataSaver): true oder false."
+	},
+	"core_sandbox_service_worker_control_invalid": {
+		"message": "Ungültiges „$1“ — erwartet wird ein Text, der einen Eintrag der Übersicht benennt."
+	},
+	"core_sandbox_result_not_cloneable": {
+		"message": "Das Ergebnis von api.$1 kann nicht an die Sandbox übergeben werden."
+	},
+	"core_sandbox_missing": {
+		"message": "Das hochgeladene Modul „$1“ ist nicht gespeichert — laden Sie es in den Einstellungen erneut hoch."
+	},
+	"core_sandbox_left_page": {
+		"message": "Die Sandbox-Seite wurde woandershin navigiert — das Modul wurde angehalten."
+	},
+	"core_sandbox_module_failed": {
+		"message": "Das hochgeladene Modul $1 kann nicht ausgeführt werden:"
+	},
+	"core_sandbox_problem_not_sandboxed": {
+		"message": "Die Sandbox-Seite ist nicht isoliert (sie hat keinen opaken Origin) — der Modulcode wurde nicht ausgeführt."
+	},
+	"core_sandbox_problem_eval_blocked": {
+		"message": "Der Browser erlaubt keine Ausführung von Code in der Sandbox-Seite — hochgeladene Module benötigen Sandbox-Seiten für Erweiterungen (Chrome, Firefox 154 oder neuer)."
+	},
+	"core_sandbox_problem_evaluation": {
+		"message": "Fehler beim Auswerten des Moduls: $1"
+	},
+	"core_sandbox_problem_no_registration": {
+		"message": "Das Modul hat beim Auswerten registerModule() nicht aufgerufen."
+	},
+	"core_sandbox_problem_multiple_registrations": {
+		"message": "Das Modul hat registerModule() mehr als einmal aufgerufen."
+	},
+	"core_sandbox_problem_not_object": {
+		"message": "registerModule() hat kein Objekt erhalten."
+	},
+	"core_sandbox_problem_name_mismatch": {
+		"message": "registerModule({ name: \"$1\" }) — der Name muss dem Dateinamen entsprechen: \"$2\"."
+	},
+	"core_sandbox_problem_tag_mismatch": {
+		"message": "registerModule({ tag: \"$1\" }) — der Tag muss getTagName(name) sein: \"$2\"."
+	},
+	"core_sandbox_problem_not_defined": {
+		"message": "Das Element <$1> ist vor registerModule() nicht mit customElements.define() definiert."
+	},
+	"core_sandbox_problem_not_base_element": {
+		"message": "Die Klasse des Elements <$1> erbt nicht von BaseElement aus dem SDK der Sandbox."
+	},
+	"core_sandbox_problem_unsupported": {
+		"message": "registerModule({ $1 }) steht hochgeladenen Modulen nicht zur Verfügung (es wäre Code außerhalb der Sandbox)."
+	},
+	"core_sandbox_problem_custom_field": {
+		"message": "Das Einstellungsfeld „$1“ hat den Typ „custom“ — hochgeladene Module haben nur die Felder text, textarea, number, checkbox und select."
+	},
+	"core_sandbox_problem_not_data": {
+		"message": "registerModule({ $1 }) darf nur Daten (JSON) enthalten — keine Funktionen oder Klassenobjekte."
+	},
+	"core_sandbox_problem_bad_spec": {
+		"message": "activationSpec muss aus den Spezifikationen von sandboxSdk (ModeSpecification, WEB_PAGE_SPEC, …) mit gültigen Werten zusammengesetzt sein."
+	},
+	"core_sandbox_problem_bad_style": {
+		"message": "registerModule({ styles }) — „$1“ ist keine CSS-Datei des Modulpakets."
+	},
+	"core_sandbox_problem_init_failed": {
+		"message": "init() des Moduls ist fehlgeschlagen: $1"
+	},
+	"core_sandbox_problem_unknown": {
+		"message": "Die Sandbox hat ein unbekanntes Problem gemeldet."
+	},
+	"options_modules_output": {
+		"message": "Modulausgabe"
+	},
+	"options_section_empty": {
+		"message": "Kein Modul gibt hier etwas aus"
 	},
 	"options_modules_list_json": {
 		"message": "Modulliste (JSON)"
@@ -110,8 +764,17 @@
 	"options_reset_list": {
 		"message": "Standardliste wiederherstellen"
 	},
+	"options_modules_json_hint_disable": {
+		"message": "Einfacher schalten Sie ein Modul unter „Erweiterte Moduleinstellungen“ → „Aktivierungsmodus des Moduls“ mit der Option „Nie starten (Modul inaktiv)“ aus. Es bleibt an seiner Stelle in der Liste, und Sie schalten es mit einem einzigen Umschalten wieder ein."
+	},
+	"options_modules_json_hint_performance": {
+		"message": "Das Entfernen aus der Liste spart jedoch mehr Leistung: Das Content Script eines ausgeschalteten Moduls wird weiterhin in jede Seite eingefügt (und stellt erst dort fest, dass es nichts zu tun hat), und die Seitenleiste, das schwebende Fenster und die Einstellungen laden weiterhin seine Datei. Ein Modul, das nicht in der Liste steht, wird gar nicht geladen. Der Unterschied macht sich vor allem bei Modulen bemerkbar, die in Seiten arbeiten."
+	},
 	"options_modules_settings": {
 		"message": "Erweiterte Einstellungen"
+	},
+	"options_filter_label": {
+		"message": "Nach Name filtern"
 	},
 	"options_save_settings": {
 		"message": "Einstellungen speichern"
@@ -119,8 +782,17 @@
 	"options_reset_defaults": {
 		"message": "Standardwerte wiederherstellen"
 	},
+	"options_reset_defaults_confirm": {
+		"message": "Zum Bestätigen erneut klicken"
+	},
+	"options_unsaved_changes": {
+		"message": "Vergessen Sie nicht, die vorgenommenen Änderungen zu speichern"
+	},
 	"options_custom_module_settings": {
-		"message": "tabGroups-Einstellungen"
+		"message": "Haupteinstellungen"
+	},
+	"options_save_module_settings": {
+		"message": "Moduleinstellungen speichern"
 	},
 	"options_recommended_suffix": {
 		"message": " (vom Modul empfohlen)"
@@ -130,6 +802,36 @@
 	},
 	"options_hint_disabled": {
 		"message": "Das Modul ist ausgeschaltet (Aktivierungsmodus „Nie starten“) und wird daher nirgends angezeigt."
+	},
+	"options_sidebar_disabled": {
+		"message": "Seitenleiste nicht verwenden"
+	},
+	"options_sidebar_disabled_hint_firefox": {
+		"message": "Module werden nicht in der Seitenleiste angezeigt, sie zeigt stattdessen nur einen Hinweis (eine geöffnete Seitenleiste wird geschlossen). Firefox erlaubt einer Erweiterung nicht, ihr Symbol in der Leiste der Seitenleiste auszublenden — entfernen Sie es selbst: Klicken Sie mit der rechten Maustaste darauf und entfernen Sie es aus der Seitenleiste (Firefox 143 und neuer). Zurückholen können Sie es beim Anpassen der Seitenleiste. Angehakte Orte „In der Seitenleiste“ der Module bleiben gespeichert, falls Sie die Seitenleiste wieder einschalten."
+	},
+	"options_sidebar_disabled_hint_chrome": {
+		"message": "Module werden nicht in der Seitenleiste angezeigt, und die Seitenleiste der Erweiterung verschwindet aus dem Seitenleisten-Menü des Browsers. Angehakte Orte „In der Seitenleiste“ der Module bleiben gespeichert, falls Sie die Seitenleiste wieder einschalten."
+	},
+	"options_sidebar_disabled_saved": {
+		"message": "Die Seitenleiste ist ausgeschaltet."
+	},
+	"options_sidebar_enabled_saved": {
+		"message": "Die Seitenleiste ist eingeschaltet."
+	},
+	"options_location_sidebar_off": {
+		"message": "Die Seitenleiste ist ausgeschaltet („Seitenleiste nicht verwenden“ oben auf der Seite)."
+	},
+	"options_hint_sidebar_only": {
+		"message": "Nur die Seitenleiste ist angehakt, und sie ist ausgeschaltet, daher wird das Modul nirgends angezeigt. Je nach Aktivierungsmodus kann es trotzdem im Hintergrund arbeiten."
+	},
+	"options_details_scope_visit": {
+		"message": "über einen Seitenbesuch"
+	},
+	"options_details_scope_domain": {
+		"message": "über eine Domain"
+	},
+	"options_details_scope_browser": {
+		"message": "über den Browser"
 	},
 	"options_error": {
 		"message": "Fehler: $1"
@@ -179,6 +881,15 @@
 	"options_dependency_dependents": {
 		"message": "Wird benötigt von"
 	},
+	"options_details_consumes": {
+		"message": "Übernimmt Daten $1 von Modulen"
+	},
+	"options_details_no_provider": {
+		"message": "noch kein Modul in der Liste bietet sie an"
+	},
+	"options_details_provides": {
+		"message": "Stellt Modulen Daten $1 bereit"
+	},
 	"options_optional_permission": {
 		"message": "Optionale Berechtigung"
 	},
@@ -221,11 +932,20 @@
 	"options_display_locations": {
 		"message": "Modulausgabe anzeigen (Sie können mehrere Orte anhaken):"
 	},
+	"options_display_locations_alone": {
+		"message": "Modulausgabe anzeigen, solange es eigenständig arbeitet (Sie können mehrere Orte anhaken):"
+	},
+	"options_display_locations_delegated": {
+		"message": "Modulausgabe anzeigen, wenn $1 es ebenfalls anzeigt (Sie können mehrere Orte anhaken):"
+	},
 	"options_order_saved": {
 		"message": "Modulreihenfolge gespeichert."
 	},
 	"options_no_module_settings": {
 		"message": "Derzeit bietet kein Modul eigene Einstellungen an."
+	},
+	"options_setting_shared": {
+		"message": "Gemeinsame Einstellung — $1 hat denselben Wert; eine Änderung gilt für alle."
 	},
 	"options_custom_field_invalid": {
 		"message": "render() muss ein Element mit einer Methode getValue() zurückgeben"
@@ -233,11 +953,38 @@
 	"options_custom_field_failed": {
 		"message": "Das Feld kann nicht angezeigt werden: $1"
 	},
+	"options_setting_notifications_unsupported": {
+		"message": "Der Browser unterstützt keine Benachrichtigungen — das Modul sendet sie nicht."
+	},
+	"options_setting_notifications_granted": {
+		"message": "Benachrichtigungen sind erlaubt — das Modul sendet sie lautlos."
+	},
+	"options_setting_notifications_blocked": {
+		"message": "Der Browser blockiert die Benachrichtigungen der Erweiterung — das Modul sendet sie erst, wenn Sie sie in den Browsereinstellungen erlauben (Berechtigung für Benachrichtigungen)."
+	},
+	"options_setting_notifications_ask": {
+		"message": "Die Benachrichtigungen des Moduls müssen im Browser erlaubt werden."
+	},
+	"options_setting_notifications_button": {
+		"message": "Benachrichtigungen erlauben"
+	},
+	"options_setting_notifications_button_title": {
+		"message": "Berechtigung für Benachrichtigungen (notifications) — Benachrichtigungen sind lautlos"
+	},
 	"options_module_settings_saved": {
 		"message": "Moduleinstellungen gespeichert."
 	},
 	"options_module_settings_reset": {
 		"message": "Moduleinstellungen auf die Standardwerte zurückgesetzt."
+	},
+	"options_reset_module_settings_and_data": {
+		"message": "Auf Standard zurücksetzen (einschließlich Löschen der Daten)"
+	},
+	"options_reset_module_confirm": {
+		"message": "Sind Sie sicher? Zum Bestätigen erneut klicken"
+	},
+	"options_module_reset_confirmed": {
+		"message": "Modul zurückgesetzt und Daten gelöscht."
 	},
 	"options_settings_saved": {
 		"message": "Einstellungen gespeichert."
@@ -245,322 +992,316 @@
 	"options_settings_reset": {
 		"message": "Einstellungen auf die Standardwerte zurückgesetzt."
 	},
-	"tabGroups_description": {
-		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie geöffnet oder (Option in den Einstellungen) zuletzt verwendet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
+	"options_sandbox_heading": {
+		"message": "Hochgeladene Module (Sandbox)"
 	},
-	"tabGroups_setting_group_by": {
-		"message": "Tabs in Gruppen sortieren nach"
+	"options_sandbox_hint": {
+		"message": "Ein aus einer Datei hochgeladenes Modul läuft in einer isolierten Seite (Sandbox) ohne Zugriff auf die Erweiterung — alles andere (seine Einstellungen, gespeicherte Daten, den aktuellen Tab, …) erfragt es beim Kern der Erweiterung. Ansonsten ist es ein Modul wie die anderen: in der Modulliste, mit Aktivierungsmodus, Ausgabeorten und eigenen Einstellungen. Laden Sie ein Skript hoch, das wie das Modul heißt (<Name>.js, oder <Name>.mjs als JS-Modul), oder eine .zip-Datei mit dem Modulordner — weitere JS-Module, CSS, Bilder und Texte (messages.json). Beispiele sind in sandbox-modules/ im Repository der Erweiterung."
 	},
-	"tabGroups_setting_group_by_opened": {
-		"message": "Zeitpunkt des Öffnens – ein Tab bleibt in der Gruppe des Tages, an dem er geöffnet wurde"
+	"options_sandbox_upload": {
+		"message": "Modul hochladen (.js, .mjs oder .zip)"
 	},
-	"tabGroups_setting_group_by_last_used": {
-		"message": "Zeitpunkt der letzten Verwendung – ein Tab, zu dem Sie wechseln, wandert in die Gruppe „heute“"
+	"options_sandbox_checking": {
+		"message": "„$1“ wird in der Sandbox geprüft…"
 	},
-	"tabGroups_setting_manual_moves": {
-		"message": "Verschieben von Tabs zwischen automatischen Gruppen erlauben – ein Tab, den Sie in die Gruppe eines anderen Tages ziehen (z. B. von „heute“ nach „gestern“), bleibt dort (bei Sortierung nach letzter Verwendung, bis Sie wieder zu ihm wechseln)"
+	"options_sandbox_installed": {
+		"message": "Das Modul „$1“ wurde hochgeladen und ans Ende der Modulliste angefügt."
 	},
-	"tabGroups_setting_title_prefix": {
-		"message": "Präfix vor den Namen aller automatischen Gruppen (auch Gruppen aus Lesezeichen), durch ein Leerzeichen getrennt – leer = kein Präfix"
+	"options_sandbox_uploaded": {
+		"message": "Das Modul „$1“ wurde hochgeladen."
 	},
-	"tabGroups_setting_title_prefix_placeholder": {
-		"message": "kein Präfix"
+	"options_sandbox_updated": {
+		"message": "Das Modul „$1“ wurde aktualisiert — seine Einstellungen und Daten bleiben erhalten. Geöffnete Seiten zeigen die neue Version nach dem Neuladen."
 	},
-	"tabGroups_setting_groups": {
-		"message": "Automatische Tabgruppen (Name, Farbe und eingeklappte Gruppe für jeden Zeitraum)"
+	"options_sandbox_failed": {
+		"message": "Das Modul wurde nicht hochgeladen:"
 	},
-	"tabGroups_setting_bookmark_groups": {
-		"message": "Gruppen aus Lesezeichen (Gruppenname, Lesezeichenordner, Option für die ganze Domain, Farbe und eingeklappte Gruppe)"
+	"options_sandbox_warnings": {
+		"message": "Warnungen:"
 	},
-	"tabGroups_color_grey": {
-		"message": "grau"
+	"options_sandbox_none": {
+		"message": "Es wurde noch kein Modul hochgeladen."
 	},
-	"tabGroups_color_blue": {
-		"message": "blau"
+	"options_sandbox_meta": {
+		"message": "$1 · $2 · hochgeladen $3 · SHA-256 $4…"
 	},
-	"tabGroups_color_red": {
-		"message": "rot"
+	"options_sandbox_bundled_meta": {
+		"message": "Teil der Erweiterung · $1 Dateien · $2 · installiert $3 · SHA-256 $4…"
 	},
-	"tabGroups_color_yellow": {
-		"message": "gelb"
+	"options_sandbox_package": {
+		"message": "$1 ($2 Dateien)"
 	},
-	"tabGroups_color_green": {
-		"message": "grün"
+	"options_sandbox_listed": {
+		"message": "In der Modulliste."
 	},
-	"tabGroups_color_pink": {
-		"message": "pink"
+	"options_sandbox_not_listed": {
+		"message": "Nicht in der Modulliste — es wird nirgends geladen."
 	},
-	"tabGroups_color_purple": {
-		"message": "lila"
+	"options_sandbox_files_missing": {
+		"message": "Seine Dateien sind nicht gespeichert (z. B. nach dem Wiederherstellen einer Sicherung der Erweiterung, die nur die Einstellungen enthält) — laden Sie das Modul erneut hoch."
 	},
-	"tabGroups_color_cyan": {
-		"message": "cyan"
+	"options_sandbox_add_to_list": {
+		"message": "Zur Modulliste hinzufügen"
 	},
-	"tabGroups_color_orange": {
-		"message": "orange"
+	"options_sandbox_added": {
+		"message": "Das Modul „$1“ wurde ans Ende der Modulliste angefügt."
 	},
-	"tabGroups_bucket_today_title": {
-		"message": "heute"
+	"options_sandbox_removed": {
+		"message": "Das Modul „$1“ wurde samt Einstellungen entfernt (seine gespeicherten Daten bleiben erhalten)."
 	},
-	"tabGroups_bucket_today_range": {
-		"message": "heute"
+	"options_sandbox_row_note": {
+		"message": "Hochgeladenes Modul ($1) — es läuft in einer Sandbox, siehe „Hochgeladene Module (Sandbox)“."
 	},
-	"tabGroups_bucket_yesterday_title": {
-		"message": "gestern"
+	"options_sandbox_row_note_bundled": {
+		"message": "Ein Modul der Erweiterung, das in einer Sandbox läuft — die Erweiterung installiert es selbst, siehe „Hochgeladene Module (Sandbox)“."
 	},
-	"tabGroups_bucket_yesterday_range": {
-		"message": "gestern"
+	"options_sandbox_capabilities_title": {
+		"message": "Funktionen außerhalb der Sandbox"
 	},
-	"tabGroups_bucket_day_before_yesterday_title": {
-		"message": "vor 2 Tagen"
+	"options_sandbox_capability_choice_pending": {
+		"message": "Nicht entschieden — abgelehnt"
 	},
-	"tabGroups_bucket_day_before_yesterday_range": {
-		"message": "vor 2 Tagen"
+	"options_sandbox_capability_choice_default": {
+		"message": "Standard — erlaubt (Teil der Erweiterung)"
 	},
-	"tabGroups_bucket_this_week_title": {
-		"message": "diese Woche"
+	"options_sandbox_capability_choice_allow": {
+		"message": "Erlauben"
 	},
-	"tabGroups_bucket_this_week_range": {
-		"message": "früher in dieser Woche (seit Montag)"
+	"options_sandbox_capability_choice_deny": {
+		"message": "Verbieten"
 	},
-	"tabGroups_bucket_last_week_title": {
-		"message": "letzte Woche"
+	"options_sandbox_capability_select_label": {
+		"message": "Entscheidung über $1"
 	},
-	"tabGroups_bucket_last_week_range": {
-		"message": "letzte Woche"
+	"options_sandbox_capability_risk_low": {
+		"message": "geringes Risiko"
 	},
-	"tabGroups_bucket_this_month_title": {
-		"message": "diesen Monat"
+	"options_sandbox_capability_risk_medium": {
+		"message": "mittleres Risiko"
 	},
-	"tabGroups_bucket_this_month_range": {
-		"message": "früher in diesem Monat"
+	"options_sandbox_capability_risk_high": {
+		"message": "hohes Risiko"
 	},
-	"tabGroups_bucket_last_month_title": {
-		"message": "letzten Monat"
+	"options_sandbox_capability_base": {
+		"message": "Gehört zur Basis-API — immer erlaubt, muss nicht deklariert werden."
 	},
-	"tabGroups_bucket_last_month_range": {
-		"message": "letzten Monat"
+	"options_sandbox_capability_forbidden": {
+		"message": "Kann nicht erlaubt werden: $1"
 	},
-	"tabGroups_bucket_this_year_title": {
-		"message": "dieses Jahr"
+	"options_sandbox_capability_unknown": {
+		"message": "Der Kern bietet diese Funktion nicht an — ihre Anfragen werden abgelehnt."
 	},
-	"tabGroups_bucket_this_year_range": {
-		"message": "früher in diesem Jahr"
+	"options_sandbox_capability_outcome_allowed": {
+		"message": "ausgeführt"
 	},
-	"tabGroups_bucket_last_year_title": {
-		"message": "letztes Jahr"
+	"options_sandbox_capability_outcome_failed": {
+		"message": "fehlgeschlagen"
 	},
-	"tabGroups_bucket_last_year_range": {
-		"message": "letztes Jahr und früher"
+	"options_sandbox_capability_outcome_denied": {
+		"message": "abgelehnt (verboten)"
 	},
-	"tabGroups_loading": {
-		"message": "$1: Tabgruppen werden geladen..."
+	"options_sandbox_capability_outcome_pending": {
+		"message": "abgelehnt (nicht entschieden)"
 	},
-	"tabGroups_disabled": {
-		"message": "$1: Deaktiviert"
+	"options_sandbox_capability_outcome_undeclared": {
+		"message": "abgelehnt (nicht deklariert)"
 	},
-	"tabGroups_intro_opened": {
-		"message": "$1: Tabs außerhalb Ihrer eigenen Gruppen werden automatisch danach in Gruppen sortiert, wann sie geöffnet wurden."
+	"options_sandbox_capability_outcome_forbidden": {
+		"message": "abgelehnt (nicht erlaubbar)"
 	},
-	"tabGroups_intro_last_used": {
-		"message": "$1: Tabs außerhalb Ihrer eigenen Gruppen werden automatisch danach in Gruppen sortiert, wann sie zuletzt verwendet wurden."
+	"options_sandbox_capability_outcome_unknown": {
+		"message": "abgelehnt (unbekannt)"
 	},
-	"tabGroups_intro_opened_bookmarks": {
-		"message": "$1: Tabs außerhalb Ihrer eigenen Gruppen werden automatisch nach dem Öffnungszeitpunkt in Gruppen sortiert, Tabs mit Lesezeichen in den ausgewählten Ordnern in Gruppen aus Lesezeichen."
+	"options_sandbox_capability_outcome_user_allowed": {
+		"message": "vom Benutzer erlaubt"
 	},
-	"tabGroups_intro_last_used_bookmarks": {
-		"message": "$1: Tabs außerhalb Ihrer eigenen Gruppen werden automatisch nach der letzten Verwendung in Gruppen sortiert, Tabs mit Lesezeichen in den ausgewählten Ordnern in Gruppen aus Lesezeichen."
+	"options_sandbox_capability_outcome_user_denied": {
+		"message": "vom Benutzer verboten"
 	},
-	"tabGroups_unsupported": {
-		"message": "Dieser Browser erlaubt Erweiterungen nicht, Tabgruppen zu verwalten (Chrome 89+, Firefox 139+ auf dem Desktop)."
+	"options_sandbox_capability_outcome_user_reset": {
+		"message": "Entscheidung aufgehoben"
 	},
-	"tabGroups_missing_permission": {
-		"message": "Die Berechtigung für Tabgruppen fehlt – es wird noch nichts sortiert."
+	"options_sandbox_capability_outcome_unavailable": {
+		"message": "abgelehnt (hier nicht verfügbar)"
 	},
-	"tabGroups_grant_tab_groups": {
-		"message": "Tabgruppen erlauben"
+	"options_sandbox_capability_outcome_click_only": {
+		"message": "abgelehnt (nur über eine Schaltfläche)"
 	},
-	"tabGroups_missing_alarms": {
-		"message": "Ohne die Berechtigung „Timer“ (alarms) werden die Gruppen nach Mitternacht erst verschoben, wenn Sie das nächste Mal mit Tabs arbeiten."
+	"options_sandbox_capability_last": {
+		"message": "zuletzt $1"
 	},
-	"tabGroups_grant_alarms": {
-		"message": "Genau um Mitternacht verschieben"
+	"options_sandbox_capabilities_other": {
+		"message": "Anfragen außerhalb der Deklaration:"
 	},
-	"tabGroups_missing_bookmarks": {
-		"message": "Gruppen aus Lesezeichen benötigen Zugriff auf Lesezeichen und Tab-Adressen – sie werden noch nicht verwendet."
+	"options_sandbox_capabilities_clear": {
+		"message": "Protokoll löschen"
 	},
-	"tabGroups_grant_bookmarks": {
-		"message": "Lesezeichen und Tab-Adressen erlauben"
+	"options_services_heading": {
+		"message": "Export der Funktionen dieser Erweiterung"
 	},
-	"tabGroups_regroup_now": {
-		"message": "Jetzt neu gruppieren"
+	"options_services_hint": {
+		"message": "Diese Erweiterung kann ihre Module der vollständigen Erweiterung AnalyticExtension anbieten, wenn diese installiert ist: Sobald Sie es in den Einstellungen von AnalyticExtension erlauben, zeigt sie sie in ihrem Pop-up, ihrer Seitenleiste und ihren Einstellungen an, die Arbeit für sie erledigt aber weiterhin diese Erweiterung mit ihren eigenen Berechtigungen und Einstellungen. Es ist nur ein Export von hier nach außen — Module anderer Erweiterungen lassen sich dieser Erweiterung nicht hinzufügen."
 	},
-	"tabGroups_group_settings": {
-		"message": "Gruppeneinstellungen"
+	"options_services_meta": {
+		"message": "$1 · Version $2 · angeboten $3"
 	},
-	"tabGroups_identify": {
-		"message": "Verwaltete Gruppen identifizieren"
+	"options_services_status_pending": {
+		"message": "Wartet auf Ihre Entscheidung — diese Erweiterung zeigt nichts davon an und ruft nichts davon auf. Die andere läuft aber selbst weiter, daher arbeiten die Module, die sie ersetzt, vorerst in beiden."
 	},
-	"tabGroups_identify_title": {
-		"message": "Gruppen, die das Modul automatisch verwaltet, blinken in allen Fenstern kurz auf"
+	"options_services_status_approved": {
+		"message": "Erlaubt — seine Module werden hier angezeigt."
 	},
-	"tabGroups_overview_elsewhere": {
-		"message": "Die Gruppenübersicht des Fensters finden Sie im Pop-up, in der Seitenleiste oder in den Einstellungen."
+	"options_services_status_approved_absent": {
+		"message": "Erlaubt, aber gerade nicht verfügbar (deinstalliert oder deaktiviert) — diese Erweiterung zeigt stattdessen ihre eigenen Module."
 	},
-	"tabGroups_overview_not_sorted": {
-		"message": "Die Tabs in diesem Fenster wurden noch nicht sortiert – versuchen Sie „Jetzt neu gruppieren“."
+	"options_services_status_denied": {
+		"message": "Abgelehnt — nichts davon läuft."
 	},
-	"tabGroups_overview_no_groups": {
-		"message": "In diesem Fenster gibt es noch keine automatische Gruppe (die Tabs sind in Ihren eigenen Gruppen oder angepinnt)."
+	"options_services_modules": {
+		"message": "Module: $1"
 	},
-	"tabGroups_chip_opened": {
-		"message": "Tabs geöffnet $1: $2"
+	"options_services_replaces": {
+		"message": "Läuft anstelle von: $1 (nach dem Erlauben werden sie aus Ihrer Modulliste entfernt und kehren nicht von selbst zurück, auch nicht, wenn die andere Erweiterung fehlt)"
 	},
-	"tabGroups_chip_last_used": {
-		"message": "Tabs zuletzt verwendet $1: $2"
+	"options_services_backup": {
+		"message": "Verwaltet die Daten von: $1 (Import Export sichert sie und stellt sie direkt in dieser Erweiterung wieder her)"
 	},
-	"tabGroups_chip_bookmarks": {
-		"message": "Tabs $1: $2"
+	"options_services_services_title": {
+		"message": "Was sie für ihre Module tut (mit ihren eigenen Berechtigungen):"
 	},
-	"tabGroups_user_groups": {
-		"message": "Ihre eigenen Gruppen links davon: $1"
+	"options_services_uses_title": {
+		"message": "Was sie von den Modulen dieser Erweiterung verwendet (mit deren Daten):"
 	},
-	"tabGroups_no_response": {
-		"message": "Der Hintergrundteil des Moduls hat nicht geantwortet – versuchen Sie, die Erweiterung neu zu laden."
+	"options_services_allow": {
+		"message": "Erlauben"
 	},
-	"tabGroups_regrouped": {
-		"message": "Die Tabs wurden neu gruppiert."
+	"options_services_deny": {
+		"message": "Ablehnen"
 	},
-	"tabGroups_nothing_to_regroup": {
-		"message": "Alle Tabs sind bereits in der richtigen Gruppe."
+	"options_services_open": {
+		"message": "Seine Einstellungen öffnen"
 	},
-	"tabGroups_identified_one": {
-		"message": "$1 vom Modul verwaltete Gruppe hat geblinkt (in allen Fenstern)."
+	"options_services_allowed_problems": {
+		"message": "Erlaubt, aber einige Module konnten nicht installiert werden:"
 	},
-	"tabGroups_identified_other": {
-		"message": "$1 vom Modul verwaltete Gruppen haben geblinkt (in allen Fenstern)."
+	"options_services_allowed_removed": {
+		"message": "Aus der Modulliste entfernt: $1 — stattdessen erledigt $2 ihre Arbeit. Wenn Sie es deinstallieren, schalten sie sich nicht von selbst ein; fügen Sie sie hier in den Einstellungen wieder zur Modulliste hinzu."
 	},
-	"tabGroups_identified_none": {
-		"message": "Das Modul verwaltet derzeit keine Gruppe."
+	"options_services_provider_unnamed": {
+		"message": "der Dienstanbieter"
 	},
-	"tabGroups_identify_error": {
-		"message": "Die Gruppen konnten nicht identifiziert werden: $1"
+	"options_services_client_approved": {
+		"message": "$2 zeigt die Module dieser Erweiterung ($1) in seinem Pop-up und seiner Seitenleiste anstelle dieser Erweiterung an. Ihre Einstellungen können hier und in den Einstellungen von $2 geändert werden."
 	},
-	"tabGroups_problem_disabled": {
-		"message": "Das Modul ist deaktiviert oder nicht in der Modulliste – Tabs werden nicht sortiert."
+	"options_services_client_approved_none": {
+		"message": "$1 hat diese Erweiterung erlaubt, zeigt aber derzeit keines ihrer Module an (sie sind nicht in seiner Modulliste oder ausgeschaltet) — diese Erweiterung zeigt sie selbst an."
 	},
-	"tabGroups_problem_unavailable": {
-		"message": "Die Berechtigung für Tabgruppen fehlt."
+	"options_services_client_pending": {
+		"message": "Diese Erweiterung hat $1 ihre Module angeboten — erlauben Sie sie in den Einstellungen von $1 (Module aus anderen Erweiterungen). Bis dahin zeigt sie sie selbst an."
 	},
-	"tabGroups_problem_error": {
-		"message": "Neugruppierung fehlgeschlagen: $1"
+	"options_services_client_denied": {
+		"message": "$1 hat abgelehnt, die Module dieser Erweiterung anzuzeigen — sie zeigt sie selbst an."
 	},
-	"tabGroups_unknown_error": {
-		"message": "unbekannter Fehler"
+	"options_services_client_unknown": {
+		"message": "AnalyticExtension, der diese Erweiterung ihre Module anbietet, ist nicht installiert oder hat nicht geantwortet — die Module zeigt nur diese Erweiterung selbst an."
 	},
-	"tabGroups_bookmarks_fallback_title": {
-		"message": "Lesezeichen"
+	"options_services_client_register": {
+		"message": "Erneut anbieten"
 	},
-	"tabGroups_bookmarks_describe_domain": {
-		"message": "auf den Domains der Lesezeichen im Ordner „$1“"
+	"options_sandbox_capabilities_pending": {
+		"message": "Das Modul fordert Funktionen außerhalb der Sandbox an: $1. Der Kern lehnt sie ab, bis Sie sie unten in der Liste der hochgeladenen Module erlauben."
 	},
-	"tabGroups_bookmarks_describe_folder": {
-		"message": "aus Lesezeichen im Ordner „$1“"
+	"background_debugger_extension_pages_only": {
+		"message": "api.debugger darf nur von Seiten der Erweiterung verwendet werden."
 	},
-	"tabGroups_folder_untitled": {
-		"message": "(ohne Namen)"
+	"background_debugger_unavailable": {
+		"message": "chrome.debugger ist nicht verfügbar – die Berechtigung „debugger“ fehlt oder der Browser unterstützt sie nicht."
 	},
-	"tabGroups_folder_in_account": {
-		"message": "$1 (im Konto)"
+	"background_network_rules_extension_pages_only": {
+		"message": "api.networkRules darf nur von Seiten der Erweiterung verwendet werden."
 	},
-	"tabGroups_folder_device_only": {
-		"message": "$1 (nur auf diesem Gerät)"
+	"background_content_filters_declared": {
+		"message": "Das Modul deklariert seine Konfiguration der Inhaltsfilter in registerModule() — der Kern wendet sie selbst an, contentFilters.set ändert sie nicht."
 	},
-	"tabGroups_editor_hint": {
-		"message": "Tabs, die sich nicht in einer Ihrer eigenen Gruppen befinden, werden automatisch nach dem Öffnungszeitpunkt oder der letzten Verwendung (Option oben) in eine Zeitraumgruppe sortiert. Das Modul erkennt seine Gruppen am Namen – geben Sie keiner Ihrer eigenen Gruppen denselben Namen."
+	"background_content_filters_extension_pages_only": {
+		"message": "Die Inhaltsfilter (contentFilters.*) dürfen nur Erweiterungsseiten verwenden."
 	},
-	"tabGroups_editor_period": {
-		"message": "Zeitraum"
+	"background_content_filters_unknown_module": {
+		"message": "Die Inhaltsfilter sind nur für hochgeladene Module — „$1“ ist keines."
 	},
-	"tabGroups_editor_group_name": {
-		"message": "Gruppenname"
+	"background_network_filters_declared": {
+		"message": "Das Modul deklariert seine Konfiguration der Netzwerkfilter in registerModule() — der Kern wendet sie selbst an, networkFilters.set ändert sie nicht."
 	},
-	"tabGroups_editor_color": {
-		"message": "Farbe"
+	"background_network_filters_extension_pages_only": {
+		"message": "Die Netzwerkfilter (networkFilters.*) dürfen nur Erweiterungsseiten verwenden."
 	},
-	"tabGroups_editor_title_aria": {
-		"message": "Gruppenname für den Zeitraum $1"
+	"background_scheduled_urls_extension_pages_only": {
+		"message": "Geplante Adressen können nur von Seiten der Erweiterung aus geprüft werden."
 	},
-	"tabGroups_editor_color_aria": {
-		"message": "Gruppenfarbe für den Zeitraum $1"
+	"background_dns_overview_extension_pages_only": {
+		"message": "Die DNS-Übersicht kann nur von Erweiterungsseiten gelesen werden."
 	},
-	"tabGroups_editor_color_default": {
-		"message": "$1 (Standard)"
+	"background_dns_overview_invalid_request": {
+		"message": "Ungültige Anfrage der DNS-Übersicht (der Tab, die Hosts)."
 	},
-	"tabGroups_editor_collapsed_aria": {
-		"message": "Minimierte Gruppe für den Zeitraum $1"
+	"background_dns_overview_no_dns": {
+		"message": "Dieser Browser hat kein browser.dns — eigene DNS-Abfragen funktionieren nur in Firefox."
 	},
-	"tabGroups_editor_duplicates": {
-		"message": "Gruppennamen dürfen sich nicht wiederholen ($1) – ein wiederholter Name wird als Standardname des Zeitraums gespeichert."
+	"background_network_filters_unknown_module": {
+		"message": "Die Netzwerkfilter sind nur für hochgeladene Module — „$1“ ist keines."
 	},
-	"tabGroups_quoted": {
-		"message": "„$1“"
+	"background_missing_module_name": {
+		"message": "Modulname fehlt."
 	},
-	"tabGroups_editor_collapsed_title": {
-		"message": "Eine neue Gruppe wird minimiert erstellt – enthält sie jedoch den gerade geöffneten Tab, bleibt sie maximiert, damit der Browser nicht woandershin wechselt. Das Modul minimiert oder maximiert niemals eine bestehende Gruppe."
+	"core_service_unknown": {
+		"message": "Den Dienst $1 gibt es nicht."
 	},
-	"tabGroups_editor_collapsed": {
-		"message": "minimierte Gruppe"
+	"core_service_no_answer": {
+		"message": "Der Dienst $1 hat nicht geantwortet."
 	},
-	"tabGroups_bookmarks_hint": {
-		"message": "Ein Tab, dessen Adresse im ausgewählten Ordner (einschließlich Unterordnern) als Lesezeichen gespeichert ist, kommt statt in eine Zeitraumgruppe in die Gruppe aus Lesezeichen; verglichen wird die gesamte Adresse ohne den Teil nach #. Gehört ein Tab zu mehreren Gruppen, gilt die erste Zeile. Gruppen aus Lesezeichen stehen in der Tableiste zwischen Ihren eigenen Gruppen und den Zeiträumen."
+	"core_service_unavailable": {
+		"message": "Die Funktion $1 ist jetzt nicht verfügbar — kein Modul bietet sie an, auch nicht in einer anderen Erweiterung."
 	},
-	"tabGroups_bookmarks_folder": {
-		"message": "Lesezeichenordner"
+	"core_service_timeout": {
+		"message": "Die Erweiterung $1 hat nicht rechtzeitig geantwortet."
 	},
-	"tabGroups_bookmarks_empty": {
-		"message": "Keine Gruppen aus Lesezeichen."
+	"core_service_registration_invalid": {
+		"message": "Ungültige Registrierung der Erweiterung ($1)."
 	},
-	"tabGroups_bookmarks_add": {
-		"message": "Gruppe aus Lesezeichen hinzufügen"
+	"core_service_package_missing": {
+		"message": "Die Dateien des Moduls $1 fehlen — die Erweiterung bietet sie erneut an."
 	},
-	"tabGroups_bookmarks_choose_folder": {
-		"message": "– Lesezeichenordner auswählen –"
+	"core_service_not_provider": {
+		"message": "Die Erweiterung $1 ist nicht der Dienstanbieter dieser Erweiterung."
 	},
-	"tabGroups_bookmarks_folder_not_found": {
-		"message": "$1 (Ordner nicht gefunden)"
+	"core_service_not_declared": {
+		"message": "Die Erweiterung hat die Funktion $1 nicht im Voraus angekündigt — sie bietet sich mit ihr erneut an."
 	},
-	"tabGroups_bookmarks_folder_name": {
-		"message": "Ordnername"
+	"core_service_client_not_allowed": {
+		"message": "Die Erweiterung $1 darf die Funktionen dieser Erweiterung nicht verwenden — erlauben Sie sie in den Einstellungen (Module aus anderen Erweiterungen)."
 	},
-	"tabGroups_bookmarks_duplicates": {
-		"message": "Gruppennamen dürfen sich nicht wiederholen und keinem Zeitraumnamen entsprechen ($1) – ein wiederholter Name erhält eine laufende Nummer."
+	"core_service_standalone": {
+		"message": "Die Erweiterung $1 bietet ihre Module nur einer anderen Erweiterung an — Module oder Anfragen anderer Erweiterungen nimmt sie nicht an."
 	},
-	"tabGroups_bookmarks_without_folder": {
-		"message": "Eine Zeile ohne ausgewählten Ordner wird nicht verwendet."
+	"core_service_backup_refused": {
+		"message": "Diese Erweiterung verwaltet die Daten des Moduls $1 nicht für ihren Dienstanbieter."
 	},
-	"tabGroups_bookmarks_title_aria": {
-		"message": "Name der Gruppe aus Lesezeichen (leer = Ordnername)"
+	"core_service_backup_no_answer": {
+		"message": "Die Erweiterung $1 hat zu den Daten des Moduls $2 nicht geantwortet."
 	},
-	"tabGroups_bookmarks_whole_domain_title": {
-		"message": "Die Gruppe erhält auch Tabs mit anderen Adressen auf der Domain eines beliebigen Lesezeichens im Ordner: bei einem Lesezeichen some.tld z. B. some.tld/folder/file.html. Das Präfix www. zählt nicht (some.tld und www.some.tld sind dieselbe Domain), andere Subdomains schon."
+	"core_service_delegated": {
+		"message": "$1 wird in $2 angezeigt."
 	},
-	"tabGroups_bookmarks_whole_domain": {
-		"message": "alle URLs auf der Domain des Lesezeichens"
+	"core_service_provider_unnamed": {
+		"message": "dem Dienstanbieter"
 	},
-	"tabGroups_bookmarks_color_aria": {
-		"message": "Farbe der Gruppe aus Lesezeichen"
+	"core_service_pending_notice": {
+		"message": "⚠ $1 bietet dieser Erweiterung seine Module an und wartet auf Ihre Entscheidung. Bis Sie es erlauben oder ablehnen, arbeitet $2 in beiden Erweiterungen gleichzeitig (dieselbe Arbeit doppelt)."
 	},
-	"tabGroups_bookmarks_collapsed_aria": {
-		"message": "Minimierte Gruppe aus Lesezeichen"
+	"core_service_pending_notice_none": {
+		"message": "$1 bietet dieser Erweiterung seine Module an und wartet auf Ihre Entscheidung."
 	},
-	"tabGroups_bookmarks_remove": {
-		"message": "Gruppe aus Lesezeichen entfernen"
-	},
-	"tabGroups_bookmarks_missing_permission": {
-		"message": "Gruppen aus Lesezeichen benötigen Zugriff auf Lesezeichen und Tab-Adressen – ohne ihn werden sie nicht verwendet und es kann kein Ordner ausgewählt werden."
-	},
-	"tabGroups_bookmarks_permission_here": {
-		"message": "Sie kann hier nicht erteilt werden – erlauben Sie sie in den Einstellungen, im Pop-up oder in der Seitenleiste."
+	"core_service_pending_decide": {
+		"message": "In den Einstellungen entscheiden"
 	}
 }

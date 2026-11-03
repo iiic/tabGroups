@@ -1,0 +1,20 @@
+{
+	"onboardingModule_description": {
+		"message": "Po instalaci rozšíření otevře v nové kartě uvítací stránku. Co na ní bude, určuješ u každého modulu volbou „Vypisovat data modulu: Na uvítací stránce“, tlačítkem ji otevřeš kdykoliv znovu."
+	},
+	"onboardingModule_disabled": {
+		"message": "$1: Vypnut"
+	},
+	"onboardingModule_opens_after_install": {
+		"message": "$1: po instalaci rozšíření se v nové kartě otevře uvítací stránka."
+	},
+	"onboardingModule_not_opening": {
+		"message": "$1: po instalaci se uvítací stránka neotevře — aktivační režim modulu není „Po instalaci rozšíření“."
+	},
+	"onboardingModule_open_button": {
+		"message": "Otevřít uvítací stránku"
+	},
+	"onboardingModule_already_open": {
+		"message": "Uvítací stránka je právě otevřená."
+	}
+}

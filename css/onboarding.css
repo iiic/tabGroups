@@ -1,5 +1,5 @@
-/* Uvítací stránka (onboarding.html) — celá karta prohlížeče, obsah proto
-   v užším sloupci uprostřed. Jinak stejné jako postranní panel. */
+/* The welcome page (onboarding.html) — a whole browser tab, so the content is
+   in a narrower column in the middle. Otherwise the same as the sidebar. */
 body {
 	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
 		sans-serif;
@@ -9,7 +9,7 @@ body {
 	padding: 32px 16px;
 	color: var(--color-text);
 }
-/* Zobrazení vlastních elementů modulů řeší rám kolem nich — viz
+/* The display of the modules' custom elements is handled by the frame around them — see
    css/module-frame.css. */
 .module-output {
 	margin-top: 8px;
@@ -21,8 +21,8 @@ body {
 .error {
 	color: var(--color-error);
 }
-/* Volba jazyka rozhraní nad výpisy modulů — panel stejného vzhledu jako
-   výpis modulu, popisek a nabídka v jednom řádku. */
+/* The UI language choice above the module outputs — a panel with the same look as
+   a module output, the label and the menu on one line. */
 .onboarding-language {
 	padding: 4px 6px;
 	background: var(--color-panel);

@@ -1,12 +1,12 @@
-/* Světlý vzhled — výchozí barvy všech stránek rozšíření. Na stránkách je
-   dvakrát: jako trvalý styl (výchozí proměnné, platí vždy) a jako
-   alternativní styl s titulkem "Světlý" (volba, mezi kterou a tmavým
-   vzhledem přepíná modul styleSwitch). Tmavý vzhled (theme-dark.css) jen
-   přepisuje tytéž proměnné.
+/* Light look — the default colors of all extension pages. It is on the pages
+   twice: as a persistent style (default variables, always applies) and as an
+   alternate style with the title "Světlý" (Light) (the choice that the styleSwitch module
+   toggles between it and the dark look). The dark look (theme-dark.css) only
+   overrides the same variables.
 
-   Proměnné mvp.css (--color-bg, --color-link, ...) mají světlé hodnoty už
-   v mvp.css, tady jsou jen barvy stránek rozšíření, které dřív byly v CSS
-   jednotlivých stránek napevno. */
+   The mvp.css variables (--color-bg, --color-link, ...) already have light values
+   in mvp.css, here are only the colors of the extension pages, which used to be hard-coded
+   in the CSS of the individual pages. */
 :root {
 	color-scheme: light;
 	--color-text: #202124;

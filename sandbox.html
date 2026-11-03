@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<!-- The same policy as content_security_policy.sandbox in the manifest (without the sandbox directive, that one cannot be in
+	     a <meta>; the iframe sandbox attribute gives it). Firefox (verified in version 157) applies only part of the manifest
+	     policy to a sandboxed page — the page loaded images and sent fetch() requests to the network; with this <meta> it
+	     loads nothing from the network in either browser. blob: (script-src, connect-src) is for the JS modules and JSON
+	     of an uploaded package — the sandbox creates these addresses itself (sandbox.js), nothing else can. -->
+	<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; connect-src blob:; base-uri 'none'; form-action 'none'">
+	<title>Tab Groups - sandbox</title>
+	<!-- A sandboxed page ("sandbox" in the manifest): an opaque origin, no chrome.* API, its own CSP. It runs one uploaded
+	     module, see sandbox.js. No crossorigin attribute: from an opaque origin it would turn the loads into CORS requests. -->
+	<link rel="stylesheet" href="./css/mvp.css">
+	<link rel="stylesheet" href="./css/sandbox.css">
+</head>
+
+<body>
+	<div id="sandbox-root"></div>
+
+	<script src="./sandbox.js"></script>
+</body>
+
+</html>

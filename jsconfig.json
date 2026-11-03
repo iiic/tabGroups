@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"noLib": false,
+		"checkJs": true,
+		"allowJs": true,
+		"noEmit": true,
+		"strict": true,
+		"noImplicitOverride": true,
+		"noUnusedLocals": true,
+		"noFallthroughCasesInSwitch": true,
+		"target": "es2022",
+		"module": "es2022",
+		"moduleResolution": "bundler",
+		"types": ["chrome"]
+	},
+	"exclude": ["node_modules", "dist", "scripts", "tests", "eslint.config.mjs", "vscode-extension"]
+}

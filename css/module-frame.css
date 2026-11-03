@@ -1,25 +1,25 @@
-/* Rám kolem vlastního elementu modulu — viz BaseController.mountModuleElement()
-   v base.mjs a nastavení „Element výpisu dat“ (OUTPUT_ELEMENTS) v Nastavení.
-   Sdílený všemi plochami výstupu (popup/sidebar/options).
+/* The frame around a module's custom element — see BaseController.mountModuleElement()
+   in base.mjs and the "Output element" setting (OUTPUT_ELEMENTS) in Settings.
+   Shared by all output surfaces (popup/sidebar/floating/options).
 
-   Vlastní elementy (custom elements) modulů nemají ve výchozím stavu žádný
-   styl a prohlížeč je zobrazuje jako "display: inline" — jak se mají
-   zobrazit, určuje až typ rámu níž (dřív to za všechny moduly vynucovalo
-   pravidlo "#modules-output > * { display: block }" v CSS každé plochy). */
+   The modules' custom elements have no style by default
+   and the browser displays them as "display: inline" — how they should
+   be displayed is decided only by the frame type below (previously the rule
+   "#modules-output > * { display: block }" in the CSS of every surface enforced it for all modules). */
 
 .module-frame-heading {
 	font-weight: 600;
 }
 
-/* Vypnutý nadpis („s nadpisem modulu“) v rámu zůstává, jen s atributem
-   hidden — pravidla níž nastavují display všem přímým potomkům rámu, a tím
-   by obecné [hidden] { display: none } z mvp.css přebila. */
+/* A turned-off heading ("with module heading") stays in the frame, only with the
+   hidden attribute — the rules below set display on all direct children of the frame, and so
+   they would override the general [hidden] { display: none } from mvp.css. */
 .module-frame-heading[hidden] {
 	display: none;
 }
 
-/* Řádkový — rám, nadpis i element modulu tečou v řádku, víc řádkových
-   modulů za sebou skončí vedle sebe. */
+/* Inline — the frame, the heading and the module element flow in a line, several inline
+   modules in a row end up next to each other. */
 .module-frame--inline,
 .module-frame--inline > * {
 	display: inline;
@@ -31,8 +31,8 @@
 	margin-right: 4px;
 }
 
-/* Blokový — pod sebou, přes celou šířku (stejný vzhled jako před zavedením
-   rámu). */
+/* Block — one below another, across the full width (the same look as before the
+   frame was introduced). */
 .module-frame--block > *,
 .module-frame--indented > * {
 	display: block;
@@ -42,16 +42,195 @@
 	margin-top: 8px;
 }
 
-/* Odsazený blokový — jako blokový, jen obsah modulu (ne nadpis) je
-   odsazený zleva. */
+/* Indented block — like block, only the module content (not the heading) is
+   indented from the left. */
 .module-frame--indented > :not(.module-frame-heading) {
 	margin-left: 16px;
 }
 
-/* Uzavíratelný — <details>/<summary>, nadpis (summary) je vidět vždy. */
+/* Collapsible — <details>/<summary>, the heading (summary) is always visible. */
 details.module-frame {
 	margin: 8px 0 0;
 }
 details.module-frame > :not(summary) {
 	display: block;
+}
+
+/* The 📌 button in the side panel and the floating window (attachPinButton() in base.mjs) —
+   at the right edge of the module name line, only the emoji without the look of the
+   mvp.css buttons. An unpinned one is pale, the pinned one in full color. */
+.module-frame-pin {
+	float: right;
+	margin: 0 0 0 8px;
+	padding: 0 4px;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font-size: 0.9em;
+	font-weight: normal;
+	line-height: inherit;
+	opacity: 0.4;
+	filter: grayscale(1);
+}
+.module-frame-pin:hover,
+.module-frame-pin:focus-visible,
+.module-frame-pin[aria-pressed="true"] {
+	opacity: 1;
+	filter: none;
+}
+/* In an inline frame it stays in the line, right after the name. */
+.module-frame--inline > .module-frame-pin {
+	float: none;
+	margin: 0 4px 0 0;
+}
+
+/* The pinned frame (_updateModuleSlot() in base.mjs) — stuck to the very top of the surface
+   even while scrolling, the other modules scroll under it: an opaque background and a z-index
+   above their elements (including positioned ones, e.g. the mvp.css dropdowns with z-index: 1).
+   A frame taller than --pinned-max-height (80 % of the surface by default,
+   PINNED_MAX_HEIGHT_KEY in base.mjs) scrolls inside itself, so it is always visible whole
+   and room for the other modules is left below it. An inline frame becomes a block — sticky
+   does not apply to an inline box. */
+.module-frame--pinned {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	max-height: var(--pinned-max-height, 80vh);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding-bottom: 4px;
+	border-bottom: 1px solid var(--color-bg-secondary);
+	background: var(--color-bg);
+}
+.module-frame--pinned.module-frame--inline {
+	display: block;
+	margin-right: 0;
+}
+
+/* An uploaded module (SandboxModuleElement in base.mjs) — its content is an <iframe> with
+   the sandbox page; the height is set by the core according to what the sandbox reports. The width
+   the content fits in is in --sandbox-content-width (used by css/options.css). */
+.sandbox-module-frame {
+	display: block;
+	width: 100%;
+	height: 0;
+	border: 0;
+	background: transparent;
+}
+.sandbox-module-error {
+	color: var(--color-error);
+	white-space: pre-wrap;
+}
+/* The buttons the core draws for an uploaded module (api.buttons, see SandboxModuleElement in
+   base.mjs) — before its frame, in the page itself, so a click on one is a click in the page. The
+   same look on every surface (the CSS of a surface does not shrink them, e.g. popup.css). */
+.sandbox-module-controls {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+.sandbox-module-controls[hidden] {
+	display: none;
+}
+.sandbox-module-controls--end {
+	justify-content: flex-end;
+}
+.sandbox-module-controls .sandbox-module-button {
+	font-size: 12px;
+	padding: 4px 8px;
+}
+/* The content the core draws for an uploaded module instead of its frame (api.ui, see
+   renderSandboxUi() in base.mjs) — elements of the page itself, in its look. The frame keeps
+   running, without a height and invisible (it gets no focus). */
+.sandbox-module-frame--hidden {
+	height: 0 !important;
+	visibility: hidden;
+}
+.sandbox-ui[hidden] {
+	display: none;
+}
+.sandbox-ui .sandbox-ui-paragraph {
+	margin: 0 0 6px;
+}
+.sandbox-ui .sandbox-ui-heading {
+	font-size: 1em;
+	margin: 8px 0 4px;
+}
+.sandbox-ui .sandbox-ui-list,
+.sandbox-ui .sandbox-ui-definitions,
+.sandbox-ui .sandbox-ui-table,
+.sandbox-ui .sandbox-ui-details {
+	margin: 0 0 6px;
+}
+.sandbox-ui .sandbox-ui-group > :last-child,
+.sandbox-ui > :last-child {
+	margin-bottom: 0;
+}
+.sandbox-ui {
+	overflow-wrap: break-word;
+}
+.sandbox-ui .sandbox-ui-button {
+	font-size: 12px;
+	padding: 4px 8px;
+	margin: 0;
+}
+/* A button drawn like a link (look: "link") — among the links, still a button. The look of a of mvp.css. */
+.sandbox-ui .sandbox-ui-button--link {
+	display: inline-block;
+	font: inherit;
+	font-weight: bold;
+	line-height: inherit;
+	color: var(--color-link);
+	background: none;
+	border: 0;
+	border-radius: 0;
+	padding: 0;
+	text-align: inherit;
+	text-decoration: underline;
+}
+.sandbox-ui .sandbox-ui-button--link:disabled {
+	color: var(--color-text-muted);
+	opacity: 0.6;
+	cursor: default;
+}
+/* A greyed-out link (muted: true — e.g. a tool that does not support the page), still a link. */
+.sandbox-ui .sandbox-ui-link--muted {
+	color: var(--color-text-muted);
+	opacity: 0.6;
+}
+.sandbox-ui .sandbox-ui-link--muted:hover,
+.sandbox-ui .sandbox-ui-link--muted:focus-visible {
+	opacity: 1;
+}
+.sandbox-ui .sandbox-ui-checkbox {
+	display: inline;
+	font-weight: normal;
+}
+/* The notice of an extension that offers its modules and waits for the user's decision (popup, side panel,
+   floating window, the top of Settings) — its modules work in both extensions until then. See
+   BaseController.mountPendingServiceNotice() in base.mjs. */
+.service-pending-notice {
+	box-sizing: border-box;
+	margin: 0 0 8px;
+	padding: 6px 8px;
+	font-size: 13px;
+	background: var(--color-panel);
+	border-left: 4px solid var(--color-error);
+	border-radius: 4px;
+}
+.service-pending-notice[hidden] {
+	display: none;
+}
+.service-pending-notice p {
+	margin: 0;
+}
+.service-pending-notice p + p {
+	margin-top: 6px;
+}
+.service-pending-notice button {
+	margin: 4px 0 0;
+	padding: 2px 8px;
+	font-size: 12px;
 }

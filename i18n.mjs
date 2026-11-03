@@ -1,39 +1,50 @@
 //@ts-check
 "use strict";
 
-// i18n.mjs — překlady uživatelského rozhraní.
+// i18n.mjs — user interface translations.
 //
-// Texty jsou ve standardním rozložení WebExtension: _locales/<jazyk>/messages.json
-// ({ "klíč": { "message": "text" } }), výchozí jazyk je angličtina
-// (default_locale "en" v manifestu). chrome.i18n ale jazyk bere vždy z
-// prohlížeče a za běhu ho přepnout nejde — jazyk rozhraní si proto uživatel
-// volí sám (UI_LANGUAGE_KEY v chrome.storage.local, viz stránka Nastavení) a
-// texty zvoleného jazyka se načítají přímo ze souboru messages.json.
+// The texts are in the standard WebExtension layout: _locales/<language>/messages.json
+// ({ "key": { "message": "text" } }), the default language is English
+// (default_locale "en" in the manifest). chrome.i18n, however, always takes the
+// language from the browser and cannot switch it at runtime — so the user picks
+// the UI language (UI_LANGUAGE_KEY in chrome.storage.local, see the Settings page)
+// and the texts of the chosen language are loaded directly from messages.json.
 //
-// Použití:
-//   await loadI18n();            // jednou na začátku (stránka, content script)
-//   t("options_save");            // text podle klíče
-//   t("popup_module_error", path) // $1…$9 v textu nahradí argumenty, "$$" je "$"
-//   tp("storageManager_items", n) // množné číslo: klíče <klíč>_one/_few/_many/_other
-//                                 // podle Intl.PluralRules, $1 je n
-//   applyI18n(document)           // HTML atributy data-i18n* (viz níž)
+// _locales/ has only the texts of the core (and the manifest's __MSG_…__). A module
+// has its own in its folder, modules/<module>/_locales/<language>/messages.json
+// (keys <module>_…), so a page, a content script or the background loads only the texts of
+// the modules that run in it: loadI18n() loads those of the core and of the modules added by
+// addModuleI18n(). The core adds them itself — on extension pages the modules it imports
+// (importModuleFiles() in base.mjs), in the background the modules with a background part
+// (registerBackgroundScript()); a module's content script or its own page loads them with
+// loadModuleI18n("<module>") instead of loadI18n().
 //
-// Než se texty načtou (background.js při startu, content script před
-// loadI18n()), t() sáhne po chrome.i18n.getMessage() — tedy po textu v jazyce
-// prohlížeče. Proto t() nikdy nevolat na nejvyšší úrovni souboru, který se
-// importuje staticky (base.mjs, sdk.mjs): text se má skládat až ve chvíli, kdy
-// se vypisuje (u tabulek konstant přes getter).
+// Usage:
+//   await loadI18n();            // once at the start (page, content script)
+//   await loadModuleI18n("tabGroups") // the same plus the texts of the module (a content script)
+//   t("options_save");            // text by key
+//   t("popup_module_error", path) // $1…$9 in the text are replaced with the arguments, "$$" is "$"
+//   tp("storageManager_items", n) // plural: keys <key>_one/_few/_many/_other
+//                                 // according to Intl.PluralRules, $1 is n
+//   applyI18n(document)           // data-i18n* HTML attributes (see below)
 //
-// Klíče jsou v messages.json bez ohledu na velikost písmen (stejně jako u
-// chrome.i18n) a smí obsahovat jen [A-Za-z0-9_@]; konvence je
-// <modul nebo stránka>_<popis_malými_písmeny>.
+// Before the texts are loaded (background.js at startup, a content script before
+// loadI18n()), t() falls back to chrome.i18n.getMessage() — i.e. to the text in the
+// browser language; that knows only _locales/, a module's key comes back as the key
+// itself. So never call t() at the top level of a file that is
+// imported statically (base.mjs, sdk.mjs): a text should be put together only
+// when it is shown (in tables of constants through a getter).
+//
+// Keys in messages.json are case-insensitive (the same as in chrome.i18n) and
+// may contain only [A-Za-z0-9_@]; the convention is
+// <module or page>_<description_in_lower_case>.
 
 export const UI_LANGUAGE_KEY = "uiLanguage";
 /** @type {Enums.UiLanguage} */
 export const DEFAULT_UI_LANGUAGE = "en";
 
-// Jazyky rozhraní — každý má vlastní _locales/<value>/messages.json. Popisek
-// je název jazyka v něm samém, v nabídce se proto nepřekládá.
+// UI languages — each has its own _locales/<value>/messages.json. The label
+// is the name of the language in the language itself, so it is not translated in the menu.
 /** @type {Types.UiLanguageOption[]} */
 export const UI_LANGUAGES = [
 	{ value: "en", label: "English" },
@@ -51,7 +62,22 @@ let currentMessages = {};
 let currentLanguage = DEFAULT_UI_LANGUAGE;
 /** @type {Promise<void> | null} */
 let loading = null;
-/** @type {Map<Enums.UiLanguage, Promise<Record<string, string>>>} */
+// The language of the last loadI18n() — a load after adding a module keeps it (a page that
+// asked for a language does not get the stored one).
+/** @type {Promise<Enums.UiLanguage> | null} */
+let loadingLanguage = null;
+// Loads can overlap (a module added while the texts are loading) — the tables get the
+// result of the newest one, an older one finishing later is dropped.
+let loadCount = 0;
+let appliedLoad = 0;
+// Modules whose texts loadI18n() loads with those of the core (see addModuleI18n()).
+/** @type {Set<string>} */
+const moduleSources = new Set();
+// The core's texts — the "source" of _locales/ itself, a module's source is its folder name.
+const CORE_SOURCE = "";
+// A module folder name — anything else (an uploaded module, a "#…" instance) has no texts in the package.
+const MODULE_SOURCE_RE = /^[A-Za-z0-9_-]+$/;
+/** @type {Map<string, Promise<Record<string, string>>>} */
 const fileCache = new Map();
 /** @type {Set<(language: Enums.UiLanguage) => void>} */
 const changeListeners = new Set();
@@ -63,14 +89,21 @@ export function normalizeUiLanguage(value) {
 	return found ? found.value : DEFAULT_UI_LANGUAGE;
 }
 
+// The stored UI language — until the user picks one (or with a value the extension no longer
+// has), the browser language if the extension has it, otherwise English (getBrowserUiLanguage()).
+/** @type {Functions.I18n.storedUiLanguage} */
+function storedUiLanguage(value) {
+	return UI_LANGUAGES.find((option) => option.value === value)?.value ?? getBrowserUiLanguage();
+}
+
 /** @type {Functions.I18n.readUiLanguage} */
 export async function readUiLanguage() {
 	try {
 		const stored = await chrome.storage.local.get(UI_LANGUAGE_KEY);
-		return normalizeUiLanguage(stored[UI_LANGUAGE_KEY]);
+		return storedUiLanguage(stored[UI_LANGUAGE_KEY]);
 	} catch {
-		// Bez chrome.storage (hlavní svět stránky, testy bez mocku) — výchozí jazyk.
-		return DEFAULT_UI_LANGUAGE;
+		// Without chrome.storage (the page's main world, tests without a mock) — the browser language.
+		return getBrowserUiLanguage();
 	}
 }
 
@@ -80,25 +113,26 @@ export async function setUiLanguage(language) {
 }
 
 /** @type {Functions.I18n.fetchMessages} */
-function fetchMessages(language) {
-	const cached = fileCache.get(language);
+function fetchMessages(source, language) {
+	const path = source === CORE_SOURCE ? `_locales/${language}/messages.json` : `modules/${source}/_locales/${language}/messages.json`;
+	const cached = fileCache.get(path);
 	if (cached) return cached;
 	const promise = (async () => {
 		/** @type {Record<string, string>} */
 		const messages = {};
 		try {
-			const response = await fetch(chrome.runtime.getURL(`_locales/${language}/messages.json`));
+			const response = await fetch(chrome.runtime.getURL(path));
 			if (!response.ok) throw new Error(`HTTP ${response.status}`);
 			const json = /** @type {Record<string, { message?: unknown }>} */ (await response.json());
 			for (const [key, entry] of Object.entries(json)) {
 				if (entry && typeof entry.message === "string") messages[key.toLowerCase()] = entry.message;
 			}
 		} catch (err) {
-			console.warn(`i18n: texty jazyka "${language}" nejde načíst:`, err);
+			console.warn(`i18n: texty ${path} nejde načíst:`, err);
 		}
 		return messages;
 	})();
-	fileCache.set(language, promise);
+	fileCache.set(path, promise);
 	return promise;
 }
 
@@ -106,30 +140,56 @@ function fetchMessages(language) {
 export function loadI18n(language) {
 	if (language === undefined && loading) return loading;
 	watchUiLanguage();
+	const target = language === undefined ? (loadingLanguage ?? readUiLanguage()) : Promise.resolve(normalizeUiLanguage(language));
+	loadingLanguage = target;
+	const sources = [CORE_SOURCE, ...moduleSources];
+	const order = ++loadCount;
 	const promise = (async () => {
-		const target = language === undefined ? await readUiLanguage() : normalizeUiLanguage(language);
-		const [fallback, current] = await Promise.all([
-			fetchMessages(DEFAULT_UI_LANGUAGE),
-			target === DEFAULT_UI_LANGUAGE ? null : fetchMessages(target),
-		]);
-		fallbackMessages = fallback;
-		currentMessages = current || fallback;
-		currentLanguage = target;
+		const lang = await target;
+		const tables = await Promise.all(
+			sources.map((source) =>
+				Promise.all([fetchMessages(source, DEFAULT_UI_LANGUAGE), lang === DEFAULT_UI_LANGUAGE ? null : fetchMessages(source, lang)])
+			)
+		);
+		if (order < appliedLoad) return;
+		appliedLoad = order;
+		// The keys of the core and of the modules do not overlap (<module>_… only in the module's folder).
+		fallbackMessages = Object.assign({}, ...tables.map(([fallback]) => fallback));
+		currentMessages = lang === DEFAULT_UI_LANGUAGE ? fallbackMessages : Object.assign({}, ...tables.map(([, current]) => current));
+		currentLanguage = lang;
 	})();
 	loading = promise;
 	return promise;
 }
 
-// Změna jazyka odkudkoliv z rozšíření — texty se načtou znovu a posluchači z
-// onUiLanguageChange() dostanou nový jazyk. Content scripty a background tak
-// další texty skládají už v novém jazyce; stránky rozšíření se samy načtou
-// znovu (viz initPageI18n()).
+// The texts of modules (modules/<module>/_locales) are loaded by every further loadI18n() together with
+// those of the core — the texts already loaded stay available until then. Only for modules from the
+// package (every one has _locales, see tests/locales.test.mjs): another name would only be a failed fetch.
+/** @type {Functions.I18n.addModuleI18n} */
+export function addModuleI18n(...names) {
+	for (const name of names) {
+		if (!MODULE_SOURCE_RE.test(name) || moduleSources.has(name)) continue;
+		moduleSources.add(name);
+		loading = null;
+	}
+}
+
+/** @type {Functions.I18n.loadModuleI18n} */
+export function loadModuleI18n(...names) {
+	addModuleI18n(...names);
+	return loadI18n();
+}
+
+// A language change from anywhere in the extension — the texts are loaded again and
+// listeners from onUiLanguageChange() get the new language. Content scripts and the
+// background thus compose further texts in the new language; extension pages reload
+// themselves (see initPageI18n()).
 function watchUiLanguage() {
 	if (watching || !globalThis.chrome?.storage?.onChanged) return;
 	watching = true;
 	chrome.storage.onChanged.addListener((changes, areaName) => {
 		if (areaName !== "local" || !(UI_LANGUAGE_KEY in changes)) return;
-		const language = normalizeUiLanguage(changes[UI_LANGUAGE_KEY].newValue);
+		const language = storedUiLanguage(changes[UI_LANGUAGE_KEY].newValue);
 		if (language === currentLanguage) return;
 		loading = null;
 		loadI18n(language).then(() => {
@@ -145,20 +205,32 @@ export function onUiLanguageChange(listener) {
 	return () => changeListeners.delete(listener);
 }
 
-// Jazyk rozhraní podle jazyka prohlížeče ("cs-CZ" → "cs") — jen když ho
-// rozšíření má, jinak výchozí angličtina (stejně vybírá chrome.i18n podle
-// default_locale). Jazyk rozhraní se podle něj sám nenastavuje, jen se
-// označí v nabídce jazyků na stránce Nastavení.
+/** @type {Functions.I18n.getUiLanguage} */
+export function getUiLanguage() {
+	return currentLanguage;
+}
+
+// UI language according to the browser language ("cs-CZ" → "cs") — only if the
+// extension has it, otherwise the default English (chrome.i18n picks the same way
+// according to default_locale). It is the UI language until the user picks one
+// (readUiLanguage()) and it is marked in the language menu (initUiLanguageSelect()).
 /** @type {Functions.I18n.getBrowserUiLanguage} */
 export function getBrowserUiLanguage() {
 	let locale = "";
 	try {
 		locale = globalThis.chrome?.i18n?.getUILanguage?.() || "";
 	} catch {
-		// chrome.i18n tu není (hlavní svět stránky, testy).
+		// chrome.i18n is not available here (the page's main world, tests).
 	}
 	if (!locale && typeof navigator !== "undefined") locale = navigator.language || "";
 	return normalizeUiLanguage(locale.toLowerCase().split(/[-_]/)[0]);
+}
+
+// Language for Intl.* and toLocale*() — the same as the UI language, so that dates and
+// numbers are not formatted differently from the surrounding text.
+/** @type {Functions.I18n.getUiLocale} */
+export function getUiLocale() {
+	return currentLanguage;
 }
 
 /** @type {Functions.I18n.hasMessage} */
@@ -172,13 +244,16 @@ function substitute(message, substitutions) {
 	return message.replace(/\$(\$|[1-9])/g, (_match, token) => (token === "$" ? "$" : String(substitutions[Number(token) - 1] ?? "")));
 }
 
-// Text v zadaném jazyce, ne v jazyce rozhraní — třeba volba v nabídce jazyků,
-// která je celá v jazyce, který nabízí. Chybějící text z angličtiny.
+// Text in the given language, not in the UI language — e.g. an option in the language
+// menu, which is entirely in the language it offers. A missing text comes from English.
 /** @type {Functions.I18n.tIn} */
 export async function tIn(language, key, ...substitutions) {
 	const id = key.toLowerCase();
-	const [fallback, messages] = await Promise.all([fetchMessages(DEFAULT_UI_LANGUAGE), fetchMessages(normalizeUiLanguage(language))]);
-	const message = messages[id] ?? fallback[id];
+	const sources = [CORE_SOURCE, ...moduleSources];
+	const [fallback, messages] = await Promise.all(
+		[DEFAULT_UI_LANGUAGE, normalizeUiLanguage(language)].map((lang) => Promise.all(sources.map((source) => fetchMessages(source, lang))))
+	);
+	const message = messages.find((table) => id in table)?.[id] ?? fallback.find((table) => id in table)?.[id];
 	return message === undefined ? key : substitute(message, substitutions);
 }
 
@@ -187,12 +262,12 @@ export function t(key, ...substitutions) {
 	const id = key.toLowerCase();
 	const message = currentMessages[id] ?? fallbackMessages[id];
 	if (message !== undefined) return substitute(message, substitutions);
-	// Texty ještě nejsou načtené — jazyk prohlížeče přes chrome.i18n.
+	// The texts are not loaded yet — the browser language through chrome.i18n.
 	try {
 		const native = globalThis.chrome?.i18n?.getMessage?.(key, substitutions.map(String));
 		if (native) return native;
 	} catch {
-		// chrome.i18n tu není (hlavní svět stránky, testy).
+		// chrome.i18n is not available here (the page's main world, tests).
 	}
 	return key;
 }
@@ -207,60 +282,20 @@ export function tp(key, count, ...substitutions) {
 		rules = new Intl.PluralRules(currentLanguage);
 		pluralRulesCache.set(currentLanguage, rules);
 	}
-	const exact = `${key}_${rules.select(count)}`;
-	return t(hasMessage(exact) ? exact : `${key}_other`, count, ...substitutions);
+	// Forms of the UI language take precedence over the English ones: Czech, for
+	// example, has no "_one" (its "$1×" from "_other" is enough) and the English "once"
+	// would otherwise get mixed into the Czech text. English only when the language
+	// has not even "_other".
+	const exact = `${key}_${rules.select(count)}`.toLowerCase();
+	const other = `${key}_other`.toLowerCase();
+	const own = [exact, other].find((id) => id in currentMessages);
+	return t(own ?? (exact in fallbackMessages ? exact : other), count, ...substitutions);
 }
 
-// Texty v HTML: element s data-i18n="klíč" dostane text, data-i18n-html="klíč"
-// HTML (jen vlastní texty z _locales, nikdy nic z webu) a data-i18n-<atribut>
-// ="klíč" hodnotu atributu (title, placeholder, aria-label, alt, value).
+// Texts in HTML: an element with data-i18n="key" gets the text, data-i18n-html="key"
+// HTML (only the extension's own texts from _locales, never anything from the web) and
+// data-i18n-<attribute>="key" the attribute value (title, placeholder, aria-label, alt, value).
 const I18N_ATTRIBUTES = ["title", "placeholder", "aria-label", "alt", "value"];
-
-// Povolené značky a jejich atributy v data-i18n-html textech. Nic jiného
-// (script, on* atributy, style…) se do stránky nedostane — ani z překladu.
-/** @type {Record<string, string[]>} */
-const I18N_HTML_TAGS = { A: ["href", "target", "rel"], B: [], STRONG: [], I: [], EM: [], SMALL: [], CODE: [], BR: [] };
-
-// Bezpečná náhrada innerHTML: text se rozparsuje přes DOMParser (nic se v něm
-// nespustí) a do stránky se překopírují jen povolené uzly. U nepovolené značky
-// zůstane jen její obsah.
-/**
- * @param {Node} source
- * @param {Node} target
- */
-function copyAllowedNodes(source, target) {
-	for (const node of source.childNodes) {
-		if (node.nodeType === Node.TEXT_NODE) {
-			target.appendChild(document.createTextNode(node.textContent || ""));
-		} else if (node instanceof Element) {
-			const allowedAttributes = I18N_HTML_TAGS[node.tagName];
-			if (!allowedAttributes) {
-				copyAllowedNodes(node, target);
-				continue;
-			}
-			const el = document.createElement(node.tagName.toLowerCase());
-			for (const name of allowedAttributes) {
-				const value = node.getAttribute(name);
-				if (value === null) continue;
-				if (name === "href" && /^\s*(javascript|data|vbscript):/i.test(value)) continue;
-				el.setAttribute(name, value);
-			}
-			copyAllowedNodes(node, el);
-			target.appendChild(el);
-		}
-	}
-}
-
-/**
- * @param {Element} el
- * @param {string} html
- */
-function setSafeHtml(el, html) {
-	const parsed = new DOMParser().parseFromString(html, "text/html");
-	const fragment = document.createDocumentFragment();
-	copyAllowedNodes(parsed.body, fragment);
-	el.replaceChildren(fragment);
-}
 
 /** @type {Functions.I18n.applyI18n} */
 export function applyI18n(root = document) {
@@ -268,7 +303,7 @@ export function applyI18n(root = document) {
 		el.textContent = t(el.getAttribute("data-i18n") || "");
 	}
 	for (const el of root.querySelectorAll("[data-i18n-html]")) {
-		setSafeHtml(el, t(el.getAttribute("data-i18n-html") || ""));
+		el.innerHTML = t(el.getAttribute("data-i18n-html") || "");
 	}
 	for (const attr of I18N_ATTRIBUTES) {
 		for (const el of root.querySelectorAll(`[data-i18n-${attr}]`)) {
@@ -278,12 +313,12 @@ export function applyI18n(root = document) {
 	if (root === document) document.documentElement.lang = currentLanguage;
 }
 
-// Nabídka jazyků rozhraní (<select> nahoře na stránce Nastavení a na uvítací
-// stránce): volby UI_LANGUAGES, vybraný je jazyk rozhraní. Jazyk prohlížeče
-// (getBrowserUiLanguage()) má u názvu příponu „jazyk prohlížeče“ — v jazyce
-// té volby, stejně jako název. Připraví se předem, ať se nabídka vykreslí
-// celá najednou. Změna se uloží hned; tahle i ostatní stránky rozšíření se
-// pak načtou znovu v novém jazyce (initPageI18n()).
+// UI language menu (the <select> at the top of the Settings page and on the welcome
+// page): the UI_LANGUAGES options, the selected one is the UI language. The browser
+// language (getBrowserUiLanguage()) has the suffix "browser language" after its
+// name — in the language of that option, like the name. Prepared in advance so the
+// menu renders all at once. A change is saved immediately; this and the other
+// extension pages then reload in the new language (initPageI18n()).
 /** @type {Functions.I18n.initUiLanguageSelect} */
 export async function initUiLanguageSelect(select) {
 	const browserLanguage = getBrowserUiLanguage();
@@ -301,9 +336,9 @@ export async function initUiLanguageSelect(select) {
 	});
 }
 
-// Začátek každé stránky rozšíření (popup, postranní panel,
-// Nastavení, uvítací stránka, ...): načte texty, přeloží HTML a po změně
-// jazyka stránku načte znovu — texty už vypsané moduly jinak přeložit nejde.
+// Start of every extension page (popup, side panel, floating window,
+// Settings, welcome page, ...): loads the texts, translates the HTML and after a language
+// change reloads the page — texts of already rendered modules cannot be translated otherwise.
 /** @type {Functions.I18n.initPageI18n} */
 export async function initPageI18n() {
 	await loadI18n();

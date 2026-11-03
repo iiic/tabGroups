@@ -1,14 +1,15 @@
 {
 	"manifest_version": 3,
 	"name": "__MSG_extension_name__",
-	"version": "1.0.2",
+	"version": "1.0.4",
 	"description": "__MSG_extension_description__",
 	"default_locale": "en",
 	"icons": {
-		"16": "icon.svg",
-		"32": "icon.svg",
-		"48": "icon.svg",
-		"128": "icon.svg"
+		"16": "icons/icon-16.png",
+		"32": "icons/icon-32.png",
+		"48": "icons/icon-48.png",
+		"96": "icons/icon-96.png",
+		"128": "icons/icon-128.png"
 	},
 	"action": {
 		"default_popup": "popup.html",
@@ -18,27 +19,55 @@
 	"permissions": [
 		"storage",
 		"activeTab",
-		"alarms"
+		"alarms",
+		"tabGroups"
 	],
 	"optional_permissions": [
+		"scripting",
 		"bookmarks",
-		"tabGroups",
 		"tabs"
 	],
-	"sidebar_action": {
-		"default_panel": "sidebar.html",
-		"default_icon": "icon.svg",
-		"default_title": "__MSG_extension_name__"
-	},
+	"optional_host_permissions": [
+		"<all_urls>"
+	],
 	"background": {
 		"scripts": [
 			"background.js"
 		],
 		"type": "module"
 	},
+	"sandbox": {
+		"pages": [
+			"sandbox.html"
+		]
+	},
+	"content_security_policy": {
+		"sandbox": "sandbox allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals; default-src 'none'; script-src 'self' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; connect-src blob:; base-uri 'none'; form-action 'none'"
+	},
+	"web_accessible_resources": [
+		{
+			"resources": [
+				"base.mjs",
+				"perf.mjs",
+				"sdk.mjs",
+				"i18n.mjs",
+				"_locales/*",
+				"modules.json",
+				"modules/*",
+				"floating.html",
+				"sandbox.html",
+				"sandbox.js",
+				"css/mvp.css",
+				"css/sandbox.css"
+			],
+			"matches": [
+				"<all_urls>"
+			]
+		}
+	],
 	"browser_specific_settings": {
 		"gecko": {
-			"id": "tabgroups@iiic.github.io",
+			"id": "tabgroups@iiic.dev",
 			"data_collection_permissions": {
 				"required": [
 					"none"

@@ -1,8 +1,8 @@
-/* Tmavý vzhled — přepisuje proměnné z mvp.css a theme-light.css. Bez
-   uložené volby (nebo bez modulu styleSwitch) platí podle systému (atribut
-   media na <link>), s volbou "Tmavý" vždy. Hodnoty mvp.css proměnných
-   jsou převzaté z jeho vlastního tmavého bloku (ten je v mvp.css vázaný
-   na :root[color-mode="user"], takže se sám nikdy nepoužije). */
+/* Dark look — overrides the variables from mvp.css and theme-light.css. Without
+   a saved choice (or without the styleSwitch module) it applies according to the system (the
+   media attribute on <link>), with the "Tmavý" (Dark) choice always. The values of the mvp.css variables
+   are taken from its own dark block (in mvp.css that one is bound
+   to :root[color-mode="user"], so it is never used on its own). */
 :root {
 	color-scheme: dark;
 
@@ -19,7 +19,7 @@
 	--color-text-secondary: #aaa;
 	--color-scrollbar: #666;
 
-	/* stránky rozšíření (viz theme-light.css) */
+	/* extension pages (see theme-light.css) */
 	--color-panel: #404040;
 	--color-border: #555;
 	--color-input-border: #666;

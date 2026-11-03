@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { before, describe, it } from "node:test";
 
-import { loadI18n } from "../i18n.mjs";
+import { addModuleI18n, loadI18n } from "../i18n.mjs";
 import { BUCKETS, normalizeGroupsConfig } from "../modules/tabGroups/buckets.mjs";
 import { TAB_GROUP_ID_NONE, planOrder, planWindow, targetRank } from "../modules/tabGroups/planner.mjs";
 import { day, mockLocales, noonOf, utcDayOf } from "./helpers.mjs";
@@ -23,6 +23,7 @@ let config;
 
 before(async () => {
 	mockLocales();
+	addModuleI18n("tabGroups");
 	await loadI18n("en");
 	config = normalizeGroupsConfig({});
 });

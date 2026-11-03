@@ -1,15 +1,18 @@
 body {
 	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
 		sans-serif;
-	font-size: 14px;
-	margin: 12px;
+	font-size: 13px;
+	margin: 8px;
 	color: var(--color-text);
 }
 h1 {
-	font-size: 16px;
-	margin: 0 0 12px;
+	font-size: 14px;
+	margin: 0 0 6px;
 }
-/* Zobrazení vlastních elementů modulů řeší rám kolem nich — viz
+p {
+	margin: 0;
+}
+/* The display of the modules' custom elements is handled by the frame around them — see
    css/module-frame.css. */
 .module-output {
 	margin-top: 8px;

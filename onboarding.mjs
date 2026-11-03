@@ -1,12 +1,13 @@
 //@ts-check
 "use strict";
 
-// onboarding.mjs — uvítací stránka (onboarding.html). Po instalaci rozšíření
-// ji v nové kartě otevře modul onboardingModule (jde otevřít i jeho
-// tlačítkem). Vypisuje elementy modulů s plochou výstupu "onboarding" (viz
-// DISPLAY_LOCATIONS v base.mjs) stejným sdíleným mechanismem jako postranní
-// panel — co na ní bude, určuje u každého modulu „Vypisovat data modulu“.
-// Nad výpisy je volba jazyka rozhraní, stejná jako na stránce Nastavení.
+// onboarding.mjs — the welcome page (onboarding.html). After the extension is
+// installed, the onboardingModule module opens it in a new tab (it can also be
+// opened with its button). It shows the elements of modules with the "onboarding"
+// output surface (see DISPLAY_LOCATIONS in base.mjs) using the same shared
+// mechanism as the side panel — what it shows is set for each module by
+// "Show module output". Above the outputs is the UI language choice, the same
+// as on the Settings page.
 import { BaseController } from "./base.mjs";
 import { initPageI18n, initUiLanguageSelect } from "./i18n.mjs";
 
@@ -20,11 +21,11 @@ class OnboardingController extends BaseController {
 
 	/** @type {Classes.OnboardingController['initPage']} */
 	async initPage() {
-		// Vykreslí vlastní elementy všech modulů, které mají v Nastavení
-		// modulů zvolené "Vypisovat data modulu: Na uvítací stránce".
+		// Renders the custom elements of all modules that have "Show module output:
+		// On the welcome page" selected in the module Settings.
 		await this.renderModulesFor("onboarding", this.outputEl);
-		// Bez jediného vypsaného modulu by stránka zůstala prázdná — poradí
-		// aspoň, kde se to nastavuje.
+		// Without a single module shown the page would stay empty — at least
+		// tell the user where it is configured.
 		this.emptyEl.hidden = !!this.outputEl.querySelector(".module-frame");
 	}
 }

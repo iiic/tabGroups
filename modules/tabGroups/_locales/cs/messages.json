@@ -1,0 +1,155 @@
+{
+	"tabGroups_description": {
+		"message": "Karty, které nejsou ve vlastní skupině, sám řadí do 9 skupin (dnes, včera, … v minulém roce) podle toho, kdy byly otevřené, nebo — volba v Nastavení — kdy byly naposledy použité, a po půlnoci je posouvá do dalších. V Nastavení jde přidat i skupiny ze záložek: karty se záložkou ve zvolené složce (volitelně i s adresou na doméně záložky) mají vlastní skupinu. Automatické skupiny drží vpravo od vlastních, od nejstarší po nejnovější."
+	},
+	"tabGroups_color_grey": {
+		"message": "šedá"
+	},
+	"tabGroups_color_blue": {
+		"message": "modrá"
+	},
+	"tabGroups_color_red": {
+		"message": "červená"
+	},
+	"tabGroups_color_yellow": {
+		"message": "žlutá"
+	},
+	"tabGroups_color_green": {
+		"message": "zelená"
+	},
+	"tabGroups_color_pink": {
+		"message": "růžová"
+	},
+	"tabGroups_color_purple": {
+		"message": "fialová"
+	},
+	"tabGroups_color_cyan": {
+		"message": "azurová"
+	},
+	"tabGroups_color_orange": {
+		"message": "oranžová"
+	},
+	"tabGroups_bucket_today_title": {
+		"message": "dnes"
+	},
+	"tabGroups_bucket_today_range": {
+		"message": "dnes"
+	},
+	"tabGroups_bucket_yesterday_title": {
+		"message": "včera"
+	},
+	"tabGroups_bucket_yesterday_range": {
+		"message": "včera"
+	},
+	"tabGroups_bucket_day_before_yesterday_title": {
+		"message": "předevčírem"
+	},
+	"tabGroups_bucket_day_before_yesterday_range": {
+		"message": "předevčírem"
+	},
+	"tabGroups_bucket_this_week_title": {
+		"message": "v tomto týdnu"
+	},
+	"tabGroups_bucket_this_week_range": {
+		"message": "dřív v tomto týdnu (od pondělí)"
+	},
+	"tabGroups_bucket_last_week_title": {
+		"message": "v minulém týdnu"
+	},
+	"tabGroups_bucket_last_week_range": {
+		"message": "v minulém týdnu"
+	},
+	"tabGroups_bucket_this_month_title": {
+		"message": "v tomto měsíci"
+	},
+	"tabGroups_bucket_this_month_range": {
+		"message": "dřív v tomto měsíci"
+	},
+	"tabGroups_bucket_last_month_title": {
+		"message": "v minulém měsíci"
+	},
+	"tabGroups_bucket_last_month_range": {
+		"message": "v minulém měsíci"
+	},
+	"tabGroups_bucket_this_year_title": {
+		"message": "v tomto roce"
+	},
+	"tabGroups_bucket_this_year_range": {
+		"message": "dřív v tomto roce"
+	},
+	"tabGroups_bucket_last_year_title": {
+		"message": "v minulém roce"
+	},
+	"tabGroups_bucket_last_year_range": {
+		"message": "v minulém roce a dřív"
+	},
+	"tabGroups_loading": {
+		"message": "Načítám skupiny karet..."
+	},
+	"tabGroups_disabled": {
+		"message": "Vypnut"
+	},
+	"tabGroups_intro_opened": {
+		"message": "Karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly otevřené."
+	},
+	"tabGroups_intro_last_used": {
+		"message": "Karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly naposledy použité."
+	},
+	"tabGroups_intro_opened_bookmarks": {
+		"message": "Karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly otevřené, karty se záložkou ve zvolených složkách do skupin ze záložek."
+	},
+	"tabGroups_intro_last_used_bookmarks": {
+		"message": "Karty mimo vlastní skupiny se samy řadí do skupin podle toho, kdy byly naposledy použité, karty se záložkou ve zvolených složkách do skupin ze záložek."
+	},
+	"tabGroups_unsupported": {
+		"message": "Tenhle prohlížeč rozšířením spravovat skupiny karet nedovolí (Chrome od verze 89, Firefox od verze 139 na počítači)."
+	},
+	"tabGroups_missing_permission": {
+		"message": "Chybí oprávnění ke skupinám karet — zatím se nic neřadí."
+	},
+	"tabGroups_grant_tab_groups": {
+		"message": "Povolit skupiny karet"
+	},
+	"tabGroups_missing_alarms": {
+		"message": "Bez oprávnění k budíku se skupiny po půlnoci posunou až při další práci s kartami."
+	},
+	"tabGroups_grant_alarms": {
+		"message": "Posouvat přesně o půlnoci"
+	},
+	"tabGroups_missing_bookmarks": {
+		"message": "Skupiny ze záložek potřebují přístup k záložkám a k adresám karet — zatím se nepoužívají."
+	},
+	"tabGroups_grant_bookmarks": {
+		"message": "Povolit záložky a adresy karet"
+	},
+	"tabGroups_permission_floating": {
+		"message": "Z plovoucího okna ho nejde udělit — povol ho v popupu, postranním panelu nebo v Nastavení."
+	},
+	"tabGroups_permissions_ok": {
+		"message": "Všechna oprávnění jsou udělená."
+	},
+	"tabGroups_overview_in_sandbox": {
+		"message": "Přehled skupin okna s tlačítky „Přeskupit teď“ a „Identifikovat řízené skupiny“ je Tab Groups Sandbox — výchozí je v popupu."
+	},
+	"tabGroups_bookmarks_fallback_title": {
+		"message": "Záložky"
+	},
+	"tabGroups_bookmarks_describe_domain": {
+		"message": "na doménách záložek ze složky „$1“"
+	},
+	"tabGroups_bookmarks_describe_folder": {
+		"message": "ze záložek ve složce „$1“"
+	},
+	"tabGroups_folder_untitled": {
+		"message": "(bez názvu)"
+	},
+	"tabGroups_folder_in_account": {
+		"message": "$1 (v účtu)"
+	},
+	"tabGroups_folder_device_only": {
+		"message": "$1 (jen v zařízení)"
+	},
+	"tabGroups_settings_invalid": {
+		"message": "Neplatná hodnota nastavení $1."
+	}
+}

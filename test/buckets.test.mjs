@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { before, describe, it } from "node:test";
 
-import { loadI18n } from "../i18n.mjs";
+import { addModuleI18n, loadI18n } from "../i18n.mjs";
 import {
 	BUCKETS,
 	DEFAULT_GROUPS,
@@ -41,6 +41,7 @@ const WEDNESDAY = day(2026, 10, 7);
 
 before(async () => {
 	mockLocales();
+	addModuleI18n("tabGroups");
 	await loadI18n("en");
 });
 

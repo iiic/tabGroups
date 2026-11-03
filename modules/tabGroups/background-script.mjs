@@ -2,50 +2,51 @@
 "use strict";
 
 // modules/tabGroups/background-script.mjs
-// Background část modulu tabGroups (viz registerBackgroundScript() v sdk.mjs)
-// — běží v background.js, takže karty řadí i bez otevřené stránky rozšíření.
+// The background part of the tabGroups module (see registerBackgroundScript() in sdk.mjs)
+// — runs in background.js, so it sorts tabs even without an open extension page.
 //
-// Jeden průchod (reconcile()) v každém okně:
-//   1. Každé kartě, která není připnutá ani ve skupině uživatele, určí den
-//      otevření: zapamatovaný (karta otevřená, když modul běžel), jinak odhad
-//      (estimateOpenedDay() v buckets.mjs), a den posledního použití
-//      (estimateUsedDay() — aktivní karta okna je používaná dnes).
-//   2. Zařadí ji do skupiny ze záložek, když je její adresa záložkou ve
-//      složce některé z nich (bookmarkGroups.mjs), jinak do skupiny období
-//      podle dne otevření, nebo (nastavení GROUP_BY_KEY) dne posledního
-//      použití (planWindow() v planner.mjs). S volbou přetahování karet
-//      (MANUAL_MOVES_KEY) platí přednostně ruční den karty, kterou uživatel
-//      přetáhl do skupiny jiného období. Skupina, jejíž karty přešly do
-//      dalšího období (o půlnoci celá "dnes" → "včera"), se jen přejmenuje
-//      a přebarví.
-//   3. Skupiny modulu seřadí vpravo za všechny ostatní karty: skupiny ze
-//      záložek, pak období od nejstaršího po nejnovější (planOrder()).
-// Skupiny modulu se poznají podle čísla z evidence (GROUP_IDS_KEY), jinak
-// podle názvu z Nastavení (s předponou, TITLE_PREFIX_KEY) nebo kteréhokoliv
-// dřív použitého (KNOWN_TITLES_KEY), viz groupIdentity.mjs. Skupiny uživatele,
-// připnuté a skryté karty modul nemění.
+// One pass (reconcile()) in every window:
+//   1. For every tab that is neither pinned nor in a user's group, it determines the day
+//      it was opened: the remembered one (a tab opened while the module was running), otherwise an estimate
+//      (estimateOpenedDay() in buckets.mjs), and the day of last use
+//      (estimateUsedDay() — the window's active tab is in use today).
+//   2. Puts it into a group from bookmarks when its address is a bookmark in the
+//      folder of one of them (bookmarkGroups.mjs), otherwise into a period group
+//      by the day it was opened, or (the GROUP_BY_KEY setting) the day of last
+//      use (planWindow() in planner.mjs). With the tab dragging option
+//      (MANUAL_MOVES_KEY) the manual day of a tab the user
+//      dragged into another period's group takes precedence. A group whose tabs moved into the
+//      next period (at midnight the whole "today" → "yesterday") is only renamed
+//      and recolored.
+//   3. Sorts the module's groups to the right after all other tabs: groups from
+//      bookmarks, then periods from the oldest to the newest (planOrder()).
+// The module's groups are recognized by the number from the registry (GROUP_IDS_KEY), otherwise
+// by the name from Settings (with the prefix, TITLE_PREFIX_KEY) or any
+// previously used one (KNOWN_TITLES_KEY), see groupIdentity.mjs. The module does not change
+// the user's groups, pinned and hidden tabs.
 //
-// Kdy: po otevření karty, po změně skupiny nebo připnutí karty, při řazení
-// podle posledního použití i po přepnutí karty, se skupinami ze záložek i po
-// změně adresy karty a po změně záložek, po změně skupin (vznik, název,
-// barva, přesun), po změně nastavení nebo seznamu modulů, při startu
-// prohlížeče a po udělení oprávnění — vždy s krátkým odstupem, ať se série
-// událostí (i těch, které vyvolají změny samotného modulu) sejde do jednoho
-// průchodu. O půlnoci průchod spustí budík (chrome.alarms). Bez oprávnění
-// "alarms" se nový den projeví při první další práci s kartami (přepnutí karty
-// nebo okna). Na žádost elementu skupiny modulu zablikají (identifyGroups()).
+// When: after a tab is opened, after a tab's group changes or it is pinned, when sorting
+// by last use also after switching tabs, with groups from bookmarks also after
+// a tab's address changes and after bookmarks change, after groups change (creation, name,
+// color, move), after the settings or the module list change, at browser
+// startup and after a permission is granted — always with a short delay, so that a series of
+// events (including those caused by the module's own changes) comes together into a single
+// pass. At midnight the pass is started by an alarm (chrome.alarms). Without the
+// "alarms" permission the new day shows up with the next work with tabs (switching a tab
+// or window). At the request of tabGroupsSandbox the module's groups blink (identifyGroups()) — its
+// overview and the editor of the settings ask for the services of this part (api.services).
 //
-// Dny otevření a posledního použití karet drží api.sessionState — id karet
-// platí jen do restartu prohlížeče, pak se úložiště samo vyprázdní a obnoveným
-// kartám se dny odhadnou podle období skupiny, ve které jsou (proto api.state
-// pamatuje den posledního zařazení, evidenci skupin a použité názvy).
+// The tabs' opened and last-used days are kept in api.sessionState — tab ids
+// are valid only until the browser restarts, then the storage empties itself and restored
+// tabs get their days estimated by the period of the group they are in (that is why api.state
+// remembers the day of the last assignment, the group registry and the used names).
 //
-// Přetažení karty uživatelem (volba MANUAL_MOVES_KEY): průchod si zapíše
-// skupinu každé karty tak, jak ji nechal (LAST_GROUPS_KEY). Karta, která je
-// při dalším průchodu jinde, se přesunula bez modulu — ve skupině období
-// dostane ruční den (MANUAL_DAYS_KEY, viz planWindow()). Při řazení podle
-// posledního použití ruční den skončí, jakmile se uživatel na kartu znovu
-// přepne (samotné přetažení kartu vybere ještě před přesunem do skupiny).
+// A tab dragged by the user (the MANUAL_MOVES_KEY option): the pass records
+// each tab's group as it left it (LAST_GROUPS_KEY). A tab that is
+// elsewhere on the next pass was moved without the module — in a period group
+// it gets a manual day (MANUAL_DAYS_KEY, see planWindow()). When sorting by
+// last use the manual day ends as soon as the user switches to the tab
+// again (the drag itself selects the tab even before it is moved into the group).
 import { UI_LANGUAGES, loadI18n, onUiLanguageChange, registerBackgroundScript } from "../../sdk.mjs";
 import {
 	MODULE_NAME,
@@ -54,8 +55,13 @@ import {
 	GROUPS_KEY,
 	GROUP_BY_KEY,
 	BOOKMARK_GROUPS_KEY,
-	REGROUP_MESSAGE,
-	IDENTIFY_MESSAGE,
+	OVERVIEW_SERVICE,
+	REGROUP_SERVICE,
+	IDENTIFY_SERVICE,
+	GET_SETTINGS_SERVICE,
+	SET_SETTINGS_SERVICE,
+	OPEN_PERMISSIONS_SERVICE,
+	CHANGES_SERVICE,
 	REFERENCE_DAY_KEY,
 	APPLIED_TITLES_KEY,
 	APPLIED_BOOKMARK_TITLES_KEY,
@@ -97,40 +103,42 @@ import {
 	sameGroupIds,
 	toTargets,
 } from "./groupIdentity.mjs";
+import { readOverview } from "./overview.mjs";
+import { applySettingsChange, readSettingsView } from "./settings.mjs";
 
-// Kdy začala tahle instance rozšíření (api.sessionState — start prohlížeče,
-// znovunačtení nebo aktualizace rozšíření ho vyprázdní).
+// When this extension instance started (api.sessionState — a browser start,
+// an extension reload or update empties it).
 const INSTANCE_KEY = "instanceStartedAt";
-// Budík na nejbližší půlnoc (chrome.alarms).
+// An alarm for the nearest midnight (chrome.alarms).
 const ALARM_NAME = "tabGroups.midnight";
-// Odstup průchodu od poslední události.
+// The delay of a pass after the last event.
 const DEBOUNCE_MS = 400;
-// Prvních STARTUP_GRACE_MS po startu prohlížeče nebo rozšíření prohlížeč
-// obnovuje karty minulé relace: ty nejsou nově otevřené (den otevření se jim
-// odhadne) a průchod čeká déle, ať obnova stihne doběhnout.
+// During the first STARTUP_GRACE_MS after the browser or extension starts, the browser
+// restores the tabs of the previous session: they are not newly opened (their opened day
+// is estimated) and the pass waits longer, so the restore has time to finish.
 const STARTUP_GRACE_MS = 60 * 1000;
 const STARTUP_DEBOUNCE_MS = 3000;
-// Karta, kterou prohlížeč ohlásí jako novou, ale aktivní byla naposledy před
-// víc než NEW_TAB_MAX_AGE_MS (obnovená relace, znovu otevřená zavřená karta),
-// není otevřená teď.
+// A tab the browser reports as new, but which was last active more than
+// NEW_TAB_MAX_AGE_MS ago (a restored session, a reopened closed tab),
+// was not opened now.
 const NEW_TAB_MAX_AGE_MS = 2 * 60 * 1000;
-// Pojistka proti zacyklení: když se LOOP_REPEATS× po sobě (s odstupem pod
-// LOOP_WINDOW_MS) opakují úplně stejné změny, prohlížeč je nejspíš nepřijímá
-// (nebo je uživatel pořád vrací) — na LOOP_PAUSE_MS se přestane reagovat na
-// změny karet a skupin.
+// A safeguard against looping: when exactly the same changes repeat LOOP_REPEATS× in a row (with gaps under
+// LOOP_WINDOW_MS), the browser most likely does not accept them
+// (or the user keeps reverting them) — for LOOP_PAUSE_MS it stops reacting to
+// changes of tabs and groups.
 const LOOP_REPEATS = 3;
 const LOOP_WINDOW_MS = 10 * 1000;
 const LOOP_PAUSE_MS = 60 * 1000;
-// Zablikání skupin modulu (tlačítko „Identifikovat řízené skupiny“): kolikrát
-// a jak dlouho trvá jedna barva.
+// Blinking the module's groups (the "Identify managed groups" button): how many times
+// and how long one color lasts.
 const BLINK_TIMES = 3;
 const BLINK_STEP_MS = 500;
-// Žádná skupina ze záložek (bez skupin, bez oprávnění).
+// No group from bookmarks (without groups, without the permission).
 /** @type {Types.TabGroups.BookmarkMatcher} */
 const NO_BOOKMARK_GROUP = () => -1;
 
-// Barva, se kterou skupina při zablikání střídá svou: šedá, u šedé skupiny
-// azurová.
+// The color a group alternates with its own when blinking: grey, for a grey group
+// cyan.
 /** @type {Functions.TabGroups.BackgroundScript.blinkColor} */
 function blinkColor(color) {
 	return color === "grey" ? "cyan" : "grey";
@@ -178,10 +186,10 @@ function sameDays(a, b) {
 	return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key]);
 }
 
-// Seznam názvů skupin poprvé (KNOWN_TITLES_KEY ještě není uložený) — názvy,
-// které skupiny modulu mohou mít z dřívějška (earlierTitles()): výchozí názvy
-// období ve všech jazycích rozhraní a názvy z Nastavení, s dřívějšími
-// předponami, a názvy z posledního zařazení starší verze.
+// The list of group names the first time (KNOWN_TITLES_KEY is not stored yet) — names
+// the module's groups may have from earlier (earlierTitles()): the default period names
+// in all UI languages and the names from Settings, with earlier
+// prefixes, and the names from the last assignment by an older version.
 /** @type {Functions.TabGroups.BackgroundScript.initialKnownTitles} */
 async function initialKnownTitles({ keys, periods, bookmarkGroups, prefix, appliedTitles, appliedBookmarkTitles }) {
 	const defaults = await Promise.all(UI_LANGUAGES.map(({ value }) => defaultTitlesIn(value)));
@@ -201,10 +209,10 @@ function toTabInfo(tab) {
 		active: tab.active,
 		groupId: typeof tab.groupId === "number" ? tab.groupId : TAB_GROUP_ID_NONE,
 		lastAccessed: tab.lastAccessed,
-		// Jen Firefox (tabs.hide()) — skryté karty modul nechává být.
+		// Firefox only (tabs.hide()) — the module leaves hidden tabs alone.
 		hidden: /** @type {{ hidden?: boolean }} */ (tab).hidden === true,
-		// Bez oprávnění "tabs" prohlížeč adresu neprozradí. Karta, která se
-		// teprve načítá, má v Chrome cílovou adresu v pendingUrl.
+		// Without the "tabs" permission the browser does not reveal the address. A tab that is
+		// still loading has its target address in pendingUrl in Chrome.
 		url: tab.url || tab.pendingUrl || undefined,
 	};
 }
@@ -224,8 +232,8 @@ function byWindow(tabs) {
 	return windows;
 }
 
-// Zkusí jednu změnu v prohlížeči; chyba (karta nebo skupina mezitím zanikla,
-// ...) se jen zaloguje a průchod pokračuje.
+// Tries one change in the browser; an error (the tab or group has disappeared in the meantime,
+// ...) is only logged and the pass continues.
 /** @type {Functions.TabGroups.BackgroundScript.attempt} */
 async function attempt(label, change) {
 	try {
@@ -237,14 +245,14 @@ async function attempt(label, change) {
 	}
 }
 
-// Karty do skupiny groupId, nebo (bez groupId) do nové skupiny v okně
-// windowId. Když prohlížeč odmítne celou dávku (jedna karta mezitím zanikla),
-// zkusí se karty po jedné. Vrací id skupiny, nebo null.
+// Tabs into the groupId group, or (without groupId) into a new group in the
+// windowId window. When the browser rejects the whole batch (one tab has disappeared in the meantime),
+// the tabs are tried one by one. Returns the group id, or null.
 /** @type {Functions.TabGroups.BackgroundScript.groupTabs} */
 async function groupTabs(tabIds, groupId, windowId) {
 	/** @type {Functions.TabGroups.BackgroundScript.groupTabs.group} */
 	const group = (ids, target) => {
-		// Plánovač posílá jen neprázdné seznamy karet.
+		// The planner sends only non-empty lists of tabs.
 		const nonEmpty = /** @type {[number, ...number[]]} */ (ids);
 		return chrome.tabs.group(target === undefined ? { tabIds: nonEmpty, createProperties: { windowId } } : { tabIds: nonEmpty, groupId: target });
 	};
@@ -267,10 +275,10 @@ async function groupTabs(tabIds, groupId, windowId) {
 	return target ?? null;
 }
 
-// Provede plán jednoho okna (planWindow()). Vrací popis všech pokusů o změnu
-// (pro pojistku proti zacyklení; prázdné pole = nebylo co měnit) a nové
-// skupiny s jejich cílem — do evidence skupin patří, i kdyby je prohlížeč
-// odmítl pojmenovat.
+// Carries out the plan of one window (planWindow()). Returns a description of all change attempts
+// (for the safeguard against looping; an empty array = nothing to change) and new
+// groups with their target — they belong to the group registry even if the browser
+// refused to name them.
 /** @type {Functions.TabGroups.BackgroundScript.applyPlan} */
 async function applyPlan(windowId, plan) {
 	/** @type {string[]} */
@@ -296,15 +304,15 @@ async function applyPlan(windowId, plan) {
 	return { operations, created };
 }
 
-// Karty ze všech běžných oken a všechny skupiny.
+// Tabs from all normal windows and all groups.
 /** @type {Functions.TabGroups.BackgroundScript.snapshot} */
 async function snapshot() {
 	const [tabs, groups] = await Promise.all([chrome.tabs.query({ windowType: "normal" }), chrome.tabGroups.query({})]);
 	return { tabs: tabs.filter((tab) => typeof tab.id === "number").map(toTabInfo), groups: groups.map(toGroupInfo) };
 }
 
-// Budík na nejbližší místní půlnoc (o sekundu později, ať je nový den jistě
-// tady). Prohlížeč ho odloží, když počítač o půlnoci spí.
+// An alarm for the nearest local midnight (a second later, so that the new day is surely
+// here). The browser postpones it when the computer sleeps at midnight.
 /** @type {Functions.TabGroups.BackgroundScript.scheduleMidnight} */
 async function scheduleMidnight(now) {
 	if (!chrome.alarms) return;
@@ -322,35 +330,35 @@ async function scheduleMidnight(now) {
 registerBackgroundScript({
 	name: MODULE_NAME,
 	setup: ({ api }) => {
-		// Průchody i zápisy dnů otevření jdou za sebou.
+		// Passes and writes of opened days go one after another.
 		/** @type {Promise<unknown>} */
 		let chain = Promise.resolve();
 		/** @type {ReturnType<typeof setTimeout> | undefined} */
 		let timer;
-		// Den posledního průchodu (jen v paměti — po probuzení service workeru
-		// průchod proběhne tak jako tak).
+		// The day of the last pass (only in memory — after the service worker wakes up
+		// the pass runs anyway).
 		/** @type {number | null} */
 		let lastDay = null;
-		// Má přepnutí karty spustit průchod? Jen u zapnutého modulu, který řadí
-		// podle posledního použití (nastavuje každý průchod); null, dokud po
-		// startu service workeru žádný neproběhl.
+		// Should switching tabs start a pass? Only with the module enabled and sorting
+		// by last use (set by every pass); null until none has run after
+		// the service worker started.
 		/** @type {boolean | null} */
 		let passOnActivation = null;
-		// Má změna adresy karty nebo záložek spustit průchod? Jen u zapnutého
-		// modulu se skupinami ze záložek; null jako u passOnActivation.
+		// Should a change of a tab's address or bookmarks start a pass? Only with the module
+		// enabled with groups from bookmarks; null as with passOnActivation.
 		/** @type {boolean | null} */
 		let passOnUrlChange = null;
-		// Porovnání adres se záložkami pro poslední skupiny ze záložek —
-		// staví se znovu po změně skupin v Nastavení, záložek nebo oprávnění.
-		// generation brání uložení porovnání postaveného ze starých záložek.
+		// Matching addresses against bookmarks for the last groups from bookmarks —
+		// rebuilt after the groups in Settings, the bookmarks or permissions change.
+		// generation prevents storing a matching built from old bookmarks.
 		/** @type {{ key: string, match: Types.TabGroups.BookmarkMatcher } | null} */
 		let bookmarkCache = null;
 		let bookmarkGeneration = 0;
-		// Karty otevřené od posledního průchodu: id → den otevření.
+		// Tabs opened since the last pass: id → opened day.
 		/** @type {Map<number, number>} */
 		const pendingOpened = new Map();
-		// Karty, na které se uživatel od posledního průchodu přepnul (jen při
-		// řazení podle posledního použití) — končí jejich ruční den.
+		// Tabs the user switched to since the last pass (only when
+		// sorting by last use) — their manual day ends.
 		/** @type {Set<number>} */
 		const pendingActivated = new Set();
 		let lastSignature = "";
@@ -387,10 +395,12 @@ registerBackgroundScript({
 			});
 		}
 
-		// Změna karet nebo skupin — průchod, pokud reakci nepozastavila pojistka
-		// proti zacyklení (noteRun()).
+		// A change of tabs or groups — a pass, unless the safeguard against
+		// looping paused reacting (noteRun()).
 		/** @type {Functions.TabGroups.BackgroundScript.onTabsChanged} */
 		function onTabsChanged() {
+			// A service provider showing the overview learns that the groups may have changed.
+			api.services.changed(CHANGES_SERVICE, "groups");
 			if (Date.now() >= pausedUntil) schedule();
 		}
 
@@ -416,9 +426,9 @@ registerBackgroundScript({
 			}
 		}
 
-		// Porovnání adres karet se záložkami skupin ze záložek. Bez oprávnění
-		// "bookmarks" (chrome.bookmarks chybí) žádná karta do skupiny ze
-		// záložek nepatří; složka, která zmizela, nic neobsahuje.
+		// Matching tab addresses against the bookmarks of groups from bookmarks. Without the
+		// "bookmarks" permission (chrome.bookmarks is missing) no tab belongs to a group from
+		// bookmarks; a folder that has disappeared contains nothing.
 		/** @type {Functions.TabGroups.BackgroundScript.bookmarkMatcher} */
 		async function bookmarkMatcher(bookmarkGroups) {
 			if (bookmarkGroups.length === 0 || !chrome.bookmarks) return NO_BOOKMARK_GROUP;
@@ -433,20 +443,20 @@ registerBackgroundScript({
 			return match;
 		}
 
-		// Záložky nebo oprávnění se změnily — porovnání se postaví znovu.
+		// Bookmarks or permissions changed — the matching is rebuilt.
 		/** @type {Functions.TabGroups.BackgroundScript.forgetBookmarks} */
 		function forgetBookmarks() {
 			bookmarkGeneration++;
 			bookmarkCache = null;
 		}
 
-		// Cíle skupin z Nastavení a podle čeho se poznají skupiny modulu
-		// (groupIdentity.mjs): evidence čísel skupin a všechny použité názvy —
-		// doplněné o současné názvy z Nastavení, poprvé i o názvy z dřívějška.
-		// Výchozí názvy jsou v jazyce rozhraní (loadI18n() předem).
+		// Group targets from Settings and what the module's groups are recognized by
+		// (groupIdentity.mjs): the registry of group numbers and all used names —
+		// extended with the current names from Settings, the first time also with names from earlier.
+		// The default names are in the UI language (loadI18n() beforehand).
 		/** @type {Functions.TabGroups.BackgroundScript.readTargets} */
 		async function readTargets() {
-			// Skupiny v prohlížeči mají názvy z Nastavení s předponou.
+			// Groups in the browser have the names from Settings with the prefix.
 			const periods = normalizeGroupsConfig(await api.settings.get(GROUPS_KEY, DEFAULT_GROUPS));
 			const titlePrefix = normalizeTitlePrefix(await api.settings.get(TITLE_PREFIX_KEY, DEFAULT_TITLE_PREFIX));
 			const config = withTitlePrefix(periods, titlePrefix);
@@ -489,7 +499,7 @@ registerBackgroundScript({
 				return { ok: false, reason: "unavailable" };
 			}
 
-			// Výchozí názvy skupin jsou v jazyce rozhraní.
+			// The default group names are in the UI language.
 			await loadI18n();
 			const now = Date.now();
 			const today = localDay(now);
@@ -525,12 +535,12 @@ registerBackgroundScript({
 
 			/** @type {string[]} */
 			const operations = [];
-			// Nové skupiny → klíč cíle.
+			// New groups → target key.
 			/** @type {Map<number, string>} */
 			const created = new Map();
 			let current = await snapshot();
-			// Skupiny karet před průchodem a karty, se kterými průchod hýbal
-			// (pro LAST_GROUPS_KEY).
+			// The tabs' groups before the pass and the tabs the pass moved
+			// (for LAST_GROUPS_KEY).
 			const groupsBefore = new Map(current.tabs.map((tab) => [tab.id, tab.groupId]));
 			/** @type {Set<number>} */
 			const touched = new Set();
@@ -569,8 +579,8 @@ registerBackgroundScript({
 			if (operations.length > 0) {
 				current = await snapshot();
 			}
-			// Skupiny modulu po změnách: přejmenované se poznají podle názvu
-			// z Nastavení, nové i podle čísla (kdyby se je nepovedlo pojmenovat).
+			// The module's groups after the changes: renamed ones are recognized by the name
+			// from Settings, new ones also by the number (should naming them fail).
 			const ours = findOurGroups(current.groups, { ...targets, groupIds, knownTitles });
 			for (const [groupId, key] of created) {
 				if (!ours.has(groupId)) ours.set(groupId, key);
@@ -583,18 +593,18 @@ registerBackgroundScript({
 				}
 			}
 
-			// Dny otevření a použití jen karet, které pořád existují — i těch ve
-			// skupinách uživatele (kdyby je uživatel ze skupiny zase vyndal).
+			// Opened and used days only of tabs that still exist — including those in
+			// the user's groups (should the user take them out of the group again).
 			/** @type {Record<string, number>} */
 			const nextDays = {};
 			/** @type {Record<string, number>} */
 			const nextUsedDays = {};
 			/** @type {Record<string, number>} */
 			const nextManualDays = {};
-			// Skupina, ve které průchod kartu nechal: u karet, se kterými hýbal,
-			// podle posledního snímku, u ostatních podle prvního — kdyby je
-			// uživatel přesunul během průchodu, pozná se to při dalším.
-			// Karty otevřené během průchodu se zapíšou až příště.
+			// The group the pass left the tab in: for tabs it moved,
+			// by the last snapshot, for the others by the first one — should the
+			// user move them during the pass, it is recognized on the next one.
+			// Tabs opened during the pass are recorded only next time.
 			/** @type {Record<string, number>} */
 			const nextLastGroups = {};
 			for (const tab of current.tabs) {
@@ -610,8 +620,8 @@ registerBackgroundScript({
 			if (!sameDays(storedUsedDays, nextUsedDays)) {
 				await api.sessionState.set(USED_DAYS_KEY, nextUsedDays).catch((err) => console.warn("tabGroups: dny použití karet nejde uložit:", err));
 			}
-			// Bez volby přetahování zůstanou oba záznamy prázdné — po jejím
-			// zapnutí se přetažení počítají až od prvního průchodu.
+			// Without the dragging option both records stay empty — after it is
+			// turned on, drags are counted only from the first pass.
 			if (!sameDays(storedLastGroups, nextLastGroups)) {
 				await api.sessionState.set(LAST_GROUPS_KEY, nextLastGroups).catch((err) => console.warn("tabGroups: skupiny karet nejde uložit:", err));
 			}
@@ -621,8 +631,8 @@ registerBackgroundScript({
 			if (referenceDay !== today) {
 				await api.state.set(REFERENCE_DAY_KEY, today);
 			}
-			// Evidence skupin s názvy, které skupiny po průchodu opravdu mají
-			// (den průchodu se mění jednou za den — častěji se nezapisuje).
+			// The group registry with the names the groups really have after the pass
+			// (the pass day changes once a day — it is not written more often).
 			const nextGroupIds = rememberGroups(groupIds, current.groups, ours, today);
 			if (!sameGroupIds(groupIds, nextGroupIds)) {
 				await api.state.set(GROUP_IDS_KEY, nextGroupIds);
@@ -636,11 +646,11 @@ registerBackgroundScript({
 			return { ok: true, changed: operations.length > 0 };
 		}
 
-		// Tlačítko „Identifikovat řízené skupiny“: skupiny, které modul řídí
-		// (ve všech oknech), BLINK_TIMES× vystřídají svou barvu s blinkColor()
-		// a nakonec ji dostanou zpátky. Běží ve frontě jako průchod — průchod
-		// vyvolaný změnami barev počká, až zablikání skončí, a barvy mezitím
-		// „neopraví“.
+		// The "Identify managed groups" button: the groups the module manages
+		// (in all windows) alternate their color with blinkColor() BLINK_TIMES×
+		// and finally get it back. It runs in the queue like a pass — a pass
+		// triggered by the color changes waits until the blinking ends, and does not "fix"
+		// the colors in the meantime.
 		/** @type {Functions.TabGroups.BackgroundScript.identifyGroups} */
 		async function identifyGroups() {
 			if (!(await api.activation.isActive(DEFAULT_ACTIVATION_MODE, ACTIVATION_SPEC))) return { ok: false, reason: "disabled" };
@@ -653,7 +663,7 @@ registerBackgroundScript({
 			for (let step = 0; step < BLINK_TIMES * 2; step++) {
 				if (step > 0) await new Promise((resolve) => setTimeout(resolve, BLINK_STEP_MS));
 				const flash = step % 2 === 0;
-				// Skupina mezitím mohla zaniknout — ostatní blikají dál.
+				// The group may have disappeared in the meantime — the others keep blinking.
 				await Promise.all(
 					blinking.map((group) => chrome.tabGroups.update(group.id, { color: flash ? blinkColor(group.color) : group.color }).catch(() => undefined))
 				);
@@ -661,7 +671,7 @@ registerBackgroundScript({
 			return { ok: true, count: blinking.length };
 		}
 
-		// --- Posluchače: synchronně, ať je prohlížeč doručí i probuzenému service workeru ---
+		// --- Listeners: synchronously, so the browser delivers them even to a woken-up service worker ---
 
 		chrome.tabs.onCreated.addListener((tab) => {
 			const now = Date.now();
@@ -676,14 +686,14 @@ registerBackgroundScript({
 			onTabsChanged();
 		});
 		chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => {
-			// Nová adresa karty může patřit do jiné skupiny ze záložek (nebo už
-			// do žádné).
+			// A tab's new address may belong to another group from bookmarks (or to none
+			// anymore).
 			if ("groupId" in changeInfo || "pinned" in changeInfo || ("url" in changeInfo && passOnUrlChange !== false)) onTabsChanged();
 		});
 		chrome.tabs.onAttached.addListener(() => onTabsChanged());
-		// Karta, na kterou se uživatel přepne, je při řazení podle posledního
-		// použití používaná dnes — průchod ji přesune do "dnes" (i přetaženou
-		// do jiné skupiny, viz pendingActivated).
+		// The tab the user switches to is, when sorting by last
+		// use, in use today — the pass moves it into "today" (even one dragged
+		// into another group, see pendingActivated).
 		chrome.tabs.onActivated.addListener(({ tabId }) => {
 			if (passOnActivation !== false) {
 				pendingActivated.add(tabId);
@@ -691,7 +701,7 @@ registerBackgroundScript({
 			}
 		});
 
-		// Bez budíku (oprávnění "alarms") se nový den pozná při práci s kartami.
+		// Without an alarm (the "alarms" permission) the new day is recognized when working with tabs.
 		if (!chrome.alarms) {
 			const checkDay = () => {
 				if (lastDay !== null && localDay(Date.now()) !== lastDay) onTabsChanged();
@@ -700,9 +710,9 @@ registerBackgroundScript({
 			if (chrome.windows && chrome.windows.onFocusChanged) chrome.windows.onFocusChanged.addListener(checkDay);
 		}
 
-		// chrome.tabGroups, chrome.bookmarks a chrome.alarms jsou jen
-		// s (nepovinným) oprávněním — jejich posluchače se zaregistrují hned,
-		// nebo až po jeho udělení.
+		// chrome.tabGroups, chrome.bookmarks and chrome.alarms exist only
+		// with the (optional) permission — their listeners are registered right away,
+		// or only after it is granted.
 		let groupEventsAttached = false;
 		let alarmAttached = false;
 		let bookmarkEventsAttached = false;
@@ -712,6 +722,8 @@ registerBackgroundScript({
 				chrome.tabGroups.onCreated.addListener(() => onTabsChanged());
 				chrome.tabGroups.onUpdated.addListener(() => onTabsChanged());
 				chrome.tabGroups.onMoved.addListener(() => onTabsChanged());
+				// A closed group changes only the overview, not the sorting.
+				chrome.tabGroups.onRemoved.addListener(() => api.services.changed(CHANGES_SERVICE, "groups"));
 				groupEventsAttached = true;
 			}
 			if (!bookmarkEventsAttached && chrome.bookmarks) {
@@ -719,7 +731,7 @@ registerBackgroundScript({
 					forgetBookmarks();
 					if (passOnUrlChange !== false) onTabsChanged();
 				};
-				// onChildrenReordered a onImportEnded Firefox nemá.
+				// Firefox does not have onChildrenReordered and onImportEnded.
 				for (const event of [
 					chrome.bookmarks.onCreated,
 					chrome.bookmarks.onRemoved,
@@ -745,42 +757,70 @@ registerBackgroundScript({
 			chrome.permissions.onAdded.addListener(() => {
 				forgetBookmarks();
 				attachOptionalListeners();
+				api.services.changed(CHANGES_SERVICE, "status");
 				schedule();
 			});
 		}
 		if (chrome.permissions && chrome.permissions.onRemoved) {
 			chrome.permissions.onRemoved.addListener(() => {
 				forgetBookmarks();
+				api.services.changed(CHANGES_SERVICE, "status");
 				schedule();
 			});
 		}
 		chrome.runtime.onStartup.addListener(() => schedule());
 		chrome.runtime.onInstalled.addListener(() => schedule());
-		// Řazení, názvy a barvy v Nastavení, vypnutí/zapnutí modulu, seznam modulů.
-		api.activation.onChange(() => schedule());
-		// Jiný jazyk rozhraní — skupiny s výchozími názvy se přejmenují.
+		// Sorting, names and colors in Settings, disabling/enabling the module, the module list.
+		api.activation.onChange(() => {
+			api.services.changed(CHANGES_SERVICE, "status");
+			schedule();
+		});
+		// A different UI language — groups with default names are renamed.
 		onUiLanguageChange(() => schedule());
 
-		// Tlačítko „Přeskupit teď“ v elementu — průchod hned, odpověď po něm.
-		api.messages.on(REGROUP_MESSAGE, (_message, _sender, sendResponse) => {
+		// The services of tabGroupsSandbox (api.services) — the functions of the catalog the overview and the
+		// editor of the settings in the sandbox ask for; the core runs them here for a page of this extension
+		// and for the pages of a service provider this extension is a client of.
+		// The overview of the window of the page (context.windowId), or why there is none.
+		api.services.provide(OVERVIEW_SERVICE, async (_args, context) => {
+			const reason = await api.activation.reason(DEFAULT_ACTIVATION_MODE, ACTIVATION_SPEC);
+			if (reason) return { reason, overview: null };
+			// The ranges of the periods and the descriptions of the groups from bookmarks are texts.
+			await loadI18n();
+			return { reason: null, overview: await readOverview(api, context.windowId) };
+		});
+		// "Regroup now" — a pass right away, the answer after it.
+		api.services.provide(REGROUP_SERVICE, async () => {
 			clearTimeout(timer);
 			timer = undefined;
-			enqueue(reconcile).then(sendResponse, (err) =>
-				sendResponse({ ok: false, reason: "error", error: /** @type {Error} */ (err).message || String(err) })
-			);
-			return true;
+			return enqueue(reconcile).catch((err) => ({ ok: false, reason: "error", error: /** @type {Error} */ (err).message || String(err) }));
+		});
+		// "Identify managed groups" — the answer after blinking.
+		api.services.provide(IDENTIFY_SERVICE, async () =>
+			enqueue(identifyGroups).catch((err) => ({ ok: false, reason: "error", error: /** @type {Error} */ (err).message || String(err) }))
+		);
+		// The settings for their editor and one change of it (settings.mjs) — also while the module is turned off.
+		api.services.provide(GET_SETTINGS_SERVICE, async () => {
+			await loadI18n();
+			return readSettingsView(api);
+		});
+		api.services.provide(SET_SETTINGS_SERVICE, async ([change]) => {
+			await loadI18n();
+			return applySettingsChange(api, change);
+		});
+		// The listener of the overview for a service provider (its pages follow the tabs of their window themselves only
+		// on a page of this extension) — fed by changed() after the tab, group, settings and permission events.
+		api.services.provideListener(CHANGES_SERVICE);
+		// A closed tab changes only the overview, not the sorting.
+		chrome.tabs.onRemoved.addListener(() => api.services.changed(CHANGES_SERVICE, "groups"));
+		// The page where the element of this module asks for the permissions — Settings of this extension.
+		api.services.provide(OPEN_PERMISSIONS_SERVICE, async () => {
+			await chrome.runtime.openOptionsPage();
+			return { opened: true };
 		});
 
-		// Tlačítko „Identifikovat řízené skupiny“ — odpověď po zablikání.
-		api.messages.on(IDENTIFY_MESSAGE, (_message, _sender, sendResponse) => {
-			enqueue(identifyGroups).then(sendResponse, (err) =>
-				sendResponse({ ok: false, reason: "error", error: /** @type {Error} */ (err).message || String(err) })
-			);
-			return true;
-		});
-
-		// Průchod po každém startu service workeru — dožene, co se změnilo, když
-		// spal (třeba propásnutá půlnoc).
+		// A pass after every service worker start — catches up on what changed while it
+		// slept (for example a missed midnight).
 		schedule();
 	},
 });

@@ -2,45 +2,45 @@
 "use strict";
 
 // modules/tabGroups/groupIdentity.mjs
-// Jak modul pozná své skupiny v prohlížeči — čisté funkce bez DOM a bez
-// chrome.*, sdílené background částí (background-script.mjs), plánovačem
-// (planner.mjs) i elementem (tabGroups.mjs).
+// How the module recognizes its groups in the browser — pure functions without DOM and without
+// chrome.*, shared by the background part (background-script.mjs), the planner
+// (planner.mjs) and the element (tabGroups.mjs).
 //
-// Cíl skupiny má stálý klíč, nezávislý na názvu i pořadí: "period:<klíč
-// období>" (BUCKETS) a "bookmarks:<id řádku>" (skupiny ze záložek). Skupina
-// modulu se pozná (findOurGroups()):
-//   1. podle čísla skupiny — evidence GROUP_IDS_KEY { [id skupiny]: { key,
-//      title, day } }, kterou zapisuje každý průchod (rememberGroups()).
-//      Platí, jen dokud má skupina název, který jí dal modul: skupinu, kterou
-//      uživatel v liště přejmenuje, si tím vezme za svou. Firefox nechává
-//      skupině číslo i po restartu prohlížeče (odvozuje ho z vnitřního id,
-//      které ukládá do relace — ověřeno ve verzi 157), Chrome obnoveným
-//      skupinám dá nová čísla,
-//   2. podle názvu z Nastavení (období, pak skupiny ze záložek),
-//   3. podle kteréhokoliv názvu, který modul skupinám kdy dal
-//      (KNOWN_TITLES_KEY, rememberTitles()) — v Chrome po restartu a po změně
-//      předpony, názvů nebo jazyka rozhraní, i když se jich sešlo víc najednou.
-//      Poprvé se seznam naplní i názvy, které skupiny mohly mít před jeho
-//      zavedením (earlierTitles()).
-// Skupina uživatele, která se jmenuje jako skupina modulu (i dřívějším
-// názvem), se tak pozná jako skupina modulu.
+// A group target has a permanent key, independent of the name and the order: "period:<period
+// key>" (BUCKETS) and "bookmarks:<row id>" (groups from bookmarks). A module
+// group is recognized (findOurGroups()):
+//   1. by the group number — the GROUP_IDS_KEY registry { [group id]: { key,
+//      title, day } }, which every pass writes (rememberGroups()).
+//      It applies only as long as the group has the name the module gave it: a group the
+//      user renames in the tab strip thereby becomes the user's own. Firefox keeps
+//      the group's number even after a browser restart (it derives it from an internal id
+//      that it stores in the session — verified in version 157), Chrome gives restored
+//      groups new numbers,
+//   2. by the name from Settings (periods, then groups from bookmarks),
+//   3. by any name the module has ever given to groups
+//      (KNOWN_TITLES_KEY, rememberTitles()) — in Chrome after a restart and after a change
+//      of the prefix, the names or the UI language, even when several of them came together at once.
+//      The first time the list is also filled with names the groups may have had before it was
+//      introduced (earlierTitles()).
+// A user's group named like a module group (even with an earlier
+// name) is thus recognized as a module group.
 import { BUCKETS, DEFAULT_TITLE_PREFIX } from "./buckets.mjs";
 
 const PERIOD_KEY_PREFIX = "period:";
 const BOOKMARKS_KEY_PREFIX = "bookmarks:";
-// Záznam skupiny, kterou průchod nevidí (zavřené okno, ve Firefoxu uložená a
-// zavřená skupina), zůstane v evidenci tolik dní od posledního průchodu, který
-// ji viděl.
+// A record of a group the pass does not see (a closed window, in Firefox a saved and
+// closed group) stays in the registry this many days since the last pass that
+// saw it.
 const GROUP_IDS_MAX_AGE_DAYS = 60;
-// Kolik naposledy použitých názvů si modul pamatuje.
+// How many recently used names the module remembers.
 const KNOWN_TITLES_MAX = 500;
-// Předpony, se kterými mohly skupiny vzniknout před seznamem názvů: žádná
-// (verze bez předpony) a "𓃭" (první výchozí předpona). K nim se přidá
-// současná výchozí a předpona z Nastavení.
+// Prefixes with which groups may have been created before the list of names: none
+// (the version without a prefix) and "𓃭" (the first default prefix). The current
+// default one and the prefix from Settings are added to them.
 const EARLIER_TITLE_PREFIXES = ["", "𓃭"];
 
-// Klíče cílů v pořadí plánovače (období, pak skupiny ze záložek) a jejich
-// názvy z Nastavení (s předponou, jak je skupiny mají v prohlížeči).
+// Target keys in the planner's order (periods, then groups from bookmarks) and their
+// names from Settings (with the prefix, as the groups have them in the browser).
 /** @type {Functions.TabGroups.GroupIdentity.describeTargets} */
 export function describeTargets(config, bookmarkGroups) {
 	return {
@@ -49,10 +49,10 @@ export function describeTargets(config, bookmarkGroups) {
 	};
 }
 
-// Skupiny modulu → klíč jejich cíle (pořadí přednosti viz úvodní komentář).
-// Klíč může patřit cíli, který v Nastavení už není (odebraný řádek skupin ze
-// záložek) — skupina je pořád skupina modulu a karty z ní se rozejdou jinam.
-// Sdílené skupiny (Chrome) jsou vždy skupiny uživatele.
+// The module's groups → the key of their target (the order of precedence, see the introductory comment).
+// The key may belong to a target that is no longer in Settings (a removed row of groups from
+// bookmarks) — the group is still a module group and the tabs from it disperse elsewhere.
+// Shared groups (Chrome) are always the user's groups.
 /** @type {Functions.TabGroups.GroupIdentity.findOurGroups} */
 export function findOurGroups(groups, { keys, titles, groupIds, knownTitles }) {
 	/** @type {Map<string, string>} */
@@ -73,18 +73,18 @@ export function findOurGroups(groups, { keys, titles, groupIds, knownTitles }) {
 	return ours;
 }
 
-// Klíče cílů → pořadí cílů v plánovači (index v keys). Cíl, který v Nastavení
-// už není, dostane keys.length — za všemi cíli.
+// Target keys → target positions in the planner (index in keys). A target that is no longer
+// in Settings gets keys.length — after all targets.
 /** @type {Functions.TabGroups.GroupIdentity.toTargets} */
 export function toTargets(ours, keys) {
 	const indexOf = new Map(keys.map((key, i) => [key, i]));
 	return new Map([...ours].map(([groupId, key]) => [groupId, indexOf.get(key) ?? keys.length]));
 }
 
-// Evidence skupin po průchodu: skupiny modulu (ours, ze snímku po změnách)
-// s názvem, který opravdu mají, a dnem today. Skupina, kterou průchod nevidí,
-// v evidenci zůstane GROUP_IDS_MAX_AGE_DAYS dní; skupina, která je vidět, ale
-// modulu nepatří (uživatel ji přejmenoval), vypadne.
+// The group registry after a pass: the module's groups (ours, from the snapshot after the changes)
+// with the name they really have, and the day today. A group the pass does not see
+// stays in the registry for GROUP_IDS_MAX_AGE_DAYS days; a group that is visible but
+// does not belong to the module (the user renamed it) drops out.
 /** @type {Functions.TabGroups.GroupIdentity.rememberGroups} */
 export function rememberGroups(groupIds, groups, ours, today) {
 	const present = new Set(groups.map((group) => String(group.id)));
@@ -100,7 +100,7 @@ export function rememberGroups(groupIds, groups, ours, today) {
 	return next;
 }
 
-// Uložená evidence skupin → jen platné záznamy.
+// The stored group registry → only valid records.
 /** @type {Functions.TabGroups.GroupIdentity.readGroupIds} */
 export function readGroupIds(value) {
 	/** @type {Record<string, Types.TabGroups.GroupIdEntry>} */
@@ -125,8 +125,8 @@ export function sameGroupIds(a, b) {
 	);
 }
 
-// Uložený seznam názvů ([název, klíč cíle], nejnovější na konci) → platné
-// dvojice, nebo null, když ještě uložený není (pak ho naplní earlierTitles()).
+// The stored list of names ([name, target key], the newest at the end) → valid
+// pairs, or null when it is not stored yet (then earlierTitles() fills it).
 /** @type {Functions.TabGroups.GroupIdentity.readKnownTitles} */
 export function readKnownTitles(value) {
 	if (!Array.isArray(value)) return null;
@@ -136,9 +136,9 @@ export function readKnownTitles(value) {
 	);
 }
 
-// Seznam názvů doplněný o entries ([název, klíč cíle]): nový název, nebo
-// název, který teď patří jinému cíli, se přesune na konec; nejstarší nad
-// KNOWN_TITLES_MAX vypadnou. Beze změny vrací tentýž seznam.
+// The list of names extended with entries ([name, target key]): a new name, or
+// a name that now belongs to another target, moves to the end; the oldest ones over
+// KNOWN_TITLES_MAX drop out. Unchanged it returns the same list.
 /** @type {Functions.TabGroups.GroupIdentity.rememberTitles} */
 export function rememberTitles(knownTitles, entries) {
 	let list = knownTitles;
@@ -149,12 +149,12 @@ export function rememberTitles(knownTitles, entries) {
 	return list.length > KNOWN_TITLES_MAX ? list.slice(-KNOWN_TITLES_MAX) : list;
 }
 
-// Názvy, které skupiny modulu mohou mít z doby před seznamem názvů: každý
-// základní název cíle (baseTitles: výchozí názvy období ve všech jazycích
-// rozhraní a název z Nastavení — bez předpony) bez předpony, s dřívější,
-// výchozí i současnou předponou (prefix), a názvy z posledního zařazení
-// starší verze (appliedTitles podle období, appliedBookmarkTitles podle id
-// řádku — ty mají přednost).
+// Names the module's groups may have from the time before the list of names: each
+// base name of a target (baseTitles: the default period names in all UI
+// languages and the name from Settings — without the prefix) without the prefix, with the earlier,
+// the default and the current prefix (prefix), and the names from the last assignment by
+// an older version (appliedTitles by period, appliedBookmarkTitles by row
+// id — those take precedence).
 /** @type {Functions.TabGroups.GroupIdentity.earlierTitles} */
 export function earlierTitles({ keys, baseTitles, prefix, appliedTitles, appliedBookmarkTitles }) {
 	const prefixes = [...new Set([...EARLIER_TITLE_PREFIXES, DEFAULT_TITLE_PREFIX, prefix])];

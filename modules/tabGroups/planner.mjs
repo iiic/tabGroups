@@ -2,46 +2,46 @@
 "use strict";
 
 // modules/tabGroups/planner.mjs
-// Plánování změn skupin karet v jednom okně — čisté funkce nad popisem karet
-// a skupin (bez chrome.*), výsledek provede background-script.mjs. Díky tomu
-// jde celé rozhodování ověřit i mimo prohlížeč.
+// Planning tab group changes in one window — pure functions over a description of tabs
+// and groups (without chrome.*), the result is carried out by background-script.mjs. Thanks to that
+// the whole decision-making can be verified even outside the browser.
 //
-// Skupiny modulu jsou "cíle" s pořadovým číslem: 0–8 období (index
-// v BUCKETS), od BUCKETS.length skupiny ze záložek v pořadí z Nastavení
-// (bookmarkGroups.mjs). Které skupiny v prohlížeči jsou modulu, rozhoduje
+// The module's groups are "targets" with an ordinal number: 0–8 periods (index
+// in BUCKETS), from BUCKETS.length groups from bookmarks in the order from Settings
+// (bookmarkGroups.mjs). Which groups in the browser belong to the module is decided by
 // groupIdentity.mjs.
 import { BUCKETS, GROUP_BY_LAST_USED, classifyDay, estimateOpenedDay, estimateUsedDay, isRealisticTime, latestDayOfBucket } from "./buckets.mjs";
 import { describeTargets, findOurGroups, toTargets } from "./groupIdentity.mjs";
 
-// groupId karty, která není v žádné skupině (tabGroups.TAB_GROUP_ID_NONE).
+// The groupId of a tab that is not in any group (tabGroups.TAB_GROUP_ID_NONE).
 export const TAB_GROUP_ID_NONE = -1;
 
-// Změny v jednom okně, aby každá karta, která není připnutá ani ve skupině
-// uživatele, byla ve skupině svého cíle — skupiny ze záložek, do které patří
-// její adresa (bookmarkOf(), přednost má první), jinak období svého dne — dne
-// otevření, nebo (groupBy "lastUsed") dne posledního použití:
-//   - den otevření: zapamatovaný (openedDays), jinak odhad (estimateOpenedDay()),
-//   - den posledního použití: estimateUsedDay() — aktivní karta okna dnes,
-//     jinak nejpozdější známý den (usedDays, den otevření, poslední aktivita),
-//   - s volbou přetahování karet (manualMoves) má přednost ruční den karty
-//     (manualDays): karta, která je v jiné skupině než po minulém průchodu
-//     (lastGroups) — tam ji přetáhl uživatel, modul by ji zapsal —, dostane
-//     ve skupině období nejnovější den toho období (latestDayOfBucket()),
-//     takže v ní zůstane a o půlnoci se posune s ostatními. Karta přetažená
-//     zpátky do skupiny svého dne, mimo skupiny období nebo patřící do
-//     skupiny ze záložek ruční den ztratí,
-//   - každý cíl dostane jednu skupinu — přednostně tu, která už má nejvíc
-//     jeho karet. Skupina, jejíž karty přešly do dalšího období (o půlnoci
-//     celá "dnes" → "včera"), se tak jen přejmenuje a přebarví a karty se
-//     nepřesouvají. Skupina, na kterou cíl nezbyde, se vyprázdní a prohlížeč
-//     ji sám zruší,
-//   - cíl bez skupiny dostane novou — se zaškrtnutou „uzavřenou skupinou“
-//     sbalenou (když v ní není aktivní karta okna). Existující skupiny
-//     modul nesbaluje ani nerozbaluje, to nechává na uživateli.
-// Vrací i dny otevření a posledního použití všech karet, které modul spravuje
-// (k uložení) — oba v obou režimech a i u karet ve skupinách ze záložek, ať
-// přepnutí v Nastavení i odchod ze záložky hned sedí —, a ruční dny karet
-// okna (bez volby přetahování žádné).
+// Changes in one window so that every tab that is neither pinned nor in a user's
+// group is in the group of its target — the group from bookmarks its
+// address belongs to (bookmarkOf(), the first one takes precedence), otherwise the period of its day — the day
+// it was opened, or (groupBy "lastUsed") the day of last use:
+//   - the opened day: the remembered one (openedDays), otherwise an estimate (estimateOpenedDay()),
+//   - the day of last use: estimateUsedDay() — the window's active tab today,
+//     otherwise the latest known day (usedDays, the opened day, the last activity),
+//   - with the tab dragging option (manualMoves) the tab's manual day takes precedence
+//     (manualDays): a tab that is in a different group than after the previous pass
+//     (lastGroups) — the user dragged it there, the module would have recorded it —, gets
+//     the newest day of that period in a period group (latestDayOfBucket()),
+//     so it stays in it and moves on with the others at midnight. A tab dragged
+//     back into its day's group, out of the period groups, or belonging to a
+//     group from bookmarks loses its manual day,
+//   - each target gets one group — preferably the one that already has most
+//     of its tabs. A group whose tabs moved into the next period (at midnight
+//     the whole "today" → "yesterday") is thus only renamed and recolored and the tabs
+//     do not move. A group left without a target is emptied and the browser
+//     removes it by itself,
+//   - a target without a group gets a new one — with "collapsed group" checked
+//     collapsed (when the window's active tab is not in it). The module neither collapses
+//     nor expands existing groups, it leaves that to the user.
+// It also returns the opened days and days of last use of all tabs the module manages
+// (for storing) — both in both modes and also for tabs in groups from bookmarks, so that
+// switching in Settings and leaving a bookmark are right immediately —, and the manual days of the window's
+// tabs (none without the dragging option).
 /** @type {Functions.TabGroups.Planner.planWindow} */
 export function planWindow({
 	tabs,
@@ -63,19 +63,19 @@ export function planWindow({
 }) {
 	const described = describeTargets(config, bookmarkGroups);
 	const ourGroups = toTargets(findOurGroups(groups, { ...described, groupIds, knownTitles }), described.keys);
-	// Období skupiny, ve které karta je, nebo -1 (bez skupiny, skupina
-	// uživatele nebo ze záložek).
+	// The period of the group the tab is in, or -1 (without a group, a user's group
+	// or one from bookmarks).
 	/** @type {Functions.TabGroups.Planner.planWindow.periodOf} */
 	const periodOf = (tab) => {
 		const target = ourGroups.get(tab.groupId) ?? -1;
 		return target < BUCKETS.length ? target : -1;
 	};
-	// Přesunul kartu od minulého průchodu někdo jiný než modul?
+	// Did someone other than the module move the tab since the previous pass?
 	/** @type {Functions.TabGroups.Planner.planWindow.movedByUser} */
 	const movedByUser = (tab) => manualMoves && Number.isInteger(lastGroups[tab.id]) && lastGroups[tab.id] !== tab.groupId;
-	// Ruční dny zůstávají i kartám, které modul nespravuje (připnuté, skryté,
-	// ve skupině uživatele) — kromě těch, které uživatel přesunul mimo
-	// skupiny období.
+	// Manual days stay even for tabs the module does not manage (pinned, hidden,
+	// in a user's group) — except those the user moved out of the
+	// period groups.
 	/** @type {Record<number, number>} */
 	const nextManualDays = {};
 	if (manualMoves) {
@@ -99,8 +99,8 @@ export function planWindow({
 	/** @type {Map<number, number>} */
 	const targetOf = new Map();
 	for (const tab of managed) {
-		// Období skupiny, ve které karta je (odhad dnů neznámých karet) —
-		// skupina ze záložek o dni nic neříká.
+		// The period of the group the tab is in (estimating the days of unknown tabs) —
+		// a group from bookmarks says nothing about the day.
 		const bucket = periodOf(tab);
 		const accessedDay = isRealisticTime(tab.lastAccessed) ? dayOf(tab.lastAccessed) : null;
 		const knownOpened = openedDays[tab.id];
@@ -121,7 +121,7 @@ export function planWindow({
 		resolvedUsed[tab.id] = usedDay;
 		const bookmarkGroup = bookmarkOf(tab.url);
 		if (bookmarkGroup >= 0) {
-			// Skupina ze záložek má přednost i před přetažením.
+			// A group from bookmarks takes precedence even over dragging.
 			delete nextManualDays[tab.id];
 			targetOf.set(tab.id, BUCKETS.length + bookmarkGroup);
 			continue;
@@ -138,8 +138,8 @@ export function planWindow({
 		targetOf.set(tab.id, classifyDay(nextManualDays[tab.id] ?? ownDay, today));
 	}
 
-	// Kolik karet každé skupiny modulu patří do kterého cíle, a kde skupina
-	// začíná (při shodě se dává přednost skupině víc vlevo — stabilní výsledek).
+	// How many tabs of each module group belong to which target, and where the group
+	// starts (on a tie the group more to the left is preferred — a stable result).
 	/** @type {Map<number, Map<number, number>>} */
 	const counts = new Map();
 	/** @type {Map<number, number>} */
@@ -179,8 +179,8 @@ export function planWindow({
 		if (bucketTabs.length === 0) return;
 		const groupId = groupOfBucket.get(bucket);
 		if (groupId === undefined) {
-			// „uzavřená skupina“ vznikne sbalená — jen když v ní není aktivní
-			// karta okna: sbalení by prohlížeč přepnul na jinou kartu.
+			// A "collapsed group" is created collapsed — only when the window's active
+			// tab is not in it: collapsing would make the browser switch to another tab.
 			plan.creates.push({
 				bucket,
 				title,
@@ -202,23 +202,23 @@ export function planWindow({
 	return plan;
 }
 
-// Pořadí cíle zleva doprava: skupiny ze záložek v pořadí z Nastavení, za nimi
-// období od nejstaršího po nejnovější ("dnes" úplně vpravo).
+// The target's position from left to right: groups from bookmarks in the order from Settings, after them
+// periods from the oldest to the newest ("today" at the very right).
 /** @type {Functions.TabGroups.Planner.targetRank} */
 export function targetRank(target, bookmarkCount) {
 	return target >= BUCKETS.length ? target - BUCKETS.length : bookmarkCount + BUCKETS.length - 1 - target;
 }
 
-// Pořadí skupin modulu v okně: úplně vpravo, za všemi ostatními kartami
-// (skupiny uživatele, karty bez skupiny), v pořadí targetRank(). Vrací
-// skupiny, které je potřeba v tomhle pořadí postupně přesunout na konec okna
-// — nebo prázdné pole, když pořadí sedí (pak se nehýbe ničím).
-// targetOfGroup: skupina modulu → cíl (toTargets()); skupina zrušeného
-// řádku skupin ze záložek (cíl za posledním) se nepřesouvá.
+// The order of the module's groups in the window: at the very right, after all other tabs
+// (the user's groups, tabs without a group), in targetRank() order. Returns
+// the groups that need to be moved one by one to the end of the window in this order
+// — or an empty array when the order is right (then nothing moves).
+// targetOfGroup: module group → target (toTargets()); a group of a removed
+// row of groups from bookmarks (a target after the last one) is not moved.
 /** @type {Functions.TabGroups.Planner.planOrder} */
 export function planOrder(tabs, targetOfGroup, bookmarkCount) {
-	// Lišta karet jako posloupnost bloků: celá skupina, nebo jedna karta bez
-	// skupiny. Připnuté karty stojí vždy vlevo, pořadí se netýkají.
+	// The tab strip as a sequence of blocks: a whole group, or one tab without a
+	// group. Pinned tabs always stand on the left, the order does not concern them.
 	/** @type {string[]} */
 	const blocks = [];
 	for (const tab of [...tabs].filter((t) => !t.pinned).sort((a, b) => a.index - b.index)) {

@@ -2,9 +2,11 @@
 //   - JSON soubory jdou přečíst,
 //   - verze v package.json a manifest.json je stejná,
 //   - soubory, na které odkazuje manifest, HTML stránky, importy a
-//     modules.json, existují a jsou v balíčku npm (package.json → files),
-//   - překlady (_locales): stejné klíče ve všech jazycích, stejné $1…$9,
-//     tvary množného čísla pro každý jazyk, jazyky = UI_LANGUAGES v i18n.mjs,
+//     modules.json (i soubory nahraných modulů, které rozšíření přináší),
+//     existují a jsou v balíčku npm (package.json → files),
+//   - překlady (_locales jádra a modulů, messages.json nahraných modulů):
+//     stejné klíče ve všech jazycích, stejné $1…$9, tvary množného čísla pro
+//     každý jazyk, jazyky = UI_LANGUAGES v i18n.mjs,
 //   - klíče textů použité v kódu, HTML a manifestu existují.
 // Spouští `npm run validate`; skončí kódem 1, když najde chybu.
 
@@ -132,12 +134,24 @@ for (const file of tracked.filter((file) => /\.m?js$/.test(file) && !isProjectTo
 	}
 }
 
+// Nahraný modul, který rozšíření přináší (položka sandbox://<modul>/…): jádro ho instaluje ze souborů, které pro něj
+// uvádí BUNDLED_SANDBOX_MODULES v base.mjs (složka BUNDLED_SANDBOX_DIR/<modul>/).
+const { BUNDLED_SANDBOX_DIR, BUNDLED_SANDBOX_MODULES, SANDBOX_ENTRY_PREFIX } = await import("../base.mjs");
 const modulesList = readJson("modules.json");
 if (modulesList !== undefined) {
 	if (!Array.isArray(modulesList) || modulesList.some((entry) => typeof entry !== "string")) {
 		errors.push("modules.json: musí být pole cest k modulům (řetězců)");
 	} else {
-		for (const entry of modulesList) addReference("modules.json", `/${entry.split("#")[0]}`);
+		for (const entry of modulesList) {
+			if (!entry.startsWith(SANDBOX_ENTRY_PREFIX)) {
+				addReference("modules.json", `/${entry.split("#")[0]}`);
+				continue;
+			}
+			const name = entry.slice(SANDBOX_ENTRY_PREFIX.length).split("/")[0];
+			const files = Object.hasOwn(BUNDLED_SANDBOX_MODULES, name) ? BUNDLED_SANDBOX_MODULES[name] : null;
+			if (!files) errors.push(`modules.json: ${entry} — modul ${name} není v BUNDLED_SANDBOX_MODULES (base.mjs)`);
+			for (const file of files || []) addReference("modules.json", `/${BUNDLED_SANDBOX_DIR}/${name}/${file}`);
+		}
 	}
 }
 
@@ -157,102 +171,167 @@ for (const reference of references) {
 }
 
 // --- Překlady ----------------------------------------------------------------
+// Texty jádra (_locales/<jazyk>/messages.json), modulů (modules/<modul>/_locales/<jazyk>/messages.json — i18n.mjs je
+// načte po addModuleI18n()) a nahraných modulů, které rozšíření přináší (sandbox-modules/<modul>/messages.json,
+// { jazyk: { klíč: text } }).
 const LOCALES_DIR = "_locales";
 const defaultLocale = manifest?.default_locale || "en";
-const locales = readdirSync(join(ROOT, LOCALES_DIR), { withFileTypes: true })
-	.filter((entry) => entry.isDirectory())
-	.map((entry) => entry.name);
+const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/;
 
-/** @type {Record<string, Record<string, string>>} jazyk → klíč malými písmeny → text */
-const messages = {};
 /** @type {Map<string, string>} klíč malými písmeny → klíč, jak je zapsaný (přednost má výchozí jazyk) */
 const keyNames = new Map();
 /** @param {string} id */
 const keyName = (id) => keyNames.get(id) ?? id;
-for (const locale of locales) {
-	const path = `${LOCALES_DIR}/${locale}/messages.json`;
-	const json = readJson(path);
-	if (!json) continue;
-	messages[locale] = {};
+
+/** Podsložky složky (bez souborů); žádné, když složka není. @param {string} dir */
+const subdirs = (dir) =>
+	existsSync(join(ROOT, dir))
+		? readdirSync(join(ROOT, dir), { withFileTypes: true })
+				.filter((entry) => entry.isDirectory())
+				.map((entry) => entry.name)
+		: [];
+
+/**
+ * Texty jednoho souboru v jednom jazyce: klíč malými písmeny → text.
+ * @param {string} where @param {unknown} json @param {boolean} plain text přímo (nahraný modul), jinak { message }
+ * @param {string} locale
+ */
+function readMessages(where, json, plain, locale) {
+	/** @type {Record<string, string>} */
+	const table = {};
+	if (!json || typeof json !== "object" || Array.isArray(json)) {
+		errors.push(`${where}: texty musí být objekt`);
+		return table;
+	}
 	for (const [key, entry] of Object.entries(json)) {
-		if (!/^[A-Za-z0-9_@]+$/.test(key)) errors.push(`${path}: klíč "${key}" smí obsahovat jen A–Z, a–z, 0–9, _ a @`);
-		if (key.startsWith("@@")) errors.push(`${path}: klíč "${key}" je vyhrazený prohlížeči`);
-		if (!entry || typeof entry.message !== "string") {
-			errors.push(`${path}: "${key}" nemá text (message)`);
+		if (!/^[A-Za-z0-9_@]+$/.test(key)) errors.push(`${where}: klíč "${key}" smí obsahovat jen A–Z, a–z, 0–9, _ a @`);
+		if (key.startsWith("@@")) errors.push(`${where}: klíč "${key}" je vyhrazený prohlížeči`);
+		const message = plain ? entry : entry?.message;
+		if (typeof message !== "string") {
+			errors.push(`${where}: "${key}" nemá text${plain ? "" : " (message)"}`);
 			continue;
 		}
 		const id = key.toLowerCase();
-		if (id in messages[locale]) errors.push(`${path}: klíč "${key}" je tam dvakrát (bez ohledu na velikost písmen)`);
-		messages[locale][id] = entry.message;
+		if (id in table) errors.push(`${where}: klíč "${key}" je tam dvakrát (bez ohledu na velikost písmen)`);
+		table[id] = message;
 		if (!keyNames.has(id) || locale === defaultLocale) keyNames.set(id, key);
 	}
+	return table;
 }
 
-const base = messages[defaultLocale];
-if (!base) {
-	errors.push(`chybí výchozí jazyk ${LOCALES_DIR}/${defaultLocale}/messages.json`);
-} else {
-	const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/;
+/** Zdroje textů: odkud (složka) → jazyk → texty, a kde je text jazyka. */
+/** @type {{ dir: string, tables: Record<string, Record<string, string>>, where: (locale: string) => string }[]} */
+const sources = [];
+for (const dir of [LOCALES_DIR, ...subdirs("modules").map((module) => `modules/${module}/${LOCALES_DIR}`)]) {
+	if (!existsSync(join(ROOT, dir))) continue;
+	const where = (/** @type {string} */ locale) => `${dir}/${locale}/messages.json`;
+	/** @type {Record<string, Record<string, string>>} */
+	const tables = {};
+	for (const locale of subdirs(dir)) {
+		const json = readJson(where(locale));
+		if (json) tables[locale] = readMessages(where(locale), json, false, locale);
+	}
+	sources.push({ dir, tables, where });
+}
+for (const module of subdirs("sandbox-modules")) {
+	const path = `sandbox-modules/${module}/messages.json`;
+	if (!existsSync(join(ROOT, path))) continue;
+	const where = (/** @type {string} */ locale) => `${path} (${locale})`;
+	const json = readJson(path) ?? {};
+	/** @type {Record<string, Record<string, string>>} */
+	const tables = {};
+	for (const [locale, table] of Object.entries(json)) tables[locale] = readMessages(where(locale), table, true, locale);
+	sources.push({ dir: `sandbox-modules/${module}`, tables, where });
+}
+
+const coreSource = sources[0];
+const coreLocales = Object.keys(coreSource?.tables ?? {}).sort();
+/** @param {string} message */
+const placeholders = (message) => [...new Set(message.match(/\$[1-9]/g) || [])].sort().join(", ") || "žádné";
+
+for (const { dir, tables, where } of sources) {
+	const base = tables[defaultLocale];
+	if (!base) {
+		errors.push(`chybí výchozí jazyk ${where(defaultLocale)}`);
+		continue;
+	}
+	const locales = Object.keys(tables).sort();
+	if (dir !== LOCALES_DIR && locales.join() !== coreLocales.join()) {
+		errors.push(`${dir}: jazyky ${locales.join(", ")} místo ${coreLocales.join(", ")} (jako ${LOCALES_DIR} jádra)`);
+	}
+	// Množné číslo (tp() v i18n.mjs): klíč <x>_other, ke kterému má výchozí jazyk i jiný tvar (<x>_one, …) — samotný
+	// klíč končící na _other je obyčejný text.
 	const pluralBases = Object.keys(base)
 		.filter((key) => key.endsWith("_other"))
-		.map((key) => key.slice(0, -"_other".length));
-	/** @param {string} message */
-	const placeholders = (message) => [...new Set(message.match(/\$[1-9]/g) || [])].sort().join(", ") || "žádné";
-
+		.map((key) => key.slice(0, -"_other".length))
+		.filter((stem) => Object.keys(base).some((key) => key !== `${stem}_other` && PLURAL_SUFFIX.test(key) && key.replace(PLURAL_SUFFIX, "") === stem));
 	for (const locale of locales) {
-		const own = messages[locale];
-		if (!own) continue;
-		const path = `${LOCALES_DIR}/${locale}/messages.json`;
+		const own = tables[locale];
 		for (const key of Object.keys(base)) {
 			if (!(key in own)) {
-				errors.push(`${path}: chybí klíč "${keyName(key)}"`);
+				errors.push(`${where(locale)}: chybí klíč "${keyName(key)}"`);
 			} else if (placeholders(base[key]) !== placeholders(own[key])) {
-				errors.push(`${path}: "${keyName(key)}" má jiné proměnné než ${defaultLocale} (${placeholders(own[key])} místo ${placeholders(base[key])})`);
+				errors.push(`${where(locale)}: "${keyName(key)}" má jiné proměnné než ${defaultLocale} (${placeholders(own[key])} místo ${placeholders(base[key])})`);
 			}
 		}
 		for (const key of Object.keys(own)) {
 			if (key in base) continue;
 			const pluralBase = key.replace(PLURAL_SUFFIX, "");
 			if (pluralBase === key || !pluralBases.includes(pluralBase)) {
-				errors.push(`${path}: klíč "${keyName(key)}" není ve výchozím jazyce ${defaultLocale}`);
+				errors.push(`${where(locale)}: klíč "${keyName(key)}" není ve výchozím jazyce ${defaultLocale}`);
 			}
 		}
-		// Tvary množného čísla, které jazyk u celých čísel používá (tp() v i18n.mjs).
+		// Tvary množného čísla, které jazyk u celých čísel používá.
 		const rules = new Intl.PluralRules(locale);
 		const categories = new Set(Array.from({ length: 1001 }, (_, n) => rules.select(n)));
 		for (const pluralBase of pluralBases) {
 			for (const category of categories) {
 				if (!(`${pluralBase}_${category}` in own)) {
-					errors.push(`${path}: chybí tvar množného čísla "${keyName(`${pluralBase}_other`).replace(/other$/, category)}"`);
+					errors.push(`${where(locale)}: chybí tvar množného čísla "${keyName(`${pluralBase}_other`).replace(/other$/, category)}"`);
 				}
 			}
 		}
 	}
+}
 
-	// Klíče použité v kódu, HTML a manifestu (jen zapsané přímo jako text —
-	// klíče skládané za běhu se tady ověřit nedají).
-	/** @type {Map<string, string>} klíč → kde je použitý */
-	const used = new Map();
-	for (const file of tracked.filter((file) => /\.(m?js|html)$/.test(file) && !isProjectTool(file))) {
-		const raw = readFileSync(join(ROOT, file), "utf8");
-		const source = file.endsWith(".html") ? raw : codeLines(raw);
-		for (const match of source.matchAll(/\bt\(\s*["']([A-Za-z0-9_@]+)["']/g)) used.set(match[1], file);
-		for (const match of source.matchAll(/\btp\(\s*["']([A-Za-z0-9_@]+)["']/g)) used.set(`${match[1]}_other`, file);
-		for (const match of source.matchAll(/\btIn\(\s*[^,()]+,\s*["']([A-Za-z0-9_@]+)["']/g)) used.set(match[1], file);
-		for (const match of source.matchAll(/\bdata-i18n(?:-[a-z-]+)?=["']([^"']+)["']/g)) used.set(match[1], file);
-	}
-	for (const match of JSON.stringify(manifest || {}).matchAll(/__MSG_([A-Za-z0-9_@]+)__/g)) used.set(match[1], "manifest.json");
-	for (const [key, file] of used) {
-		if (!(key.toLowerCase() in base)) errors.push(`${file}: text "${key}" není v ${LOCALES_DIR}/${defaultLocale}/messages.json`);
-	}
+// Klíče použité v kódu, HTML a manifestu (jen zapsané přímo jako text — klíče skládané za běhu se tady ověřit nedají).
+// Kód modulu má texty jádra a své (modules/<modul>/_locales), nahraný modul své (messages.json) a jádra, jádro i texty
+// modulů.
+/** @param {string} dir */
+const defaultTable = (dir) => sources.find((source) => source.dir === dir)?.tables[defaultLocale] ?? {};
+const moduleTables = sources.filter((source) => source.dir.startsWith("modules/")).map((source) => source.tables[defaultLocale] ?? {});
+/** @param {string} file @returns {Record<string, string>[]} */
+function tablesFor(file) {
+	const core = defaultTable(LOCALES_DIR);
+	const module = /^(sandbox-)?modules\/([^/]+)\//.exec(file);
+	if (!module) return [core, ...moduleTables];
+	return [core, defaultTable(module[1] ? `sandbox-modules/${module[2]}` : `modules/${module[2]}/${LOCALES_DIR}`)];
+}
 
-	// Jazyky v nabídce rozhraní = složky _locales.
-	const { UI_LANGUAGES } = await import("../i18n.mjs");
-	const offered = UI_LANGUAGES.map((/** @type {{ value: string }} */ option) => option.value).sort();
-	const present = [...locales].sort();
-	if (offered.join() !== present.join()) {
-		errors.push(`UI_LANGUAGES v i18n.mjs (${offered.join(", ")}) neodpovídá složkám ${LOCALES_DIR} (${present.join(", ")})`);
+/** @type {[file: string, key: string][]} */
+const used = [];
+for (const file of tracked.filter((file) => /\.(m?js|html)$/.test(file) && !isProjectTool(file))) {
+	const raw = readFileSync(join(ROOT, file), "utf8");
+	const source = file.endsWith(".html") ? raw : codeLines(raw);
+	for (const match of source.matchAll(/\bt\(\s*["']([A-Za-z0-9_@]+)["']/g)) used.push([file, match[1]]);
+	for (const match of source.matchAll(/\btp\(\s*["']([A-Za-z0-9_@]+)["']/g)) used.push([file, `${match[1]}_other`]);
+	for (const match of source.matchAll(/\btIn\(\s*[^,()]+,\s*["']([A-Za-z0-9_@]+)["']/g)) used.push([file, match[1]]);
+	for (const match of source.matchAll(/\bdata-i18n(?:-[a-z-]+)?=["']([^"']+)["']/g)) used.push([file, match[1]]);
+}
+for (const match of JSON.stringify(manifest || {}).matchAll(/__MSG_([A-Za-z0-9_@]+)__/g)) used.push([`manifest.json`, match[1]]);
+for (const [file, key] of used) {
+	const tables = file === "manifest.json" ? [defaultTable(LOCALES_DIR)] : tablesFor(file);
+	if (!tables.some((table) => key.toLowerCase() in table)) {
+		const where = tables.length === 2 && file.includes("/") ? ` ani v textech modulu` : "";
+		errors.push(`${file}: text "${key}" není v ${LOCALES_DIR}/${defaultLocale}/messages.json${where}`);
 	}
+}
+
+// Jazyky v nabídce rozhraní = složky _locales.
+const { UI_LANGUAGES } = await import("../i18n.mjs");
+const offered = UI_LANGUAGES.map((/** @type {{ value: string }} */ option) => option.value).sort();
+if (offered.join() !== coreLocales.join()) {
+	errors.push(`UI_LANGUAGES v i18n.mjs (${offered.join(", ")}) neodpovídá složkám ${LOCALES_DIR} (${coreLocales.join(", ")})`);
 }
 
 // --- Výsledek ----------------------------------------------------------------
@@ -262,4 +341,4 @@ if (errors.length > 0) {
 	console.error(`\nValidace selhala: ${errors.length} ${noun}.`);
 	process.exit(1);
 }
-console.log(`Validace v pořádku (${references.size} odkazů na soubory, ${locales.length} jazyků).`);
+console.log(`Validace v pořádku (${references.size} odkazů na soubory, ${coreLocales.length} jazyků, ${sources.length} zdrojů textů).`);

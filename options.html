@@ -3,52 +3,121 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title data-i18n="options_page_title">tabGroups settings</title>
+	<title data-i18n="options_page_title">Tab Groups settings</title>
 	<link rel="stylesheet" href="./css/mvp.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/theme-light.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/options.css" crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/module-frame.css" crossorigin="anonymous">
-	<!-- Volba vzhledu (světlý/tmavý) — přepíná ji modul styleSwitch (modules/styleSwitch/pageStyles.mjs), href musí být na všech stránkách stejné. -->
+	<!-- Appearance choice (light/dark) — switched by the styleSwitch module (modules/styleSwitch/pageStyles.mjs); the href must be the same on all pages. -->
 	<link rel="alternate stylesheet" href="./css/theme-light.css" title="Světlý" crossorigin="anonymous">
 	<link rel="stylesheet" href="./css/theme-dark.css" title="Tmavý" media="(prefers-color-scheme: dark)" crossorigin="anonymous">
 </head>
 
 <body>
-	<h1 data-i18n="options_heading">tabGroups extension settings</h1>
+	<h1 class="visually-hidden" data-i18n="options_heading">Tab Groups settings</h1>
 
-	<section>
-		<label class="ui-language"><span data-i18n="core_ui_language">Language</span>
-			<select id="ui-language"></select>
+	<!-- Module filter: hides the modules whose name or id does not contain the text, in all sections (see
+	     _applyModuleFilter() in options.mjs). Shown only from MODULE_FILTER_MIN modules on. -->
+	<div class="module-filter" id="module-filter" hidden>
+		<label><span data-i18n="options_filter_label">Filter by name</span>
+			<input type="search" id="module-filter-input" list="module-filter-names" autocomplete="off" spellcheck="false">
 		</label>
-	</section>
+		<datalist id="module-filter-names"></datalist>
+	</div>
 
-	<section hidden>
-		<h2 data-i18n="options_modules_list_json">Module list (JSON)</h2>
-		<div id="modules-json-diff" class="modules-json-diff" hidden></div>
-		<textarea id="modules-json"></textarea>
-		<div class="buttons">
-			<button type="button" id="save-modules-json" class="save-btn" data-i18n="options_save_list">Save list</button>
-			<button type="button" id="reset-modules-json" class="reset-btn" data-i18n="options_reset_list">Restore default list</button>
-		</div>
-	</section>
+	<!-- Sections as tabs; on a narrow screen as an accordion (css/options.css). The tab bar is made by
+	     _initSectionTabs() in options.mjs from the section headings, the heading button opens the section
+	     in the accordion. -->
+	<div class="options-sections" id="options-sections">
+		<div class="options-tabbar" id="options-tabbar" role="tablist"></div>
 
-	<details class="module-settings-details">
-		<summary data-i18n="options_modules_settings">Advanced settings</summary>
-		<div id="modules-list"></div>
-		<div class="buttons">
-			<button type="button" id="save-btn" class="save-btn" data-i18n="options_save_settings">Save settings</button>
-			<button type="button" id="reset-btn" class="reset-btn" data-i18n="options_reset_defaults">Restore defaults</button>
-		</div>
-	</details>
+		<section class="options-section" id="settings-general">
+			<h2 class="options-section-heading"><button type="button" class="options-section-toggle" data-i18n="options_heading">Tab Groups settings</button></h2>
+			<div class="options-section-panel">
+				<label class="ui-language"><span data-i18n="core_ui_language">Language</span>
+					<select id="ui-language"></select>
+				</label>
+				<hr>
+				<!-- "Do not use the sidebar" (SIDEBAR_DISABLED_KEY in base.mjs), see _setSidebarDisabled() in options.mjs. -->
+				<label class="sidebar-disabled"><input type="checkbox" id="sidebar-disabled"><span data-i18n="options_sidebar_disabled">Do not use the sidebar</span></label>
+				<p class="section-hint" id="sidebar-disabled-hint"></p>
+			</div>
+		</section>
 
-	<section>
-		<h2 data-i18n="options_custom_module_settings">tabGroups settings</h2>
-		<div id="module-settings-list"></div>
-		<div class="buttons">
-			<button type="button" id="save-module-settings-btn" class="save-btn" data-i18n="options_save_settings">Save settings</button>
-			<button type="button" id="reset-module-settings-btn" class="reset-btn" data-i18n="options_reset_defaults">Restore defaults</button>
-		</div>
-	</section>
+		<section class="options-section" id="settings-output">
+			<h2 class="options-section-heading"><button type="button" class="options-section-toggle" data-i18n="options_modules_output">Module output</button></h2>
+			<div class="options-section-panel">
+				<div id="modules-output"></div>
+			</div>
+		</section>
+
+		<section class="options-section" id="settings-modules-json" hidden>
+			<h2 class="options-section-heading"><button type="button" class="options-section-toggle" data-i18n="options_modules_list_json">Module list (JSON)</button></h2>
+			<div class="options-section-panel">
+				<p class="section-hint" data-i18n="options_modules_json_hint_disable">The easier way to turn a module off is “Advanced module settings” → “Module activation mode” → “Never start (module inactive)”. The module stays in its place in the list and you turn it back on with a single switch.</p>
+				<p class="section-hint" data-i18n="options_modules_json_hint_performance">Removing it from the list saves more performance, though: the content script of a turned-off module is still inserted into every page (and only there finds out it has nothing to do), and the side panel, the floating window and Settings still load its file. A module that is not in the list is not loaded at all. The difference shows mainly with modules that work in pages.</p>
+				<div id="modules-json-diff" class="modules-json-diff" hidden></div>
+				<textarea id="modules-json" cols="40"></textarea>
+				<div class="buttons">
+					<button type="button" id="save-modules-json" class="save-btn" data-i18n="options_save_list">Save list</button>
+					<button type="button" id="reset-modules-json" class="reset-btn" data-i18n="options_reset_list">Restore default list</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Uploaded modules: the input only hands the file (a .js/.mjs script or a .zip package) to the core
+		     (installSandboxModule() in base.mjs), the module then runs in the sandbox (sandbox.html). See
+		     _uploadSandboxModule() in options.mjs. -->
+		<section class="options-section" id="sandbox-modules">
+			<h2 class="options-section-heading"><button type="button" class="options-section-toggle" data-i18n="options_sandbox_heading">Uploaded modules (sandbox)</button></h2>
+			<div class="options-section-panel">
+				<p class="section-hint" data-i18n="options_sandbox_hint">A module uploaded from a file runs in an isolated page (sandbox).</p>
+				<label class="sandbox-upload"><span data-i18n="options_sandbox_upload">Upload a module (.js, .mjs or .zip)</span>
+					<input type="file" id="sandbox-module-file" accept=".js,.mjs,.zip,text/javascript,application/zip">
+				</label>
+				<div id="sandbox-module-report" class="sandbox-module-report" hidden></div>
+				<hr>
+				<ul id="sandbox-modules-list" class="sandbox-modules-list"></ul>
+			</div>
+		</section>
+
+		<!-- Modules from other extensions ("Modules from other extensions" in base.mjs): as the service provider the
+		     extensions that offer their modules, with the user's decision; as a client what its provider shows. A
+		     standalone extension is only a client — the build scripts give the section its own heading and hint there
+		     ("Export of this extension's functions", $StandaloneMessages). See _renderExtensionServices() in options.mjs. -->
+		<section class="options-section" id="extension-services" hidden>
+			<h2 class="options-section-heading"><button type="button" class="options-section-toggle" data-i18n="options_services_heading">Modules from other extensions</button></h2>
+			<div class="options-section-panel">
+				<p class="section-hint" id="extension-services-hint" data-i18n="options_services_hint">A module released as a standalone extension can offer its modules to this extension.</p>
+				<div id="extension-services-provider" class="sandbox-module-report" hidden></div>
+				<ul id="extension-services-list" class="sandbox-modules-list"></ul>
+			</div>
+		</section>
+
+		<section class="options-section" id="settings-custom">
+			<h2 class="options-section-heading"><button type="button" class="options-section-toggle" data-i18n="options_custom_module_settings">Custom module settings</button></h2>
+			<div class="options-section-panel">
+				<div id="module-settings-list"></div>
+				<div class="buttons buttons--floating">
+					<p class="unsaved-bubble" data-i18n="options_unsaved_changes" hidden>Do not forget to save the changes you made</p>
+					<button type="button" id="save-module-settings-btn" class="save-btn" data-i18n="options_save_module_settings">Save module settings</button>
+					<button type="button" id="reset-module-settings-btn" class="reset-btn" data-i18n="options_reset_defaults">Restore defaults</button>
+				</div>
+			</div>
+		</section>
+
+		<section class="options-section" id="settings-advanced">
+			<h2 class="options-section-heading"><button type="button" class="options-section-toggle" data-i18n="options_modules_settings">Advanced module settings</button></h2>
+			<div class="options-section-panel">
+				<div id="modules-list"></div>
+				<div class="buttons buttons--floating">
+					<p class="unsaved-bubble" data-i18n="options_unsaved_changes" hidden>Do not forget to save the changes you made</p>
+					<button type="button" id="save-btn" class="save-btn" data-i18n="options_save_settings">Save settings</button>
+					<button type="button" id="reset-btn" class="reset-btn" data-i18n="options_reset_defaults">Restore defaults</button>
+				</div>
+			</div>
+		</section>
+	</div>
 
 	<div id="status" class="status"></div>
 	<script type="module" src="./options.mjs" crossorigin="anonymous"></script>

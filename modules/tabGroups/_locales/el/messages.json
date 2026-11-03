@@ -1,0 +1,155 @@
+{
+	"tabGroups_description": {
+		"message": "Ταξινομεί αυτόματα τις καρτέλες που δεν βρίσκονται σε δική σας ομάδα σε 9 ομάδες (σήμερα, χθες, … πέρσι) ανάλογα με το πότε άνοιξαν ή — επιλογή στις Ρυθμίσεις — πότε χρησιμοποιήθηκαν τελευταία, και τις μετακινεί μετά τα μεσάνυχτα. Στις Ρυθμίσεις μπορείτε επίσης να προσθέσετε ομάδες από σελιδοδείκτες: οι καρτέλες με σελιδοδείκτη σε επιλεγμένο φάκελο (προαιρετικά και οποιαδήποτε διεύθυνση στον τομέα του σελιδοδείκτη) αποκτούν δική τους ομάδα. Οι αυτόματες ομάδες μένουν στα δεξιά των δικών σας ομάδων, από την παλαιότερη στη νεότερη."
+	},
+	"tabGroups_color_grey": {
+		"message": "γκρι"
+	},
+	"tabGroups_color_blue": {
+		"message": "μπλε"
+	},
+	"tabGroups_color_red": {
+		"message": "κόκκινο"
+	},
+	"tabGroups_color_yellow": {
+		"message": "κίτρινο"
+	},
+	"tabGroups_color_green": {
+		"message": "πράσινο"
+	},
+	"tabGroups_color_pink": {
+		"message": "ροζ"
+	},
+	"tabGroups_color_purple": {
+		"message": "μωβ"
+	},
+	"tabGroups_color_cyan": {
+		"message": "κυανό"
+	},
+	"tabGroups_color_orange": {
+		"message": "πορτοκαλί"
+	},
+	"tabGroups_bucket_today_title": {
+		"message": "σήμερα"
+	},
+	"tabGroups_bucket_today_range": {
+		"message": "σήμερα"
+	},
+	"tabGroups_bucket_yesterday_title": {
+		"message": "χθες"
+	},
+	"tabGroups_bucket_yesterday_range": {
+		"message": "χθες"
+	},
+	"tabGroups_bucket_day_before_yesterday_title": {
+		"message": "πριν από 2 ημέρες"
+	},
+	"tabGroups_bucket_day_before_yesterday_range": {
+		"message": "πριν από 2 ημέρες"
+	},
+	"tabGroups_bucket_this_week_title": {
+		"message": "αυτή η εβδομάδα"
+	},
+	"tabGroups_bucket_this_week_range": {
+		"message": "νωρίτερα αυτή την εβδομάδα (από τη Δευτέρα)"
+	},
+	"tabGroups_bucket_last_week_title": {
+		"message": "προηγούμενη εβδομάδα"
+	},
+	"tabGroups_bucket_last_week_range": {
+		"message": "την προηγούμενη εβδομάδα"
+	},
+	"tabGroups_bucket_this_month_title": {
+		"message": "αυτός ο μήνας"
+	},
+	"tabGroups_bucket_this_month_range": {
+		"message": "νωρίτερα αυτόν τον μήνα"
+	},
+	"tabGroups_bucket_last_month_title": {
+		"message": "προηγούμενος μήνας"
+	},
+	"tabGroups_bucket_last_month_range": {
+		"message": "τον προηγούμενο μήνα"
+	},
+	"tabGroups_bucket_this_year_title": {
+		"message": "φέτος"
+	},
+	"tabGroups_bucket_this_year_range": {
+		"message": "νωρίτερα φέτος"
+	},
+	"tabGroups_bucket_last_year_title": {
+		"message": "πέρσι"
+	},
+	"tabGroups_bucket_last_year_range": {
+		"message": "πέρσι και νωρίτερα"
+	},
+	"tabGroups_loading": {
+		"message": "Φόρτωση ομάδων καρτελών..."
+	},
+	"tabGroups_disabled": {
+		"message": "Απενεργοποιημένο"
+	},
+	"tabGroups_intro_opened": {
+		"message": "Οι καρτέλες εκτός των δικών σας ομάδων ταξινομούνται αυτόματα σε ομάδες ανάλογα με το πότε άνοιξαν."
+	},
+	"tabGroups_intro_last_used": {
+		"message": "Οι καρτέλες εκτός των δικών σας ομάδων ταξινομούνται αυτόματα σε ομάδες ανάλογα με το πότε χρησιμοποιήθηκαν τελευταία."
+	},
+	"tabGroups_intro_opened_bookmarks": {
+		"message": "Οι καρτέλες εκτός των δικών σας ομάδων ταξινομούνται αυτόματα σε ομάδες ανάλογα με το πότε άνοιξαν, και οι καρτέλες με σελιδοδείκτη στους επιλεγμένους φακέλους σε ομάδες από σελιδοδείκτες."
+	},
+	"tabGroups_intro_last_used_bookmarks": {
+		"message": "Οι καρτέλες εκτός των δικών σας ομάδων ταξινομούνται αυτόματα σε ομάδες ανάλογα με το πότε χρησιμοποιήθηκαν τελευταία φορά, και οι καρτέλες με σελιδοδείκτη στους επιλεγμένους φακέλους σε ομάδες από σελιδοδείκτες."
+	},
+	"tabGroups_unsupported": {
+		"message": "Αυτό το πρόγραμμα περιήγησης δεν επιτρέπει στις επεκτάσεις να διαχειρίζονται ομάδες καρτελών (Chrome 89+, Firefox 139+ σε υπολογιστή)."
+	},
+	"tabGroups_missing_permission": {
+		"message": "Λείπει η άδεια για τις ομάδες καρτελών — δεν ταξινομείται ακόμη τίποτα."
+	},
+	"tabGroups_grant_tab_groups": {
+		"message": "Να επιτρέπονται οι ομάδες καρτελών"
+	},
+	"tabGroups_missing_alarms": {
+		"message": "Χωρίς την άδεια χρονομέτρων (alarms), οι ομάδες μετακινούνται μετά τα μεσάνυχτα μόνο την επόμενη φορά που θα εργαστείτε με καρτέλες."
+	},
+	"tabGroups_grant_alarms": {
+		"message": "Μετακίνηση ακριβώς τα μεσάνυχτα"
+	},
+	"tabGroups_missing_bookmarks": {
+		"message": "Οι ομάδες από σελιδοδείκτες χρειάζονται πρόσβαση στους σελιδοδείκτες και στις διευθύνσεις των καρτελών — δεν χρησιμοποιούνται ακόμη."
+	},
+	"tabGroups_grant_bookmarks": {
+		"message": "Να επιτρέπονται οι σελιδοδείκτες και οι διευθύνσεις καρτελών"
+	},
+	"tabGroups_permission_floating": {
+		"message": "Δεν μπορεί να παραχωρηθεί από το αιωρούμενο παράθυρο — επιτρέψτε την στο αναδυόμενο παράθυρο, στο πλευρικό πάνελ ή στις Ρυθμίσεις."
+	},
+	"tabGroups_permissions_ok": {
+		"message": "Έχουν παραχωρηθεί όλες οι άδειες."
+	},
+	"tabGroups_overview_in_sandbox": {
+		"message": "Η επισκόπηση των ομάδων του παραθύρου με «Αναδιοργάνωση τώρα» και «Αναγνώριση διαχειριζόμενων ομάδων» είναι το Tab Groups Sandbox — από προεπιλογή στο αναδυόμενο παράθυρο."
+	},
+	"tabGroups_bookmarks_fallback_title": {
+		"message": "Σελιδοδείκτες"
+	},
+	"tabGroups_bookmarks_describe_domain": {
+		"message": "στους τομείς των σελιδοδεικτών του φακέλου «$1»"
+	},
+	"tabGroups_bookmarks_describe_folder": {
+		"message": "από σελιδοδείκτες του φακέλου «$1»"
+	},
+	"tabGroups_folder_untitled": {
+		"message": "(χωρίς τίτλο)"
+	},
+	"tabGroups_folder_in_account": {
+		"message": "$1 (στον λογαριασμό)"
+	},
+	"tabGroups_folder_device_only": {
+		"message": "$1 (μόνο σε αυτή τη συσκευή)"
+	},
+	"tabGroups_settings_invalid": {
+		"message": "Μη έγκυρη τιμή της ρύθμισης $1."
+	}
+}

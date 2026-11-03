@@ -1,6 +1,6 @@
 {
 	"extension_name": {
-		"message": "tabGroups"
+		"message": "Tab Groups"
 	},
 	"extension_description": {
 		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were opened or — an option in Settings — when they were last used, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
@@ -32,6 +32,9 @@
 	"core_location_sidebar": {
 		"message": "In the side panel"
 	},
+	"core_location_floating": {
+		"message": "In the floating window"
+	},
 	"core_location_options": {
 		"message": "On the Settings page"
 	},
@@ -53,6 +56,12 @@
 	"core_output_details_open": {
 		"message": "Collapsible element, expanded"
 	},
+	"core_pin_module": {
+		"message": "Pin to the top"
+	},
+	"core_unpin_module": {
+		"message": "Unpin"
+	},
 	"core_default_modules_load_failed": {
 		"message": "Cannot load the default modules.json: $1"
 	},
@@ -68,8 +77,29 @@
 	"core_storage_unavailable": {
 		"message": "chrome.storage.$1 is not available in this context."
 	},
+	"core_background_no_response": {
+		"message": "background.js did not respond"
+	},
+	"core_backup_invalid": {
+		"message": "The backup of module $1 is not valid."
+	},
+	"core_backup_records_failed": {
+		"message": "Records of module $1 can't be transferred: $2"
+	},
+	"core_debugger_targets_failed": {
+		"message": "Cannot get the list of debugger targets."
+	},
+	"core_debugger_commands_failed": {
+		"message": "Cannot run the debugger commands."
+	},
+	"core_close": {
+		"message": "Close"
+	},
+	"core_resize_handle": {
+		"message": "Drag to resize"
+	},
 	"popup_page_title": {
-		"message": "tabGroups Popup"
+		"message": "Tab Groups Popup"
 	},
 	"popup_json_error": {
 		"message": "JSON error: $1"
@@ -81,25 +111,649 @@
 		"message": "Error in module: $1"
 	},
 	"sidebar_page_title": {
-		"message": "tabGroups - sidebar"
+		"message": "Tab Groups - sidebar"
+	},
+	"sidebar_disabled_notice": {
+		"message": "The side panel is turned off in Settings (“Do not use the side panel”), so no modules are shown here."
+	},
+	"sidebar_disabled_remove_icon": {
+		"message": "To remove the extension's icon from the Firefox sidebar launcher, right-click it and choose to remove it from the sidebar (Firefox 143 and newer)."
+	},
+	"sidebar_disabled_open_options": {
+		"message": "Open Settings"
 	},
 	"onboarding_page_title": {
-		"message": "tabGroups - welcome page (onboarding)"
+		"message": "Tab Groups - welcome page (onboarding)"
 	},
 	"onboarding_empty_html": {
-		"message": "Automatically sorts tabs into groups by time (day). You can select colors of tabs, rename them, resort, identify, minimal privileges, dynamically assigned based on the functions you need and those you don't."
+		"message": "Nothing is shown on the welcome page yet. Send modules here in the <a href=\"./options.html\" target=\"_blank\">extension settings</a> with the “Show module output” option of each module."
 	},
 	"options_page_title": {
-		"message": "tabGroups settings"
+		"message": "Tab Groups settings"
 	},
 	"options_heading": {
-		"message": "tabGroups extension settings"
+		"message": "Tab Groups settings"
 	},
 	"core_ui_language": {
 		"message": "Language"
 	},
 	"core_ui_language_browser": {
 		"message": "$1 - browser language"
+	},
+	"core_sandbox_bad_file_name": {
+		"message": "The file “$1” must be the module itself — <name>.js or <name>.mjs, the module name in camelCase (e.g. mySandbox.mjs) — or a .zip with its package."
+	},
+	"core_sandbox_too_large": {
+		"message": "The file is too large ($1, at most $2)."
+	},
+	"core_sandbox_empty": {
+		"message": "The file is empty."
+	},
+	"core_sandbox_not_utf8": {
+		"message": "The file “$1” is not text in UTF-8."
+	},
+	"core_sandbox_zip_invalid": {
+		"message": "The file is not a valid ZIP archive."
+	},
+	"core_sandbox_zip_corrupt": {
+		"message": "The file “$1” in the archive is damaged."
+	},
+	"core_sandbox_zip_unsupported": {
+		"message": "The archive is a ZIP64 or split into parts — create an ordinary .zip (any common tool does)."
+	},
+	"core_sandbox_zip_encrypted": {
+		"message": "The file “$1” in the archive is encrypted."
+	},
+	"core_sandbox_zip_compression": {
+		"message": "The file “$1” in the archive uses an unsupported compression — only stored and deflate are supported."
+	},
+	"core_sandbox_zip_too_many_files": {
+		"message": "The archive has too many entries ($1, at most $2)."
+	},
+	"core_sandbox_bad_path": {
+		"message": "Invalid file name in the package: “$1” — only letters, digits, “.”, “_”, “-” and folders."
+	},
+	"core_sandbox_duplicate_path": {
+		"message": "The file “$1” is in the package twice (names that differ only in letter case are the same file)."
+	},
+	"core_sandbox_no_entry": {
+		"message": "The package has no entry file — expected $1.mjs or $1.js in its root (the module name is the name of the folder in the archive, otherwise of the archive)."
+	},
+	"core_sandbox_ambiguous_entry": {
+		"message": "The package has both $1 and $2 — keep only one entry file."
+	},
+	"core_sandbox_bad_messages": {
+		"message": "$1 must have the form { \"language\": { \"key\": \"text\" } }."
+	},
+	"core_sandbox_import_outside": {
+		"message": "$1: import “$2” leads outside the module package — only relative paths to files of the package and \"../../sdk.mjs\" (the SDK) can be imported."
+	},
+	"core_sandbox_import_missing": {
+		"message": "$1: import “$2” — the file is not in the package."
+	},
+	"core_sandbox_import_type": {
+		"message": "$1: import “$2” — only JS modules (.mjs, .js) and JSON can be imported; CSS belongs into registerModule({ styles })."
+	},
+	"core_sandbox_import_cycle": {
+		"message": "The JS modules of the package import each other in a cycle: $1."
+	},
+	"core_sandbox_skipped_files": {
+		"message": "These files have an unsupported type and were left out: $1"
+	},
+	"core_sandbox_unused_scripts": {
+		"message": "Nothing imports these scripts, they will not run: $1"
+	},
+	"core_sandbox_dynamic_import": {
+		"message": "$1: import() with a computed address cannot load files of the package — only import(\"./file.mjs\") with a fixed path."
+	},
+	"core_sandbox_js_with_module": {
+		"message": "$1 uses import/export — by the extension convention its name should end with .mjs."
+	},
+	"core_sandbox_mjs_without_module": {
+		"message": "$1 does not use import/export — by the extension convention its name should end with .js."
+	},
+	"core_sandbox_es_module": {
+		"message": "$1 uses import/export — a classic script (.js) gets the SDK as sandboxSdk; a module with imports must be a JS module (.mjs)."
+	},
+	"core_sandbox_read_failed": {
+		"message": "The file cannot be read: $1"
+	},
+	"core_sandbox_name_taken": {
+		"message": "The name “$1” (element <$2>) is already used by another module — rename the module and its file."
+	},
+	"core_sandbox_timeout": {
+		"message": "The module did not answer in the sandbox within $1 s."
+	},
+	"core_sandbox_api_denied": {
+		"message": "Uploaded modules cannot use api.$1."
+	},
+	"core_extension_page_not_allowed": {
+		"message": "“$1” is not an extension page a module may open."
+	},
+	"core_sandbox_capability_denied": {
+		"message": "“$1”: the user did not allow this function to the module (Settings → Uploaded modules)."
+	},
+	"core_sandbox_capability_pending": {
+		"message": "“$1”: the function is waiting for the user's decision in Settings → Uploaded modules — until then it is refused."
+	},
+	"core_sandbox_capability_undeclared": {
+		"message": "“$1”: the module does not declare this function — add it to registerModule({ capabilities })."
+	},
+	"core_sandbox_capability_forbidden": {
+		"message": "“$1” cannot be allowed to an uploaded module: $2"
+	},
+	"core_sandbox_capability_unknown": {
+		"message": "“$1”: the core does not offer such a function to uploaded modules."
+	},
+	"core_sandbox_capability_block_page": {
+		"message": "the extension page belongs to the core — the module runs in another document, a DOM node cannot be passed in a message, a request is never synchronous and the module would see the data of the other modules."
+	},
+	"core_sandbox_capability_block_gesture": {
+		"message": "the browser allows it only directly in the handler of a click — a request from the sandbox reaches the core as a message, not as a click (Firefox refuses it). For opening the popup, the sidebar and the floating window the core offers popup.open, sidebar.toggle and floatingWindow.toggle on a button it draws for the module (api.buttons)."
+	},
+	"core_sandbox_capability_block_extension": {
+		"message": "storage, messages and control of the whole extension — the module would get the data and settings of all modules, could act as another module or ask for permissions."
+	},
+	"core_sandbox_capability_block_page_code": {
+		"message": "code and content of web pages — the module would run code on any page."
+	},
+	"core_sandbox_capability_block_browser_data": {
+		"message": "private browser data (cookies of all sites, history, browsing data) — access to it cannot be narrowed down to what the module needs."
+	},
+	"core_sandbox_capability_block_network": {
+		"message": "network rules and intercepting requests — they change or read the traffic of all pages."
+	},
+	"core_sandbox_capability_about_tabs_create": {
+		"message": "Open new tabs with web addresses (http, https), also in the background."
+	},
+	"core_sandbox_capability_about_tabs_activate": {
+		"message": "Bring a tab of the browser to the front (select it and focus its window) — from the floating window only its own tab."
+	},
+	"core_sandbox_capability_about_strazci_internetu_report": {
+		"message": "Open the Strážci internetu form for an anonymous report of a page and write its address into it (you send the form yourself)."
+	},
+	"core_sandbox_capability_bad_tab": {
+		"message": "tabs.activate: “$1” is not a tab that can be selected."
+	},
+	"core_sandbox_capability_about_clipboard_write_text": {
+		"message": "Write text into the clipboard (it replaces what is there)."
+	},
+	"core_sandbox_capability_about_downloads_download": {
+		"message": "Save a file the module creates (text or bytes, up to $1) to the downloads."
+	},
+	"core_sandbox_capability_bad_url": {
+		"message": "tabs.create: only web addresses (http, https) can be opened, not “$1”."
+	},
+	"core_sandbox_capability_bad_text": {
+		"message": "clipboard.writeText: expects text."
+	},
+	"core_sandbox_capability_bad_content": {
+		"message": "downloads.download: the content must be text or bytes (Uint8Array, ArrayBuffer)."
+	},
+	"core_sandbox_capability_bad_file_name": {
+		"message": "downloads.download: “$1” is not a file name — no folders, no characters Windows does not allow in file names, not starting with a dot."
+	},
+	"core_sandbox_capability_bad_type": {
+		"message": "downloads.download: “$1” is not a content type (type/subtype)."
+	},
+	"core_sandbox_capability_too_large": {
+		"message": "The content is too large ($1, at most $2)."
+	},
+	"core_sandbox_capability_bad_marks": {
+		"message": "imageInfo.markImages: expects a list of images { url, name, marks: [{ icon, label, detail }] } within the limits — wrong: $1."
+	},
+	"core_sandbox_capability_unavailable": {
+		"message": "“$1” is not available on this page."
+	},
+	"core_sandbox_capabilities_differ": {
+		"message": "The module declares different functions outside the sandbox (capabilities) in different languages — the list must be the same."
+	},
+	"core_sandbox_capability_declared_base": {
+		"message": "“$1” is part of the basic api of uploaded modules — it does not need to be declared."
+	},
+	"core_sandbox_capability_declared_forbidden": {
+		"message": "“$1” cannot be allowed to an uploaded module, the module has to do without it: $2"
+	},
+	"core_sandbox_capability_declared_unknown": {
+		"message": "The core does not offer “$1” to uploaded modules — its requests will be refused (and recorded)."
+	},
+	"core_sandbox_capability_click_only": {
+		"message": "“$1” runs only from a button the core draws for the module (api.buttons) — the browser allows it only directly in the handler of a click."
+	},
+	"core_sandbox_capability_listener": {
+		"message": "“$1” is a listener — the module subscribes to it with capabilities.listen()."
+	},
+	"core_sandbox_capability_not_listener": {
+		"message": "“$1” is not a listener — the module asks for it with capabilities.call()."
+	},
+	"core_sandbox_capability_no_tab": {
+		"message": "The tab the page relates to cannot be found."
+	},
+	"core_sandbox_capability_about_floating_window_toggle": {
+		"message": "Open and close the extension's floating window on the current tab — only when you click the module's button. On first use the browser asks you for access to web pages."
+	},
+	"core_sandbox_capability_about_sidebar_toggle": {
+		"message": "Open and close the extension's sidebar — only when you click the module's button."
+	},
+	"core_sandbox_capability_about_popup_open": {
+		"message": "Open the extension's popup — only when you click the module's button."
+	},
+	"core_sandbox_capability_about_popup_close": {
+		"message": "Close the popup the module is shown in."
+	},
+	"core_sandbox_capability_about_addons_open": {
+		"message": "Open this extension in the browser's add-on management — where the browser does not allow it, the module gets only its address."
+	},
+	"core_sandbox_capability_about_options_open": {
+		"message": "Open the extension's Settings page (an open one comes to the front)."
+	},
+	"core_sandbox_capability_about_storage_usage_get": {
+		"message": "Find out how much the extension's own storages take up — only the number of items and the sizes (localStorage, the IndexedDB database of records, navigator.storage.estimate(), chrome.storage.local), never their content."
+	},
+	"core_sandbox_capability_about_storage_usage_on_change": {
+		"message": "Learn that one of the extension's storages changed — which one (localStorage, the IndexedDB records, chrome.storage.local), never what changed."
+	},
+	"core_sandbox_capability_about_build_settings_get": {
+		"message": "Read the build settings of the modules for their standalone extensions (modules/<module>/standalone.json — they are only in an extension run unpacked from the project folder) and whether the extension runs that way."
+	},
+	"core_sandbox_capability_about_floating_window_get_all_states": {
+		"message": "Read the stored positions, sizes and state of the extension's floating window for all domains — that is, the list of the domains it was used on."
+	},
+	"core_sandbox_capability_about_floating_window_update_states": {
+		"message": "Change or delete the stored position, size and state of the floating window for single domains — the floating window then opens there accordingly. Every change is checked."
+	},
+	"core_sandbox_capability_about_floating_window_on_change": {
+		"message": "Get the stored positions, sizes and state of the floating window again after every change (e.g. when you move it on another tab)."
+	},
+	"core_sandbox_capability_about_pwa_info_list_records": {
+		"message": "Read the websites with an installable web app (PWA) the PWA Info module recorded while you browsed — their addresses, manifests and icons, the pages they appeared on, and when and how many times you visited them."
+	},
+	"core_sandbox_capability_about_pwa_info_get_status": {
+		"message": "Find out whether the PWA Info module records new websites — whether it is in the module list, turned on and has recording turned on in its settings."
+	},
+	"core_sandbox_capability_about_pwa_info_on_change": {
+		"message": "Be told right away when the PWA Info module records or completes a website (on any tab — that is, when you visit a website with an app) or when its settings change."
+	},
+	"core_sandbox_capability_about_domain_info_get_page": {
+		"message": "Read the domains of the page in the current tab as the Domain Info module knows them — which of them the page used and how, the data it loaded about them from RDAP servers (holders and contacts with names, addresses, e-mails and phones, registrars, dates, name servers) with its history, and the paused servers; only the domains of that page."
+	},
+	"core_sandbox_capability_about_domain_info_collect": {
+		"message": "Have the Domain Info module load the domains of the page in the current tab from RDAP servers right now (the “Load data from RDAP” button) — it sends the domain names to the RDAP servers set in its settings, within their limits."
+	},
+	"core_sandbox_capability_about_domain_info_resume_server": {
+		"message": "End the pause of an RDAP server from the settings of the Domain Info module that did not respond, so that it is asked again right away (the “Retry now” button)."
+	},
+	"core_sandbox_capability_about_domain_info_set_data_saver": {
+		"message": "Turn saving data of the Domain Info module on or off (the same setting as in Settings) — while on, it makes no request to the RDAP servers by itself and loads only when you ask (the “Load data from RDAP” button)."
+	},
+	"core_sandbox_capability_about_domain_info_on_change": {
+		"message": "Be told right away when the Domain Info module stores data about a domain of the page shown (on any tab), when the page in the current tab uses another domain or another tab is switched to, or when its settings change."
+	},
+	"core_sandbox_capability_about_domain_info_list_records": {
+		"message": "Read everything the Domain Info module recorded — the data it loaded from RDAP servers about all domains (holders and contacts with names, addresses, e-mails and phones, registrars, dates, name servers) with their history, the pages the domains were found on, the stored copies of contacts and the failed loads; not only the domains of one page."
+	},
+	"core_sandbox_capability_about_image_info_get_page": {
+		"message": "Read the images of the page in the current tab as the Image Info module lists them — their addresses, where and how the page uses them, how they loaded, their HTTP response headers and the metadata of their files (cameras, dates, GPS positions, authors, descriptions); only the images of that page."
+	},
+	"core_sandbox_capability_about_image_info_fetch_image": {
+		"message": "Download an image of the page in the current tab once more (the “Load information” button) and read its HTTP response headers and the metadata of its file — when the page loaded it before the recording or the browser does not keep its file; only the images the listing of that page shows. The image is transferred from its server again."
+	},
+	"core_sandbox_capability_about_image_info_read_image": {
+		"message": "Read the file of an image of the page in the current tab to show its thumbnail in the listing — from what the browser already has (its cache, a data: or blob: address), or with the button \"Show\" downloaded from its server once more (its HTTP headers and metadata are kept too); only the images the listing of that page shows."
+	},
+	"core_sandbox_capability_about_image_info_save_image": {
+		"message": "Save an image of the page in the current tab as a download (the button \"Save image\" / \"Download\") — from what the browser already has (its cache, a data: or blob: address), otherwise downloaded from its server once more; only the images the listing of that page shows."
+	},
+	"core_sandbox_capability_about_image_info_remove_image": {
+		"message": "Remove an image of the page in the current tab from that page (the button “Remove from the document”): its elements go away, an image from CSS is turned off — the page stays so until it is reloaded; only the images the listing of that page shows."
+	},
+	"core_sandbox_capability_about_image_info_block_image": {
+		"message": "Block an image of the listing permanently (the button “Block the image permanently”): its address goes into the rule “Image info sandbox - blocked images” of the Declarative Net Request module — the browser then does not load it on any page until the address is removed from the rule in Settings; only the images the listing of the page shows."
+	},
+	"core_sandbox_capability_about_image_info_mark_images": {
+		"message": "Show marks over the images of the page in the current tab, on that page itself (the columns “Show on the page” and “Show on the page over larger images” of the notices): a badge with icons over an image and short texts under the mouse pointer with the name of the module — only the images the listing of that page shows, and only while the listing is open."
+	},
+	"core_sandbox_capability_about_image_info_on_change": {
+		"message": "Be told right away when the page in the current tab loads more images, or when the settings of the Image Info module, the module list or the permissions change."
+	},
+	"core_sandbox_capability_about_image_info_on_view": {
+		"message": "Know which images of the page in the current tab are visible right now and which one is under the mouse pointer (or was tapped) — the Image Info module follows the scrolling and the pointer on that page while the listing is open."
+	},
+	"core_sandbox_capability_about_studies_manager_list_records": {
+		"message": "Read the scientific studies the Studies Manager module recorded on the pages you browsed — their identifiers (DOI, PubMed, arXiv), titles, authors, journals, abstracts and other metadata, and the pages they appeared on (their addresses and titles — a part of your browsing history), with when and how many times."
+	},
+	"core_sandbox_capability_about_studies_manager_get_status": {
+		"message": "Find out whether the Studies Manager module records new studies — whether it is in the module list, turned on and has recording turned on in its settings."
+	},
+	"core_sandbox_capability_about_studies_manager_on_change": {
+		"message": "Be told right away when the Studies Manager module records or completes studies (on any tab — that is, when you visit a page with a study) or when its settings change."
+	},
+	"core_sandbox_capability_about_studies_manager_enrich": {
+		"message": "Have the Studies Manager module load the metadata of the chosen studies from doi.org right now — their DOIs are sent to doi.org and to the registry of each DOI (Crossref, DataCite, …)."
+	},
+	"core_sandbox_capability_about_studies_manager_remove_records": {
+		"message": "Remove studies recorded by the Studies Manager module — they disappear from the list until you come across them again."
+	},
+	"core_sandbox_capability_about_contacts_module_list_records": {
+		"message": "Read the contacts the Contacts Module module recorded on the pages you browsed — the names, e-mails, phones, addresses and other details of people and organizations, and the pages they appeared on (their addresses and titles — a part of the browsing history), when and how many times."
+	},
+	"core_sandbox_capability_about_contacts_module_get_status": {
+		"message": "Find out whether the Contacts Module module records new contacts — whether it is in the module list, turned on and has recording turned on in its settings."
+	},
+	"core_sandbox_capability_about_contacts_module_on_change": {
+		"message": "Be told right away when the Contacts Module module records contacts (on any tab — that is, when you visit a page with a business card) or when its settings change."
+	},
+	"core_sandbox_capability_about_contacts_module_remove_records": {
+		"message": "Remove contacts recorded by the Contacts Module module — they disappear from the list until you come across them again."
+	},
+	"core_sandbox_capability_about_contacts_module_edit_record": {
+		"message": "Change the details of contacts recorded by the Contacts Module module (name, e-mails, phones, web addresses, …) and their tags — your changes are shown instead of the details found on the pages."
+	},
+	"core_sandbox_capability_about_contacts_module_load_orcid": {
+		"message": "Load the public record of an ORCID iD of a contact recorded by the Contacts Module module (pub.orcid.org learns which iD is asked about) and add its details (name, other names, biography, web addresses, e-mails, employment, …) to the contact."
+	},
+	"core_sandbox_capability_about_contacts_module_load_gravatar": {
+		"message": "Load the whole public Gravatar profile of a contact recorded by the Contacts Module module (gravatar.com learns which profile is asked about) and add its details (name, bio, web addresses, e-mails, phones, job, verified accounts, …) to the contact."
+	},
+	"core_sandbox_capability_about_contacts_module_load_mastodon": {
+		"message": "Load the whole account of a profile on the fediverse (Mastodon) of a contact recorded by the Contacts Module module from its instance (the server of the address learns which account is asked about) and add its details (name, bio, picture, web addresses and e-mails of the fields, verified links, …) to the contact."
+	},
+	"core_sandbox_capability_about_contacts_module_load_keyoxide": {
+		"message": "Load a Keyoxide profile of a contact recorded by the Contacts Module module from keyoxide.org (it learns which profile is asked about, fetches its key and verifies its claims) and add its details (name, description, picture, e-mails, key, verified accounts and domains) to the contact."
+	},
+	"core_sandbox_capability_about_contacts_module_merge_records": {
+		"message": "Merge two contacts recorded by the Contacts Module module into one — the older contact gets the pages, the details and the linked accounts of the newer one (where they differ, the values you choose) and the newer one is removed."
+	},
+	"core_sandbox_capability_about_contacts_module_import_contacts": {
+		"message": "Import contacts into the Contacts Module module — the contacts of a file you choose in the manager (a vCard or the CSV of its export) are joined with the recorded contacts or stored as new ones."
+	},
+	"core_sandbox_capability_about_contacts_module_set_data_saver": {
+		"message": "Turn saving data of the Contacts Module module on or off (the same setting as in Settings) — while on, it takes the contacts only from the open pages and downloads nothing more itself."
+	},
+	"core_sandbox_capability_about_service_worker_control_get_overview": {
+		"message": "lists the service workers Service Worker Control finds — the websites with a service worker in open tabs (with the “debugger” permission also all running ones) and those seen earlier, with the titles of their pages and their icons"
+	},
+	"core_sandbox_capability_about_service_worker_control_stop_worker": {
+		"message": "stops a running service worker of the overview (Chrome briefly attaches the debugger to it)"
+	},
+	"core_sandbox_capability_about_service_worker_control_start_worker": {
+		"message": "starts a stopped service worker of the overview through an open page of its website"
+	},
+	"core_sandbox_capability_about_service_worker_control_unregister": {
+		"message": "unregisters service workers of the overview — the websites register them again on the next visit unless their domain is blocked"
+	},
+	"core_sandbox_capability_about_service_worker_control_block_domain": {
+		"message": "blocks the domain of a website of the overview — it is added to the list of Service Worker Control in Settings, its pages then have no Service Worker API and its service workers are unregistered"
+	},
+	"core_sandbox_capability_about_service_worker_control_forget_site": {
+		"message": "forgets a remembered website of the overview — its record of Service Worker Control is removed"
+	},
+	"core_sandbox_capability_about_service_worker_control_on_change": {
+		"message": "learns when a service worker of the overview stops or starts, when the records of the websites change (an icon was downloaded) and when the settings or permissions of Service Worker Control change"
+	},
+	"core_sandbox_capability_about_tab_groups_get_overview": {
+		"message": "lists the automatic tab groups Tab Groups manages in the current window — their names, colors and numbers of tabs, how many groups of your own and unsorted tabs there are — how tabs are sorted and which permissions of Tab Groups are missing (not the addresses or titles of the tabs)"
+	},
+	"core_sandbox_capability_about_tab_groups_regroup": {
+		"message": "has Tab Groups sort the tabs of all windows into its groups right now"
+	},
+	"core_sandbox_capability_about_tab_groups_identify": {
+		"message": "makes the groups Tab Groups manages briefly blink in all windows"
+	},
+	"core_sandbox_capability_about_tab_groups_get_settings": {
+		"message": "reads the settings of Tab Groups — how tabs are sorted, the names and colors of the groups, the groups from bookmarks with the names of the bookmark folders (with the permission to bookmarks)"
+	},
+	"core_sandbox_capability_about_tab_groups_set_settings": {
+		"message": "changes the settings of Tab Groups (Tab Groups checks every value the same way as in Settings)"
+	},
+	"core_sandbox_capability_about_tab_groups_open_permissions": {
+		"message": "opens the page where Tab Groups asks for its permissions"
+	},
+	"core_sandbox_capability_about_tab_groups_on_change": {
+		"message": "learns when a tab group or a tab of the window changes and when the settings or permissions of Tab Groups change"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_status": {
+		"message": "reads which rules of Declarative Net Request target the page of the active tab and what they do (headers, GET parameters, blocking), which of them are suspended and how the rules turned out in the browser"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_rules": {
+		"message": "reads all rules of Declarative Net Request — the domains, addresses and bookmark folders they target, the headers and parameters they set — with the names of the bookmark folders (with the permission to bookmarks), the granted permissions and the suspended rules"
+	},
+	"core_sandbox_capability_about_declarative_net_request_set_rules": {
+		"message": "replaces the rules of Declarative Net Request (it checks every rule the same way as in Settings) — the browser then changes the headers and GET parameters of requests and blocks requests by them on all pages"
+	},
+	"core_sandbox_capability_about_declarative_net_request_suspend_rule": {
+		"message": "suspends a rule of Declarative Net Request for an hour — the browser does not apply it until then"
+	},
+	"core_sandbox_capability_about_declarative_net_request_restore_rule": {
+		"message": "ends the suspension of a rule of Declarative Net Request — the browser applies it again"
+	},
+	"core_sandbox_capability_about_declarative_net_request_reload_tab": {
+		"message": "reloads the page of the active tab of the window, so that the rules of Declarative Net Request apply to all its requests"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_log": {
+		"message": "reads the own event log of Declarative Net Request — the requests its rules with the event log were applied to on all pages: the addresses of the requests and of the pages they came from, the tabs and the times"
+	},
+	"core_sandbox_capability_about_declarative_net_request_clear_log": {
+		"message": "deletes an entry of the own event log of Declarative Net Request, or the whole log"
+	},
+	"core_sandbox_capability_about_declarative_net_request_on_change": {
+		"message": "learns when the rules or the settings of Declarative Net Request change, when a rule is suspended or restored, when its event log changes, when the module list or the permissions change and when the bookmarks change"
+	},
+	"core_sandbox_capability_about_content_filters_set": {
+		"message": "Inject uBlock Origin scriptlets and hide elements on the pages of the hosts the module names (only those it asks the access to) by the rules of the filter lists it names — the extension downloads the lists from those addresses (https) and keeps them up to date, also when the module is not shown. The module brings no code for the pages, but the “trusted-…” scriptlets of a list it marks as trusted can change any text or code of those pages. It can also mark the tab icon of the pages the rules run in."
+	},
+	"core_sandbox_capability_about_content_filters_get_status": {
+		"message": "Read the state of its content filters — how they are injected into pages (or why not), the filter lists with the date of the download and the number of rules, what was built of them."
+	},
+	"core_sandbox_capability_about_content_filters_update": {
+		"message": "Have the filter lists of its content filters downloaded again right now (otherwise they are downloaded after they expire)."
+	},
+	"core_sandbox_capability_about_content_filters_on_change": {
+		"message": "Be told right away when its content filters change (a list downloaded, the rules built again, another way of injecting) or when its settings change."
+	},
+	"core_sandbox_capability_about_network_filters_set": {
+		"message": "Block requests on all pages by the network rules of the filter lists the module names — the extension downloads the lists from those addresses (https) and keeps them up to date, also when the module is not shown, and converts them into declarativeNetRequest blocking rules itself. The module gives no rules, only the lists, so it cannot redirect or change a request — but a list can block any page or anything it loads. Only for a module that declares the permissions to block requests on all pages."
+	},
+	"core_sandbox_capability_about_network_filters_get_status": {
+		"message": "Read the state of its network filters — how many of its rules apply in the browser (or why none), the filter lists with the date of the download and the number of rules, what could not be converted, the domains on which nothing is blocked."
+	},
+	"core_sandbox_capability_about_network_filters_update": {
+		"message": "Have the filter lists of its network filters downloaded again right now (otherwise they are downloaded after they expire)."
+	},
+	"core_sandbox_capability_about_network_filters_on_change": {
+		"message": "Be told right away when its network filters change (a list downloaded, the rules converted again) or when its settings change."
+	},
+	"core_sandbox_capability_about_scheduled_urls_get_overview": {
+		"message": "lists your devices with this extension (their names, browsers and systems, when they were last in use) and the addresses scheduled for them, including the history of the opened ones — the browser carries them between the devices of your account (Chrome sync, Firefox Sync)"
+	},
+	"core_sandbox_capability_about_scheduled_urls_add": {
+		"message": "schedules an address for your devices — the extension opens it on each of them at the given time in a new tab in the background, also while the module is not shown"
+	},
+	"core_sandbox_capability_about_scheduled_urls_remove": {
+		"message": "removes scheduled addresses"
+	},
+	"core_sandbox_capability_about_scheduled_urls_rename_device": {
+		"message": "renames one of your devices in the list"
+	},
+	"core_sandbox_capability_about_scheduled_urls_forget_device": {
+		"message": "forgets another of your devices and the addresses scheduled for it"
+	},
+	"core_sandbox_capability_about_scheduled_urls_check": {
+		"message": "has the extension open the addresses of this device whose time has come right now"
+	},
+	"core_sandbox_capability_about_scheduled_urls_pair_vs_code": {
+		"message": "pairs the module with VS Code on this computer (the plugin of this extension for VS Code) — the extension then copies your devices and scheduled addresses between the browser and VS Code, whose Settings Sync carries them to your other VS Code instances; it reaches the plugin only at the address 127.0.0.1"
+	},
+	"core_sandbox_capability_about_scheduled_urls_unpair_vs_code": {
+		"message": "cancels the pairing with VS Code on this computer"
+	},
+	"core_sandbox_capability_about_scheduled_urls_on_change": {
+		"message": "learns when the devices or the scheduled addresses change, also on another device"
+	},
+	"core_sandbox_capability_about_dns_overview_get_page": {
+		"message": "Read the hosts the page in the current tab contacted, as the extension follows its requests — the addresses of the servers, the responses from the HTTP cache, the names that were not resolved, in Firefox also what the browser's DNS cache holds for them and whether the connections used encrypted DNS — with the answers of the DNS queries loaded for them; only the hosts of that page. Denying it stops the following of the pages."
+	},
+	"core_sandbox_capability_about_dns_overview_load": {
+		"message": "Have the extension ask the DNS about hosts of the page in the current tab right now (the button “🔄”) — past the browser's cache, and over the system resolver too when the browser uses DNS over HTTPS (Firefox); only the hosts the page contacted. Denying it also stops the automatic loading with the probability set at the module."
+	},
+	"core_sandbox_capability_about_dns_overview_on_change": {
+		"message": "Learn right away when the page in the current tab contacts another host or new DNS data of its hosts come, and when what the extension can do changes (settings, permissions)."
+	},
+	"core_sandbox_domain_info_inactive": {
+		"message": "domainInfo.collect: the Domain Info module is not in the module list or is turned off — it loads nothing."
+	},
+	"core_sandbox_domain_info_bad_server": {
+		"message": "domainInfo.resumeServer: “$1” is not an RDAP server from the settings of the Domain Info module."
+	},
+	"core_sandbox_domain_info_invalid_data_saver": {
+		"message": "Invalid saving data (domainInfo.setDataSaver): true or false."
+	},
+	"core_content_filters_invalid": {
+		"message": "Invalid configuration of the content filters (contentFilters.set): $1"
+	},
+	"core_content_filters_host_undeclared": {
+		"message": "contentFilters.set: the module does not declare the access to “$1” in usesPermissions — the content filters work only on pages the module asks the access to."
+	},
+	"core_content_filters_no_background": {
+		"message": "The background part of the extension did not answer — the content filters cannot be used right now."
+	},
+	"core_network_filters_invalid": {
+		"message": "Invalid configuration of the network filters (networkFilters.set): $1"
+	},
+	"core_network_filters_permissions_undeclared": {
+		"message": "networkFilters.set: the module does not declare the permissions to block requests on all pages (declarativeNetRequestWithHostAccess and <all_urls>) in usesPermissions — the network filters block on all pages."
+	},
+	"core_network_filters_no_background": {
+		"message": "The background part of the extension did not answer — the network filters cannot be used right now."
+	},
+	"core_scheduled_urls_no_background": {
+		"message": "The background part of the extension did not answer — the scheduled addresses cannot be checked."
+	},
+	"core_sandbox_dns_overview_invalid_hosts": {
+		"message": "dnsOverview.load: { hosts } — 1 to $1 host names."
+	},
+	"core_sandbox_buttons_invalid": {
+		"message": "Invalid buttons of the module (api.buttons.set()): $1"
+	},
+	"core_sandbox_buttons_too_many": {
+		"message": "The module asks for $1 buttons — at most $2."
+	},
+	"core_sandbox_ui_invalid": {
+		"message": "Invalid content of the module (api.ui.render()): $1"
+	},
+	"core_sandbox_ui_too_large": {
+		"message": "The content of the module (api.ui.render()) is too large — at most $1 nodes, $2 levels of nesting and $3 characters of text."
+	},
+	"core_sandbox_floating_window_invalid": {
+		"message": "Invalid change of the stored floating window states (floatingWindow.updateStates): $1"
+	},
+	"core_sandbox_floating_window_too_many": {
+		"message": "The module changes $1 stored floating window states at once — at most $2."
+	},
+	"core_sandbox_studies_manager_invalid_dois": {
+		"message": "Invalid request for the metadata of studies (studiesManager.enrich): at most $1 DOIs in the form 10.xxxx/…"
+	},
+	"core_sandbox_studies_manager_invalid_ids": {
+		"message": "Invalid removal of studies (studiesManager.removeRecords): at most $1 record ids (positive integers)."
+	},
+	"core_sandbox_contacts_module_invalid_ids": {
+		"message": "Invalid removal of contacts (contactsModule.removeRecords): at most $1 record ids (positive integers)."
+	},
+	"core_sandbox_contacts_module_invalid_edit": {
+		"message": "Invalid change of a contact (contactsModule.editRecord): { id, key, edits, tags } — the id and the key of a record, edits an object or null, tags a list of texts (at least one of the two)."
+	},
+	"core_sandbox_contacts_module_invalid_orcid": {
+		"message": "Invalid request for an ORCID iD (contactsModule.loadOrcid): { id, key, orcid } — the id and the key of a record, orcid the address https://orcid.org/<iD>."
+	},
+	"core_sandbox_contacts_module_invalid_gravatar": {
+		"message": "Invalid request for a Gravatar profile (contactsModule.loadGravatar): { id, key, url } — the id and the key of a record, url the address https://gravatar.com/<name>."
+	},
+	"core_sandbox_contacts_module_invalid_mastodon": {
+		"message": "Invalid request for an account on the fediverse (contactsModule.loadMastodon): { id, key, url } — the id and the key of a record, url the address https://<instance>/@<account>."
+	},
+	"core_sandbox_contacts_module_invalid_keyoxide": {
+		"message": "Invalid request for a Keyoxide profile (contactsModule.loadKeyoxide): { id, key, url } — the id and the key of a record, url the address https://keyoxide.org/<fingerprint, e-mail or aspe:…>."
+	},
+	"core_sandbox_contacts_module_invalid_merge": {
+		"message": "Invalid merge of contacts (contactsModule.mergeRecords): { id, key, otherId, otherKey, choices } — the ids and the keys of two different records, choices an object whose values are the id of one of them or “both”."
+	},
+	"core_sandbox_contacts_module_invalid_import": {
+		"message": "Invalid import of contacts (contactsModule.importContacts): an array of 1 to $1 contacts (objects), at most $2 MB together."
+	},
+	"core_sandbox_contacts_module_invalid_data_saver": {
+		"message": "Invalid saving data (contactsModule.setDataSaver): true or false."
+	},
+	"core_sandbox_service_worker_control_invalid": {
+		"message": "Invalid “$1” — a text naming an item of the overview is expected."
+	},
+	"core_sandbox_result_not_cloneable": {
+		"message": "The result of api.$1 cannot be passed to the sandbox."
+	},
+	"core_sandbox_missing": {
+		"message": "The uploaded module “$1” is not stored — upload it again in Settings."
+	},
+	"core_sandbox_left_page": {
+		"message": "The sandbox page was navigated elsewhere — the module was stopped."
+	},
+	"core_sandbox_module_failed": {
+		"message": "The uploaded module $1 cannot run:"
+	},
+	"core_sandbox_problem_not_sandboxed": {
+		"message": "The sandbox page is not isolated (it does not have an opaque origin) — the module code was not run."
+	},
+	"core_sandbox_problem_eval_blocked": {
+		"message": "The browser does not allow running code in the sandbox page — uploaded modules need sandboxed extension pages (Chrome, Firefox 154 or newer)."
+	},
+	"core_sandbox_problem_evaluation": {
+		"message": "Error while evaluating the module: $1"
+	},
+	"core_sandbox_problem_no_registration": {
+		"message": "The module did not call registerModule() while it was evaluated."
+	},
+	"core_sandbox_problem_multiple_registrations": {
+		"message": "The module called registerModule() more than once."
+	},
+	"core_sandbox_problem_not_object": {
+		"message": "registerModule() did not get an object."
+	},
+	"core_sandbox_problem_name_mismatch": {
+		"message": "registerModule({ name: \"$1\" }) — the name must be the same as the file name: \"$2\"."
+	},
+	"core_sandbox_problem_tag_mismatch": {
+		"message": "registerModule({ tag: \"$1\" }) — the tag must be getTagName(name): \"$2\"."
+	},
+	"core_sandbox_problem_not_defined": {
+		"message": "The element <$1> is not defined with customElements.define() before registerModule()."
+	},
+	"core_sandbox_problem_not_base_element": {
+		"message": "The class of the element <$1> does not inherit from BaseElement of the sandbox SDK."
+	},
+	"core_sandbox_problem_unsupported": {
+		"message": "registerModule({ $1 }) is not available to uploaded modules (it would be code outside the sandbox)."
+	},
+	"core_sandbox_problem_custom_field": {
+		"message": "The settings field “$1” has the type “custom” — uploaded modules have text, textarea, number, checkbox and select fields only."
+	},
+	"core_sandbox_problem_not_data": {
+		"message": "registerModule({ $1 }) must contain data only (JSON) — no functions or class objects."
+	},
+	"core_sandbox_problem_bad_spec": {
+		"message": "activationSpec must be built from the specifications of sandboxSdk (ModeSpecification, WEB_PAGE_SPEC, …) with valid values."
+	},
+	"core_sandbox_problem_bad_style": {
+		"message": "registerModule({ styles }) — “$1” is not a CSS file of the module package."
+	},
+	"core_sandbox_problem_init_failed": {
+		"message": "init() of the module failed: $1"
+	},
+	"core_sandbox_problem_unknown": {
+		"message": "The sandbox reported an unknown problem."
+	},
+	"options_modules_output": {
+		"message": "Module output"
+	},
+	"options_section_empty": {
+		"message": "No module outputs anything here"
 	},
 	"options_modules_list_json": {
 		"message": "Module list (JSON)"
@@ -110,8 +764,17 @@
 	"options_reset_list": {
 		"message": "Restore default list"
 	},
+	"options_modules_json_hint_disable": {
+		"message": "The easier way to turn a module off is “Advanced module settings” → “Module activation mode” → “Never start (module inactive)”. The module stays in its place in the list and you turn it back on with a single switch."
+	},
+	"options_modules_json_hint_performance": {
+		"message": "Removing it from the list saves more performance, though: the content script of a turned-off module is still inserted into every page (and only there finds out it has nothing to do), and the side panel, the floating window and Settings still load its file. A module that is not in the list is not loaded at all. The difference shows mainly with modules that work in pages."
+	},
 	"options_modules_settings": {
 		"message": "Advanced settings"
+	},
+	"options_filter_label": {
+		"message": "Filter by name"
 	},
 	"options_save_settings": {
 		"message": "Save settings"
@@ -119,17 +782,56 @@
 	"options_reset_defaults": {
 		"message": "Restore defaults"
 	},
+	"options_reset_defaults_confirm": {
+		"message": "Click again to confirm"
+	},
+	"options_unsaved_changes": {
+		"message": "Do not forget to save the changes you made"
+	},
 	"options_custom_module_settings": {
-		"message": "tabGroups settings"
+		"message": "Main settings"
+	},
+	"options_save_module_settings": {
+		"message": "Save module settings"
 	},
 	"options_recommended_suffix": {
 		"message": " (recommended by the module)"
 	},
 	"options_hint_not_displayed": {
-		"message": "Automatically sorts tabs into groups by time (day). You can select colors of tabs, rename them, resort, identify, minimal privileges, dynamically assigned based on the functions you need and those you don't."
+		"message": "Nothing is ticked, so the module is not shown anywhere. Depending on its activation mode it may still work in the background."
 	},
 	"options_hint_disabled": {
 		"message": "The module is turned off (activation mode “Never start”), so it is not shown anywhere."
+	},
+	"options_sidebar_disabled": {
+		"message": "Do not use the side panel"
+	},
+	"options_sidebar_disabled_hint_firefox": {
+		"message": "Modules are not shown in the side panel, which shows only a notice instead (an open panel closes). Firefox does not let an extension hide its icon in the sidebar launcher, so remove it yourself: right-click the icon and choose to remove it from the sidebar (Firefox 143 and newer). You can bring it back when customizing the sidebar. The ticked “In the side panel” locations of modules stay stored for when you turn the panel on again."
+	},
+	"options_sidebar_disabled_hint_chrome": {
+		"message": "Modules are not shown in the side panel, and the extension's panel disappears from the browser's side panel menu. The ticked “In the side panel” locations of modules stay stored for when you turn the panel on again."
+	},
+	"options_sidebar_disabled_saved": {
+		"message": "The side panel is turned off."
+	},
+	"options_sidebar_enabled_saved": {
+		"message": "The side panel is turned on."
+	},
+	"options_location_sidebar_off": {
+		"message": "The side panel is turned off (“Do not use the side panel” at the top of the page)."
+	},
+	"options_hint_sidebar_only": {
+		"message": "Only the side panel is ticked and it is turned off, so the module is not shown anywhere. Depending on its activation mode it may still work in the background."
+	},
+	"options_details_scope_visit": {
+		"message": "about a page visit"
+	},
+	"options_details_scope_domain": {
+		"message": "about a domain"
+	},
+	"options_details_scope_browser": {
+		"message": "about the browser"
 	},
 	"options_error": {
 		"message": "Error: $1"
@@ -179,6 +881,15 @@
 	"options_dependency_dependents": {
 		"message": "Depended on by"
 	},
+	"options_details_consumes": {
+		"message": "Takes data $1 from modules"
+	},
+	"options_details_no_provider": {
+		"message": "no module in the list offers it yet"
+	},
+	"options_details_provides": {
+		"message": "Provides data $1 to modules"
+	},
 	"options_optional_permission": {
 		"message": "Optional permission"
 	},
@@ -221,11 +932,20 @@
 	"options_display_locations": {
 		"message": "Show module output (you can tick several places):"
 	},
+	"options_display_locations_alone": {
+		"message": "Show module output while it works on its own (you can tick several places):"
+	},
+	"options_display_locations_delegated": {
+		"message": "Show module output when $1 shows it too (you can tick several places):"
+	},
 	"options_order_saved": {
 		"message": "Module order saved."
 	},
 	"options_no_module_settings": {
 		"message": "No module currently offers its own settings."
+	},
+	"options_setting_shared": {
+		"message": "Shared setting — $1 has the same value; a change applies to all of them."
 	},
 	"options_custom_field_invalid": {
 		"message": "render() must return an element with a getValue() method"
@@ -233,11 +953,38 @@
 	"options_custom_field_failed": {
 		"message": "The field cannot be shown: $1"
 	},
+	"options_setting_notifications_unsupported": {
+		"message": "The browser does not support notifications — the module will not send them."
+	},
+	"options_setting_notifications_granted": {
+		"message": "Notifications are allowed — the module sends them silently."
+	},
+	"options_setting_notifications_blocked": {
+		"message": "The browser blocks the extension's notifications — the module will not send them until you allow them in the browser settings (notification permission)."
+	},
+	"options_setting_notifications_ask": {
+		"message": "The notifications of the module must be allowed by the browser."
+	},
+	"options_setting_notifications_button": {
+		"message": "Allow notifications"
+	},
+	"options_setting_notifications_button_title": {
+		"message": "Notification permission (notifications) — notifications are silent"
+	},
 	"options_module_settings_saved": {
 		"message": "Module settings saved."
 	},
 	"options_module_settings_reset": {
 		"message": "Module settings restored to defaults."
+	},
+	"options_reset_module_settings_and_data": {
+		"message": "Reset to defaults (including data deletion)"
+	},
+	"options_reset_module_confirm": {
+		"message": "Are you sure? Click again to confirm"
+	},
+	"options_module_reset_confirmed": {
+		"message": "Module reset and data deleted."
 	},
 	"options_settings_saved": {
 		"message": "Settings saved."
@@ -245,322 +992,316 @@
 	"options_settings_reset": {
 		"message": "Settings restored to defaults."
 	},
-	"tabGroups_description": {
-		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were opened or — an option in Settings — when they were last used, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
+	"options_sandbox_heading": {
+		"message": "Uploaded modules (sandbox)"
 	},
-	"tabGroups_setting_group_by": {
-		"message": "Sort tabs into groups by"
+	"options_sandbox_hint": {
+		"message": "A module uploaded from a file runs in an isolated page (sandbox) without access to the extension — it asks the extension core for everything else (its settings, stored data, the current tab, …). Otherwise it is a module like the others: in the module list, with an activation mode, output locations and its own settings. Upload one script named after the module (<name>.js, or <name>.mjs as a JS module), or a .zip with the module folder — more JS modules, CSS, images and texts (messages.json). Samples are in sandbox-modules/ in the extension repository."
 	},
-	"tabGroups_setting_group_by_opened": {
-		"message": "when the tab was opened — a tab stays in the group of the day it was opened"
+	"options_sandbox_upload": {
+		"message": "Upload a module (.js, .mjs or .zip)"
 	},
-	"tabGroups_setting_group_by_last_used": {
-		"message": "when the tab was last used — a tab you switch to moves to the \"today\" group"
+	"options_sandbox_checking": {
+		"message": "Checking “$1” in the sandbox…"
 	},
-	"tabGroups_setting_manual_moves": {
-		"message": "Allow dragging tabs between automatic groups — a tab dragged into another day's group (e.g. from \"today\" to \"yesterday\") stays there (when sorting by last use, until you switch to it again)"
+	"options_sandbox_installed": {
+		"message": "Module “$1” was uploaded and added to the end of the module list."
 	},
-	"tabGroups_setting_title_prefix": {
-		"message": "Prefix before the names of all automatic groups (groups from bookmarks too), separated by a space — empty = no prefix"
+	"options_sandbox_uploaded": {
+		"message": "Module “$1” was uploaded."
 	},
-	"tabGroups_setting_title_prefix_placeholder": {
-		"message": "no prefix"
+	"options_sandbox_updated": {
+		"message": "Module “$1” was updated — its settings and data stay. Open pages show the new version after a reload."
 	},
-	"tabGroups_setting_groups": {
-		"message": "Automatic tab groups (name, color and collapsed group for each period)"
+	"options_sandbox_failed": {
+		"message": "The module was not uploaded:"
 	},
-	"tabGroups_setting_bookmark_groups": {
-		"message": "Groups from bookmarks (group name, bookmark folder, whole-domain option, color and collapsed group)"
+	"options_sandbox_warnings": {
+		"message": "Warnings:"
 	},
-	"tabGroups_color_grey": {
-		"message": "grey"
+	"options_sandbox_none": {
+		"message": "No module has been uploaded yet."
 	},
-	"tabGroups_color_blue": {
-		"message": "blue"
+	"options_sandbox_meta": {
+		"message": "$1 · $2 · uploaded $3 · SHA-256 $4…"
 	},
-	"tabGroups_color_red": {
-		"message": "red"
+	"options_sandbox_bundled_meta": {
+		"message": "Part of the extension · $1 files · $2 · installed $3 · SHA-256 $4…"
 	},
-	"tabGroups_color_yellow": {
-		"message": "yellow"
+	"options_sandbox_package": {
+		"message": "$1 ($2 files)"
 	},
-	"tabGroups_color_green": {
-		"message": "green"
+	"options_sandbox_listed": {
+		"message": "In the module list."
 	},
-	"tabGroups_color_pink": {
-		"message": "pink"
+	"options_sandbox_not_listed": {
+		"message": "Not in the module list — it is not loaded anywhere."
 	},
-	"tabGroups_color_purple": {
-		"message": "purple"
+	"options_sandbox_files_missing": {
+		"message": "Its files are not stored (e.g. after restoring a backup of the extension, which contains only the settings) — upload the module again."
 	},
-	"tabGroups_color_cyan": {
-		"message": "cyan"
+	"options_sandbox_add_to_list": {
+		"message": "Add to the module list"
 	},
-	"tabGroups_color_orange": {
-		"message": "orange"
+	"options_sandbox_added": {
+		"message": "Module “$1” was added to the end of the module list."
 	},
-	"tabGroups_bucket_today_title": {
-		"message": "today"
+	"options_sandbox_removed": {
+		"message": "Module “$1” was removed together with its settings (its stored data stay)."
 	},
-	"tabGroups_bucket_today_range": {
-		"message": "today"
+	"options_sandbox_row_note": {
+		"message": "Uploaded module ($1) — it runs in a sandbox, see “Uploaded modules (sandbox)”."
 	},
-	"tabGroups_bucket_yesterday_title": {
-		"message": "yesterday"
+	"options_sandbox_row_note_bundled": {
+		"message": "A module of the extension that runs in a sandbox — the extension installs it itself, see “Uploaded modules (sandbox)”."
 	},
-	"tabGroups_bucket_yesterday_range": {
-		"message": "yesterday"
+	"options_sandbox_capabilities_title": {
+		"message": "Functions outside the sandbox"
 	},
-	"tabGroups_bucket_day_before_yesterday_title": {
-		"message": "2 days ago"
+	"options_sandbox_capability_choice_pending": {
+		"message": "Undecided — refused"
 	},
-	"tabGroups_bucket_day_before_yesterday_range": {
-		"message": "2 days ago"
+	"options_sandbox_capability_choice_default": {
+		"message": "Default — allowed (part of the extension)"
 	},
-	"tabGroups_bucket_this_week_title": {
-		"message": "this week"
+	"options_sandbox_capability_choice_allow": {
+		"message": "Allow"
 	},
-	"tabGroups_bucket_this_week_range": {
-		"message": "earlier this week (since Monday)"
+	"options_sandbox_capability_choice_deny": {
+		"message": "Deny"
 	},
-	"tabGroups_bucket_last_week_title": {
-		"message": "last week"
+	"options_sandbox_capability_select_label": {
+		"message": "Decision about $1"
 	},
-	"tabGroups_bucket_last_week_range": {
-		"message": "last week"
+	"options_sandbox_capability_risk_low": {
+		"message": "low risk"
 	},
-	"tabGroups_bucket_this_month_title": {
-		"message": "this month"
+	"options_sandbox_capability_risk_medium": {
+		"message": "medium risk"
 	},
-	"tabGroups_bucket_this_month_range": {
-		"message": "earlier this month"
+	"options_sandbox_capability_risk_high": {
+		"message": "high risk"
 	},
-	"tabGroups_bucket_last_month_title": {
-		"message": "last month"
+	"options_sandbox_capability_base": {
+		"message": "Part of the basic api — always allowed, it does not need to be declared."
 	},
-	"tabGroups_bucket_last_month_range": {
-		"message": "last month"
+	"options_sandbox_capability_forbidden": {
+		"message": "Cannot be allowed: $1"
 	},
-	"tabGroups_bucket_this_year_title": {
-		"message": "this year"
+	"options_sandbox_capability_unknown": {
+		"message": "The core does not offer this function — its requests are refused."
 	},
-	"tabGroups_bucket_this_year_range": {
-		"message": "earlier this year"
+	"options_sandbox_capability_outcome_allowed": {
+		"message": "run"
 	},
-	"tabGroups_bucket_last_year_title": {
-		"message": "last year"
+	"options_sandbox_capability_outcome_failed": {
+		"message": "failed"
 	},
-	"tabGroups_bucket_last_year_range": {
-		"message": "last year and earlier"
+	"options_sandbox_capability_outcome_denied": {
+		"message": "refused (denied)"
 	},
-	"tabGroups_loading": {
-		"message": "$1: Loading tab groups..."
+	"options_sandbox_capability_outcome_pending": {
+		"message": "refused (undecided)"
 	},
-	"tabGroups_disabled": {
-		"message": "$1: Disabled"
+	"options_sandbox_capability_outcome_undeclared": {
+		"message": "refused (not declared)"
 	},
-	"tabGroups_intro_opened": {
-		"message": "$1: tabs outside your own groups are sorted into groups automatically by when they were opened."
+	"options_sandbox_capability_outcome_forbidden": {
+		"message": "refused (cannot be allowed)"
 	},
-	"tabGroups_intro_last_used": {
-		"message": "$1: tabs outside your own groups are sorted into groups automatically by when they were last used."
+	"options_sandbox_capability_outcome_unknown": {
+		"message": "refused (unknown)"
 	},
-	"tabGroups_intro_opened_bookmarks": {
-		"message": "$1: tabs outside your own groups are sorted into groups automatically by when they were opened, and bookmarked tabs in the chosen folders into groups from bookmarks."
+	"options_sandbox_capability_outcome_user_allowed": {
+		"message": "allowed by the user"
 	},
-	"tabGroups_intro_last_used_bookmarks": {
-		"message": "$1: tabs outside your own groups are sorted into groups automatically by when they were last used, and bookmarked tabs in the chosen folders into groups from bookmarks."
+	"options_sandbox_capability_outcome_user_denied": {
+		"message": "denied by the user"
 	},
-	"tabGroups_unsupported": {
-		"message": "This browser doesn't let extensions manage tab groups (Chrome 89+, Firefox 139+ on desktop)."
+	"options_sandbox_capability_outcome_user_reset": {
+		"message": "decision cleared"
 	},
-	"tabGroups_missing_permission": {
-		"message": "Tab groups permission is missing — nothing is being sorted yet."
+	"options_sandbox_capability_outcome_unavailable": {
+		"message": "refused (not available here)"
 	},
-	"tabGroups_grant_tab_groups": {
-		"message": "Allow tab groups"
+	"options_sandbox_capability_outcome_click_only": {
+		"message": "refused (only from a button)"
 	},
-	"tabGroups_missing_alarms": {
-		"message": "Without the alarms permission, groups move on after midnight only the next time you work with tabs."
+	"options_sandbox_capability_last": {
+		"message": "last $1"
 	},
-	"tabGroups_grant_alarms": {
-		"message": "Move exactly at midnight"
+	"options_sandbox_capabilities_other": {
+		"message": "Requests outside the declaration:"
 	},
-	"tabGroups_missing_bookmarks": {
-		"message": "Groups from bookmarks need access to bookmarks and tab addresses — they aren't used yet."
+	"options_sandbox_capabilities_clear": {
+		"message": "Clear the record"
 	},
-	"tabGroups_grant_bookmarks": {
-		"message": "Allow bookmarks and tab addresses"
+	"options_services_heading": {
+		"message": "Export of this extension's functions"
 	},
-	"tabGroups_regroup_now": {
-		"message": "Regroup now"
+	"options_services_hint": {
+		"message": "This extension can offer its modules to the full AnalyticExtension when it is installed: once you allow it in the Settings of AnalyticExtension, it shows them in its popup, side panel and Settings, but this extension keeps doing the work for them with its own permissions and settings. It is an export from here only — modules of other extensions cannot be added to this extension."
 	},
-	"tabGroups_group_settings": {
-		"message": "Group settings"
+	"options_services_meta": {
+		"message": "$1 · version $2 · offered $3"
 	},
-	"tabGroups_identify": {
-		"message": "Identify managed groups"
+	"options_services_status_pending": {
+		"message": "Waiting for your decision — this extension shows and calls nothing of it. The other one keeps running on its own, though, so the modules it replaces work in both meanwhile."
 	},
-	"tabGroups_identify_title": {
-		"message": "Groups the module manages automatically briefly blink in all windows"
+	"options_services_status_approved": {
+		"message": "Allowed — its modules are shown here."
 	},
-	"tabGroups_overview_elsewhere": {
-		"message": "The window's group overview is in the popup, side panel or Settings."
+	"options_services_status_approved_absent": {
+		"message": "Allowed, but not available right now (uninstalled or turned off) — this extension shows its own modules instead."
 	},
-	"tabGroups_overview_not_sorted": {
-		"message": "Tabs in this window haven't been sorted yet — try \"Regroup now\"."
+	"options_services_status_denied": {
+		"message": "Denied — nothing of it runs."
 	},
-	"tabGroups_overview_no_groups": {
-		"message": "There's no automatic group in this window yet (tabs are in your own groups or pinned)."
+	"options_services_modules": {
+		"message": "Modules: $1"
 	},
-	"tabGroups_chip_opened": {
-		"message": "Tabs opened $1: $2"
+	"options_services_replaces": {
+		"message": "Runs instead of: $1 (once allowed, they leave your module list and do not come back by themselves, not even when the other extension is gone)"
 	},
-	"tabGroups_chip_last_used": {
-		"message": "Tabs last used $1: $2"
+	"options_services_backup": {
+		"message": "Keeps the data of: $1 (Import Export backs them up and restores them right in that extension)"
 	},
-	"tabGroups_chip_bookmarks": {
-		"message": "Tabs $1: $2"
+	"options_services_services_title": {
+		"message": "What it does for its modules (with its own permissions):"
 	},
-	"tabGroups_user_groups": {
-		"message": "Your own groups to the left of them: $1"
+	"options_services_uses_title": {
+		"message": "What it uses of the modules of this extension (with their data):"
 	},
-	"tabGroups_no_response": {
-		"message": "The module's background part didn't respond — try reloading the extension."
+	"options_services_allow": {
+		"message": "Allow"
 	},
-	"tabGroups_regrouped": {
-		"message": "Tabs have been regrouped."
+	"options_services_deny": {
+		"message": "Deny"
 	},
-	"tabGroups_nothing_to_regroup": {
-		"message": "All tabs are already in the right group."
+	"options_services_open": {
+		"message": "Open its Settings"
 	},
-	"tabGroups_identified_one": {
-		"message": "$1 group managed by the module blinked (in all windows)."
+	"options_services_allowed_problems": {
+		"message": "Allowed, but some modules could not be installed:"
 	},
-	"tabGroups_identified_other": {
-		"message": "$1 groups managed by the module blinked (in all windows)."
+	"options_services_allowed_removed": {
+		"message": "Removed from the module list: $1 — $2 does their work instead. If you uninstall it, they do not turn on by themselves; put them back into the module list here in Settings."
 	},
-	"tabGroups_identified_none": {
-		"message": "The module currently manages no group."
+	"options_services_provider_unnamed": {
+		"message": "the service provider"
 	},
-	"tabGroups_identify_error": {
-		"message": "Identifying the groups failed: $1"
+	"options_services_client_approved": {
+		"message": "$2 shows the modules of this extension ($1) in its popup and side panel instead of this extension. Their settings can be changed here and in the Settings of $2."
 	},
-	"tabGroups_problem_disabled": {
-		"message": "The module is disabled or not in the module list — tabs aren't being sorted."
+	"options_services_client_approved_none": {
+		"message": "$1 allowed this extension, but does not show any of its modules now (they are not in its module list or are turned off) — this extension shows them itself."
 	},
-	"tabGroups_problem_unavailable": {
-		"message": "Tab groups permission is missing."
+	"options_services_client_pending": {
+		"message": "This extension offered its modules to $1 — allow it in the Settings of $1 (Modules from other extensions). Until then it shows them itself."
 	},
-	"tabGroups_problem_error": {
-		"message": "Regrouping failed: $1"
+	"options_services_client_denied": {
+		"message": "$1 refused to show the modules of this extension — it shows them itself."
 	},
-	"tabGroups_unknown_error": {
-		"message": "unknown error"
+	"options_services_client_unknown": {
+		"message": "AnalyticExtension, to which this extension offers its modules, is not installed or did not answer — only this extension shows its modules."
 	},
-	"tabGroups_bookmarks_fallback_title": {
-		"message": "Bookmarks"
+	"options_services_client_register": {
+		"message": "Offer again"
 	},
-	"tabGroups_bookmarks_describe_domain": {
-		"message": "on the domains of bookmarks in the \"$1\" folder"
+	"options_sandbox_capabilities_pending": {
+		"message": "The module asks for functions outside the sandbox: $1. The core refuses them until you allow them below, in the list of uploaded modules."
 	},
-	"tabGroups_bookmarks_describe_folder": {
-		"message": "from bookmarks in the \"$1\" folder"
+	"background_debugger_extension_pages_only": {
+		"message": "api.debugger may only be used by extension pages."
 	},
-	"tabGroups_folder_untitled": {
-		"message": "(untitled)"
+	"background_debugger_unavailable": {
+		"message": "chrome.debugger is not available — the “debugger” permission is missing, or the browser doesn't have it."
 	},
-	"tabGroups_folder_in_account": {
-		"message": "$1 (in account)"
+	"background_network_rules_extension_pages_only": {
+		"message": "api.networkRules may only be used by extension pages."
 	},
-	"tabGroups_folder_device_only": {
-		"message": "$1 (on this device only)"
+	"background_content_filters_declared": {
+		"message": "The module declares its configuration of the content filters in registerModule() — the core applies it itself, contentFilters.set does not change it."
 	},
-	"tabGroups_editor_hint": {
-		"message": "Tabs that aren't in a group of your own are sorted into a period group automatically by when they were opened or when they were last used (option above). The module recognizes its groups by name — don't give any of your own groups the same name."
+	"background_content_filters_extension_pages_only": {
+		"message": "The content filters (contentFilters.*) may only be used by extension pages."
 	},
-	"tabGroups_editor_period": {
-		"message": "Period"
+	"background_content_filters_unknown_module": {
+		"message": "The content filters are only for uploaded modules — “$1” is not one."
 	},
-	"tabGroups_editor_group_name": {
-		"message": "Group name"
+	"background_network_filters_declared": {
+		"message": "The module declares its configuration of the network filters in registerModule() — the core applies it itself, networkFilters.set does not change it."
 	},
-	"tabGroups_editor_color": {
-		"message": "Color"
+	"background_network_filters_extension_pages_only": {
+		"message": "The network filters (networkFilters.*) may only be used by extension pages."
 	},
-	"tabGroups_editor_title_aria": {
-		"message": "Group name for the period $1"
+	"background_scheduled_urls_extension_pages_only": {
+		"message": "Scheduled addresses can only be checked from extension pages."
 	},
-	"tabGroups_editor_color_aria": {
-		"message": "Group color for the period $1"
+	"background_dns_overview_extension_pages_only": {
+		"message": "The DNS overview can only be read from extension pages."
 	},
-	"tabGroups_editor_color_default": {
-		"message": "$1 (default)"
+	"background_dns_overview_invalid_request": {
+		"message": "Invalid request of the DNS overview (the tab, the hosts)."
 	},
-	"tabGroups_editor_collapsed_aria": {
-		"message": "Collapsed group for the period $1"
+	"background_dns_overview_no_dns": {
+		"message": "This browser has no browser.dns — DNS queries of its own work only in Firefox."
 	},
-	"tabGroups_editor_duplicates": {
-		"message": "Group names must not repeat ($1) — a repeated name is saved as the period's default name."
+	"background_network_filters_unknown_module": {
+		"message": "The network filters are only for uploaded modules — “$1” is not one."
 	},
-	"tabGroups_quoted": {
-		"message": "\"$1\""
+	"background_missing_module_name": {
+		"message": "Missing module name."
 	},
-	"tabGroups_editor_collapsed_title": {
-		"message": "A new group is created collapsed — but if it contains the currently open tab, it stays expanded so the browser doesn't switch elsewhere. The module never collapses or expands an existing group."
+	"core_service_unknown": {
+		"message": "The service $1 does not exist."
 	},
-	"tabGroups_editor_collapsed": {
-		"message": "collapsed group"
+	"core_service_no_answer": {
+		"message": "The service $1 did not answer."
 	},
-	"tabGroups_bookmarks_hint": {
-		"message": "A tab whose address is bookmarked in the chosen folder (including subfolders) goes into the group from bookmarks instead of a period group; the whole address is compared, without the part after #. If a tab belongs to several groups, the first row wins. Groups from bookmarks sit in the tab bar between your own groups and the periods."
+	"core_service_unavailable": {
+		"message": "The function $1 is not available now — no module offers it, not even in another extension."
 	},
-	"tabGroups_bookmarks_folder": {
-		"message": "Bookmark folder"
+	"core_service_timeout": {
+		"message": "The extension $1 did not answer in time."
 	},
-	"tabGroups_bookmarks_empty": {
-		"message": "No groups from bookmarks."
+	"core_service_registration_invalid": {
+		"message": "Invalid registration of the extension ($1)."
 	},
-	"tabGroups_bookmarks_add": {
-		"message": "Add group from bookmarks"
+	"core_service_package_missing": {
+		"message": "The files of the module $1 are missing — the extension will offer them again."
 	},
-	"tabGroups_bookmarks_choose_folder": {
-		"message": "— choose a bookmark folder —"
+	"core_service_not_provider": {
+		"message": "The extension $1 is not the service provider of this extension."
 	},
-	"tabGroups_bookmarks_folder_not_found": {
-		"message": "$1 (folder not found)"
+	"core_service_not_declared": {
+		"message": "The extension did not announce the function $1 in advance — it will be offered again with it."
 	},
-	"tabGroups_bookmarks_folder_name": {
-		"message": "folder name"
+	"core_service_client_not_allowed": {
+		"message": "The extension $1 may not use the functions of this extension — allow it in Settings (Modules from other extensions)."
 	},
-	"tabGroups_bookmarks_duplicates": {
-		"message": "Group names must not repeat or match a period name ($1) — a repeated name gets a sequence number."
+	"core_service_standalone": {
+		"message": "The extension $1 only offers its modules to another extension — it does not accept modules or requests of other extensions."
 	},
-	"tabGroups_bookmarks_without_folder": {
-		"message": "A row without a selected folder won't be used."
+	"core_service_backup_refused": {
+		"message": "This extension does not keep the data of the module $1 for its service provider."
 	},
-	"tabGroups_bookmarks_title_aria": {
-		"message": "Name of the group from bookmarks (empty = folder name)"
+	"core_service_backup_no_answer": {
+		"message": "The extension $1 did not answer about the data of the module $2."
 	},
-	"tabGroups_bookmarks_whole_domain_title": {
-		"message": "The group also gets tabs with other addresses on the domain of any bookmark in the folder: with a bookmark some.tld, e.g. some.tld/folder/file.html. The www. prefix doesn't count (some.tld and www.some.tld are the same domain), other subdomains do."
+	"core_service_delegated": {
+		"message": "$1 is shown in $2."
 	},
-	"tabGroups_bookmarks_whole_domain": {
-		"message": "all URLs on the bookmark's domain"
+	"core_service_provider_unnamed": {
+		"message": "the service provider"
 	},
-	"tabGroups_bookmarks_color_aria": {
-		"message": "Color of the group from bookmarks"
+	"core_service_pending_notice": {
+		"message": "⚠ $1 offers its modules to this extension and waits for your decision. Until you allow or deny it, $2 works in both extensions at once (the same work twice)."
 	},
-	"tabGroups_bookmarks_collapsed_aria": {
-		"message": "Collapsed group from bookmarks"
+	"core_service_pending_notice_none": {
+		"message": "$1 offers its modules to this extension and waits for your decision."
 	},
-	"tabGroups_bookmarks_remove": {
-		"message": "Remove group from bookmarks"
-	},
-	"tabGroups_bookmarks_missing_permission": {
-		"message": "Groups from bookmarks need access to bookmarks and tab addresses — without it they aren't used and no folder can be chosen."
-	},
-	"tabGroups_bookmarks_permission_here": {
-		"message": "It can't be granted here — allow it in Settings, the popup or the side panel."
+	"core_service_pending_decide": {
+		"message": "Decide in Settings"
 	}
 }

@@ -1,0 +1,20 @@
+{
+	"onboardingModule_description": {
+		"message": "Opens a welcome page in a new tab after the extension is installed. What it shows is set for each module with the option “Show module output: On the welcome page”; the button opens it again at any time."
+	},
+	"onboardingModule_disabled": {
+		"message": "$1: Disabled"
+	},
+	"onboardingModule_opens_after_install": {
+		"message": "$1: after the extension is installed, the welcome page opens in a new tab."
+	},
+	"onboardingModule_not_opening": {
+		"message": "$1: the welcome page won't open after installation — the module's activation mode is not “After the extension is installed”."
+	},
+	"onboardingModule_open_button": {
+		"message": "Open the welcome page"
+	},
+	"onboardingModule_already_open": {
+		"message": "The welcome page is open right now."
+	}
+}

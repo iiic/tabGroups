@@ -1,0 +1,20 @@
+{
+	"onboardingModule_description": {
+		"message": "Öffnet nach der Installation der Erweiterung eine Willkommensseite in einem neuen Tab. Was sie anzeigt, wird für jedes Modul mit der Option „Modulausgabe anzeigen: Auf der Willkommensseite“ festgelegt; über die Schaltfläche lässt sie sich jederzeit erneut öffnen."
+	},
+	"onboardingModule_disabled": {
+		"message": "$1: Deaktiviert"
+	},
+	"onboardingModule_opens_after_install": {
+		"message": "$1: Nach der Installation der Erweiterung wird die Willkommensseite in einem neuen Tab geöffnet."
+	},
+	"onboardingModule_not_opening": {
+		"message": "$1: Die Willkommensseite wird nach der Installation nicht geöffnet – der Aktivierungsmodus des Moduls ist nicht „Nach der Installation der Erweiterung“."
+	},
+	"onboardingModule_open_button": {
+		"message": "Willkommensseite öffnen"
+	},
+	"onboardingModule_already_open": {
+		"message": "Die Willkommensseite ist gerade geöffnet."
+	}
+}

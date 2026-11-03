@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { before, describe, it } from "node:test";
 
-import { loadI18n } from "../i18n.mjs";
+import { addModuleI18n, loadI18n } from "../i18n.mjs";
 import { GROUP_COLORS } from "../modules/tabGroups/buckets.mjs";
 import {
 	bookmarkGroupTitle,
@@ -19,6 +19,7 @@ import { mockLocales } from "./helpers.mjs";
 
 before(async () => {
 	mockLocales();
+	addModuleI18n("tabGroups");
 	await loadI18n("en");
 });
 

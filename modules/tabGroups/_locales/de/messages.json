@@ -1,0 +1,155 @@
+{
+	"tabGroups_description": {
+		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie geöffnet oder (Option in den Einstellungen) zuletzt verwendet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
+	},
+	"tabGroups_color_grey": {
+		"message": "grau"
+	},
+	"tabGroups_color_blue": {
+		"message": "blau"
+	},
+	"tabGroups_color_red": {
+		"message": "rot"
+	},
+	"tabGroups_color_yellow": {
+		"message": "gelb"
+	},
+	"tabGroups_color_green": {
+		"message": "grün"
+	},
+	"tabGroups_color_pink": {
+		"message": "pink"
+	},
+	"tabGroups_color_purple": {
+		"message": "lila"
+	},
+	"tabGroups_color_cyan": {
+		"message": "cyan"
+	},
+	"tabGroups_color_orange": {
+		"message": "orange"
+	},
+	"tabGroups_bucket_today_title": {
+		"message": "heute"
+	},
+	"tabGroups_bucket_today_range": {
+		"message": "heute"
+	},
+	"tabGroups_bucket_yesterday_title": {
+		"message": "gestern"
+	},
+	"tabGroups_bucket_yesterday_range": {
+		"message": "gestern"
+	},
+	"tabGroups_bucket_day_before_yesterday_title": {
+		"message": "vor 2 Tagen"
+	},
+	"tabGroups_bucket_day_before_yesterday_range": {
+		"message": "vor 2 Tagen"
+	},
+	"tabGroups_bucket_this_week_title": {
+		"message": "diese Woche"
+	},
+	"tabGroups_bucket_this_week_range": {
+		"message": "früher in dieser Woche (seit Montag)"
+	},
+	"tabGroups_bucket_last_week_title": {
+		"message": "letzte Woche"
+	},
+	"tabGroups_bucket_last_week_range": {
+		"message": "letzte Woche"
+	},
+	"tabGroups_bucket_this_month_title": {
+		"message": "diesen Monat"
+	},
+	"tabGroups_bucket_this_month_range": {
+		"message": "früher in diesem Monat"
+	},
+	"tabGroups_bucket_last_month_title": {
+		"message": "letzten Monat"
+	},
+	"tabGroups_bucket_last_month_range": {
+		"message": "letzten Monat"
+	},
+	"tabGroups_bucket_this_year_title": {
+		"message": "dieses Jahr"
+	},
+	"tabGroups_bucket_this_year_range": {
+		"message": "früher in diesem Jahr"
+	},
+	"tabGroups_bucket_last_year_title": {
+		"message": "letztes Jahr"
+	},
+	"tabGroups_bucket_last_year_range": {
+		"message": "letztes Jahr und früher"
+	},
+	"tabGroups_loading": {
+		"message": "Tabgruppen werden geladen..."
+	},
+	"tabGroups_disabled": {
+		"message": "Deaktiviert"
+	},
+	"tabGroups_intro_opened": {
+		"message": "Tabs außerhalb Ihrer eigenen Gruppen werden automatisch danach in Gruppen sortiert, wann sie geöffnet wurden."
+	},
+	"tabGroups_intro_last_used": {
+		"message": "Tabs außerhalb Ihrer eigenen Gruppen werden automatisch danach in Gruppen sortiert, wann sie zuletzt verwendet wurden."
+	},
+	"tabGroups_intro_opened_bookmarks": {
+		"message": "Tabs außerhalb Ihrer eigenen Gruppen werden automatisch nach dem Öffnungszeitpunkt in Gruppen sortiert, Tabs mit Lesezeichen in den ausgewählten Ordnern in Gruppen aus Lesezeichen."
+	},
+	"tabGroups_intro_last_used_bookmarks": {
+		"message": "Tabs außerhalb Ihrer eigenen Gruppen werden automatisch nach der letzten Verwendung in Gruppen sortiert, Tabs mit Lesezeichen in den ausgewählten Ordnern in Gruppen aus Lesezeichen."
+	},
+	"tabGroups_unsupported": {
+		"message": "Dieser Browser erlaubt Erweiterungen nicht, Tabgruppen zu verwalten (Chrome 89+, Firefox 139+ auf dem Desktop)."
+	},
+	"tabGroups_missing_permission": {
+		"message": "Die Berechtigung für Tabgruppen fehlt – es wird noch nichts sortiert."
+	},
+	"tabGroups_grant_tab_groups": {
+		"message": "Tabgruppen erlauben"
+	},
+	"tabGroups_missing_alarms": {
+		"message": "Ohne die Berechtigung „Timer“ (alarms) werden die Gruppen nach Mitternacht erst verschoben, wenn Sie das nächste Mal mit Tabs arbeiten."
+	},
+	"tabGroups_grant_alarms": {
+		"message": "Genau um Mitternacht verschieben"
+	},
+	"tabGroups_missing_bookmarks": {
+		"message": "Gruppen aus Lesezeichen benötigen Zugriff auf Lesezeichen und Tab-Adressen – sie werden noch nicht verwendet."
+	},
+	"tabGroups_grant_bookmarks": {
+		"message": "Lesezeichen und Tab-Adressen erlauben"
+	},
+	"tabGroups_permission_floating": {
+		"message": "Sie kann nicht im schwebenden Fenster erteilt werden – erlauben Sie sie im Pop-up, in der Seitenleiste oder in den Einstellungen."
+	},
+	"tabGroups_permissions_ok": {
+		"message": "Alle Berechtigungen sind erteilt."
+	},
+	"tabGroups_overview_in_sandbox": {
+		"message": "Die Gruppenübersicht des Fensters mit „Jetzt neu gruppieren“ und „Verwaltete Gruppen identifizieren“ ist Tab Groups Sandbox – standardmäßig im Pop-up."
+	},
+	"tabGroups_bookmarks_fallback_title": {
+		"message": "Lesezeichen"
+	},
+	"tabGroups_bookmarks_describe_domain": {
+		"message": "auf den Domains der Lesezeichen im Ordner „$1“"
+	},
+	"tabGroups_bookmarks_describe_folder": {
+		"message": "aus Lesezeichen im Ordner „$1“"
+	},
+	"tabGroups_folder_untitled": {
+		"message": "(ohne Namen)"
+	},
+	"tabGroups_folder_in_account": {
+		"message": "$1 (im Konto)"
+	},
+	"tabGroups_folder_device_only": {
+		"message": "$1 (nur auf diesem Gerät)"
+	},
+	"tabGroups_settings_invalid": {
+		"message": "Ungültiger Wert der Einstellung $1."
+	}
+}

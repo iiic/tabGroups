@@ -2,44 +2,44 @@
 "use strict";
 
 // modules/tabGroups/bookmarkGroups.mjs
-// Automatické skupiny ze záložek — bez DOM a bez chrome.*, sdílené background
-// částí (background-script.mjs), plánovačem (planner.mjs), editorem nastavení
-// (bookmarkGroupsEditor.mjs) i elementem (tabGroups.mjs).
+// Automatic groups from bookmarks — without DOM and without chrome.*, shared by the background
+// part (background-script.mjs), the planner (planner.mjs), the settings editor
+// (bookmarkGroupsEditor.mjs) and the element (tabGroups.mjs).
 //
-// Skupina ze záložek je řádek nastavení (BOOKMARK_GROUPS_KEY v module.mjs):
-// název skupiny, složka záložek, barva, volba „všechny url na doméně
-// záložky“ a „uzavřená skupina“ (nová skupina vznikne sbalená). Karta do skupiny patří, když je její adresa záložkou kdekoliv ve
-// složce (i v podsložkách) — porovnává se celá adresa bez části za "#" —,
-// nebo se zaškrtnutou volbou, když je na doméně některé záložky ze složky
-// (jen http/https; "www." na začátku se nepočítá: záložka some.tld platí pro
-// some.tld/cokoliv i www.some.tld/cokoliv, ne pro jiné subdomény). Skupiny ze
-// záložek mají přednost před obdobími; karta, která patří do víc skupin, jde
-// do první v pořadí z Nastavení.
+// A group from bookmarks is a settings row (BOOKMARK_GROUPS_KEY in module.mjs):
+// the group name, a bookmark folder, a color, the option "all URLs on the bookmark's
+// domain" and "collapsed group" (a new group is created collapsed). A tab belongs to the group when its address is a bookmark anywhere in the
+// folder (also in subfolders) — the whole address without the part after "#" is compared —,
+// or with the option checked, when it is on the domain of some bookmark from the folder
+// (only http/https; "www." at the beginning does not count: a bookmark some.tld applies to
+// some.tld/anything and www.some.tld/anything, not to other subdomains). Groups from
+// bookmarks take precedence over periods; a tab that belongs to several groups goes
+// to the first one in the order from Settings.
 import { t } from "../../sdk.mjs";
 import { GROUP_COLORS, isGroupColor } from "./buckets.mjs";
 
-// Oprávnění skupin ze záložek: "bookmarks" (obsah složek) a "tabs" (adresy
-// všech karet — bez něj je prohlížeč neprozradí). Obě jsou v manifestu
-// nepovinná, v Chrome s varováním.
+// Permissions of groups from bookmarks: "bookmarks" (folder contents) and "tabs" (addresses
+// of all tabs — without it the browser does not reveal them). Both are optional
+// in the manifest, in Chrome with a warning.
 /** @type {Types.PermissionSet} */
 export const BOOKMARK_GROUPS_PERMISSIONS = { permissions: ["bookmarks", "tabs"] };
 
-// Název skupiny, když ho uživatel nevyplní a složka název nemá.
+// The group name when the user does not fill it in and the folder has no name.
 /** @type {Functions.TabGroups.BookmarkGroups.fallbackTitle} */
 const fallbackTitle = () => t("tabGroups_bookmarks_fallback_title");
 
-// Výchozí barva řádku podle pořadí — jiná než u sousedních řádků.
+// The default color of a row by its position — different from the neighboring rows.
 /** @type {Functions.TabGroups.BookmarkGroups.defaultBookmarkColor} */
 export function defaultBookmarkColor(index) {
 	return GROUP_COLORS[(index + 1) % GROUP_COLORS.length].value;
 }
 
-// Uložené nastavení (pole řádků editoru) → vždy použitelné pole. Řádky, které
-// nejsou objekt, vypadnou; chybějící nebo opakované id dostane náhradní (id
-// spojuje skupinu v prohlížeči s řádkem i po přejmenování, viz
-// groupIdentity.mjs). Název zůstává, jak ho uživatel zadal (prázdný =
-// název složky, viz resolveBookmarkGroups()). Řádek bez složky se uloží, ale
-// nepoužije.
+// Stored settings (the editor's array of rows) → an always usable array. Rows that
+// are not an object drop out; a missing or repeated id gets a replacement (the id
+// connects the group in the browser with the row even after renaming, see
+// groupIdentity.mjs). The name stays as the user entered it (empty =
+// the folder name, see resolveBookmarkGroups()). A row without a folder is stored, but
+// not used.
 /** @type {Functions.TabGroups.BookmarkGroups.normalizeBookmarkGroups} */
 export function normalizeBookmarkGroups(value) {
 	/** @type {Types.TabGroups.BookmarkGroupSetting[]} */
@@ -66,16 +66,16 @@ export function normalizeBookmarkGroups(value) {
 	return groups;
 }
 
-// Název skupiny řádku: zadaný, jinak název složky.
+// The row's group name: the entered one, otherwise the folder name.
 /** @type {Functions.TabGroups.BookmarkGroups.bookmarkGroupTitle} */
 export function bookmarkGroupTitle(setting) {
 	return setting.title || setting.folderTitle.trim() || fallbackTitle();
 }
 
-// Skupiny ze záložek, které se opravdu použijí (řádky s vybranou složkou),
-// s názvy odlišnými od sebe navzájem i od názvů období (takenTitles) — modul
-// své skupiny v prohlížeči pozná podle názvu. Opakovaný název dostane
-// pořadové číslo.
+// Groups from bookmarks that are really used (rows with a selected folder),
+// with names different from each other and from the period names (takenTitles) — the module
+// recognizes its groups in the browser by name. A repeated name gets
+// a sequence number.
 /** @type {Functions.TabGroups.BookmarkGroups.resolveBookmarkGroups} */
 export function resolveBookmarkGroups(settings, takenTitles) {
 	const used = new Set(takenTitles);
@@ -90,15 +90,15 @@ export function resolveBookmarkGroups(settings, takenTitles) {
 		});
 }
 
-// Popis skupiny pro přehled v elementu („Karty …: 3“).
+// A group description for the overview of tabGroupsSandbox ("Tabs …: 3", overview.mjs).
 /** @type {Functions.TabGroups.BookmarkGroups.describeBookmarkGroup} */
 export function describeBookmarkGroup(group) {
 	const folder = group.folderTitle.trim() || fallbackTitle();
 	return group.wholeDomain ? t("tabGroups_bookmarks_describe_domain", folder) : t("tabGroups_bookmarks_describe_folder", folder);
 }
 
-// Adresa bez části za "#" v jednotném tvaru (malá písmena hostitele, bez
-// výchozího portu) — tak se porovnává karta se záložkou. Neplatná adresa
+// The address without the part after "#" in a normalized form (lowercase host, without
+// the default port) — this is how a tab is compared with a bookmark. An invalid address
 // null.
 /** @type {Functions.TabGroups.BookmarkGroups.pageKey} */
 export function pageKey(url) {
@@ -112,8 +112,8 @@ export function pageKey(url) {
 	}
 }
 
-// Doména adresy pro volbu „všechny url na doméně záložky“: hostitel http(s)
-// adresy bez koncové tečky a bez "www." na začátku; jinak null.
+// The domain of an address for the option "all URLs on the bookmark's domain": the host of an http(s)
+// address without a trailing dot and without "www." at the beginning; otherwise null.
 /** @type {Functions.TabGroups.BookmarkGroups.siteOf} */
 export function siteOf(url) {
 	if (typeof url !== "string" || !url) return null;
@@ -126,8 +126,8 @@ export function siteOf(url) {
 	}
 }
 
-// Adresy všech záložek v uzlech stromu záložek (i v podsložkách) —
-// z chrome.bookmarks.getSubTree(složka).
+// Addresses of all bookmarks in the nodes of the bookmark tree (also in subfolders) —
+// from chrome.bookmarks.getSubTree(folder).
 /** @type {Functions.TabGroups.BookmarkGroups.collectBookmarkUrls} */
 export function collectBookmarkUrls(nodes) {
 	/** @type {string[]} */
@@ -141,8 +141,8 @@ export function collectBookmarkUrls(nodes) {
 	return urls;
 }
 
-// Funkce adresa karty → pořadí skupiny ze záložek (index v groups), nebo -1.
-// urlsByGroup: adresy záložek složky každé skupiny (collectBookmarkUrls()).
+// A function tab address → the index of the group from bookmarks (index in groups), or -1.
+// urlsByGroup: the bookmark addresses of each group's folder (collectBookmarkUrls()).
 /** @type {Functions.TabGroups.BookmarkGroups.createBookmarkMatcher} */
 export function createBookmarkMatcher(groups, urlsByGroup) {
 	const rules = groups.map((group, i) => {
@@ -160,10 +160,10 @@ export function createBookmarkMatcher(groups, urlsByGroup) {
 	};
 }
 
-// Složky záložek pro výběr v editoru: každá složka stromu (bez neviditelného
-// kořene) s cestou, v pořadí stromu — složka, hned za ní její podsložky.
-// Chrome se záložkami v účtu má kořenové složky dvakrát se stejným názvem (v
-// účtu a jen v zařízení) — rozliší je syncing (Chrome 134+).
+// Bookmark folders for the select in the editor: every folder of the tree (without the invisible
+// root) with a path, in tree order — a folder, right after it its subfolders.
+// Chrome with bookmarks in the account has the root folders twice with the same name (in the
+// account and only on the device) — syncing tells them apart (Chrome 134+).
 /** @type {Functions.TabGroups.BookmarkGroups.listBookmarkFolders} */
 export function listBookmarkFolders(tree) {
 	/** @type {Types.TabGroups.BookmarkFolder[]} */

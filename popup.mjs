@@ -5,13 +5,18 @@
 import {
 	BaseController,
 	getModuleMode,
+	isSandboxModuleEntry,
 	loadFrameStates,
+	loadSandboxModules,
+	loadSidebarDisabled,
 	parseModuleEntry,
 	resolveModuleEntries,
 	validateModuleFileExtension,
 	DISABLED_SPEC,
+	getModuleFolder,
 } from "./base.mjs";
-import { t, initPageI18n } from "./i18n.mjs";
+import { measurePerf } from "./perf.mjs";
+import { t, initPageI18n, loadModuleI18n } from "./i18n.mjs";
 
 /** @implements {Classes.PopupController} */
 class PopupController extends BaseController
@@ -20,8 +25,8 @@ class PopupController extends BaseController
 	{
 		super();
 		this.outputEl = /** @type {Classes.PopupController['outputEl']} */ ( document.getElementById( "modules-output" ) );
-		// Seznam modulů načtený v loadAndRegisterModules() — initModules() podle
-		// něj určí pořadí výpisu (i jednotlivých instancí modulu).
+		// Module list loaded in loadAndRegisterModules() — initModules() uses it to
+		// determine the output order (including the individual module instances).
 		/** @type {Classes.PopupController['_paths']} */
 		this._paths = [];
 	}
@@ -46,31 +51,46 @@ class PopupController extends BaseController
 		}
 		this._paths = paths;
 
-		// Instance jednoho modulu (viz parseModuleEntry() v base.mjs) sdílejí
-		// soubor, který se importuje jen jednou — a bez id instance, jinak by šlo
-		// o nový modul a druhé customElements.define() by selhalo.
+		// Instances of one module (see parseModuleEntry() in base.mjs) share
+		// a file that is imported only once — and without the instance id, otherwise
+		// it would be a new module and the second customElements.define() would fail.
 		/** @type {Set<string>} */
 		const imported = new Set();
+
+		// The texts of the modules that get imported (modules/<module>/_locales, see i18n.mjs) — before the import,
+		// module.mjs composes its description with t() right when it is evaluated. All at once, not module by module.
+		await loadModuleI18n( ...paths.flatMap( ( entry ) => {
+			if ( typeof entry !== "string" || isSandboxModuleEntry( entry ) ) return [];
+			const folder = getModuleFolder( entry );
+			const mode = /** @type {Enums.ActivationMode | undefined} */ ( settings[ parseModuleEntry( entry ).key ] );
+			return folder === null || DISABLED_SPEC.isSatisfiedBy( { mode } ) ? [] : [ folder ];
+		} ) );
 
 		for ( const entry of paths ) {
 			if ( typeof entry !== "string" ) continue;
 			const { path, name, key } = parseModuleEntry( entry );
 			if ( imported.has( path ) ) continue;
 
-			// Modul je bez importu znám jen podle cesty — modulem deklarovanou
-			// výchozí hodnotu (defaultActivationMode) proto ještě neznáme.
-			// Explicitně uživatelem vypnutý modul ale poznat jde už teď a nemá
-			// smysl ho vůbec importovat; vypnutý jen podle modulem deklarované
-			// výchozí hodnoty odfiltruje až initModules(). Vypnutý modul nic
-			// nevypisuje — ani poznámku, že je vypnutý.
-			// Pod holým jménem modulu (u instance pod "<modul>#<id>") je uložený
-			// jeho aktivační režim (nebo nic — pak getModuleMode() bez výchozí
-			// hodnoty modulu vrátí DEFAULT_MODE, tedy ne "disabled"). Vypnutá
-			// instance nebrání importu modulu kvůli jiné, zapnuté instanci.
-			if ( DISABLED_SPEC.isSatisfiedBy( { mode: getModuleMode( settings, key ) } ) ) {
+			// Without the import the module is known only by its path — so the default
+			// value declared by the module (defaultActivationMode) is not known yet.
+			// A module explicitly turned off by the user can be recognized already, though,
+			// and there is no point in importing it at all; one turned off only by the
+			// default value declared by the module is filtered out later by initModules().
+			// A turned-off module shows nothing — not even a note that it is turned off.
+			// Its activation mode (or nothing) is stored under the bare module name
+			// (for an instance under "<module>#<id>"). A turned-off instance does not
+			// prevent importing the module for another, enabled instance.
+			if ( DISABLED_SPEC.isSatisfiedBy( { mode: /** @type {Enums.ActivationMode | undefined} */ ( settings[ key ] ) } ) ) {
 				continue;
 			}
 			imported.add( path );
+
+			// An uploaded module (sandbox) has no file in the package — the core registers it
+			// from storage without running its code (see loadSandboxModules() in base.mjs).
+			if ( isSandboxModuleEntry( path ) ) {
+				await loadSandboxModules( [ path ] );
+				continue;
+			}
 
 			// Validate module folder placement
 			const normalizedPath = path.replace( /\\/g, "/" );
@@ -87,8 +107,9 @@ class PopupController extends BaseController
 			await validateModuleFileExtension( path );
 
 			// Import modules for "popup" and "icon_click" modes so custom elements are defined
+			// The load time goes into the module's load measurement (see perf.mjs).
 			try {
-				await import( chrome.runtime.getURL( path ) );
+				await measurePerf( name, "import", () => import( chrome.runtime.getURL( path ) ) );
 			} catch ( err ) {
 				console.error( `Chyeba při načítání modulu ${ path }:`, err );
 				const errEl = document.createElement( "div" );
@@ -104,45 +125,56 @@ class PopupController extends BaseController
 	{
 		const settings = await this.loadSettings();
 
-		// Chování modulů pro celou stránku (pageInit) — stejně jako
-		// renderModulesFor() na ostatních plochách, viz
+		// Module behavior for the whole page (pageInit) — the same as
+		// renderModulesFor() on the other surfaces, see
 		// BaseController.runPageInits().
 		this.runPageInits( settings, "popup" );
 
-		// Uložený stav uzavíratelných rámů předem, ať je rám hned ve stavu,
-		// který si uživatel zvolil (viz mountModuleElement() v base.mjs).
-		await loadFrameStates();
+		// An extension that offers its modules and waits for the user's decision — its modules work twice until then.
+		this.mountPendingServiceNotice( this.outputEl, "popup" );
 
-		// V pořadí seznamu modulů, u modulu s vícenásobnými instancemi každá
-		// instance na svém místě (viz resolveModuleEntries() v base.mjs).
+		// Load the saved state of collapsible frames up front, so each frame starts in
+		// the state the user chose (see mountModuleElement() in base.mjs).
+		await loadFrameStates();
+		// "Do not use the sidebar" for the sidebar.toggle button of a module (mainButtonsSandbox).
+		await loadSidebarDisabled();
+
+		// In the order of the module list; for a module with multiple instances, each
+		// instance in its own place (see resolveModuleEntries() in base.mjs).
 		for ( const { mod, key, instance } of resolveModuleEntries( this._paths ) ) {
 			const mode = getModuleMode( settings, key, mod.defaultActivationMode );
 
-			// Rychlý odskok bez dotazu na aktivní záložku — isModuleActive() by
-			// vypnutý modul odmítla i bez něj (stejně jako renderModulesFor()).
+			// A quick skip without asking for the active tab — isModuleActive() would
+			// reject a turned-off module even without it (same as renderModulesFor()).
 			if ( DISABLED_SPEC.isSatisfiedBy( { mode } ) ) continue;
 
-			// Modul se vypisuje jen tam, kam ho posílá nastavení "Vypisovat data
-			// modulu", v jakémkoliv zapnutém režimu (i "background"/"focus") —
-			// popup o modulech, které do něj nepatří, nic nevypisuje.
-			// Zda se má modul v popupu skutečně vykreslit — vlastní
-			// activationSpec modulu (fallback pro moduly bez ní) i nastavení
-			// "Vypisovat data modulu" — je jedno společné rozhodnutí sdílené s
-			// postranním panelem, viz
-			// BaseController.isModuleActive(). Kontext pro activationSpec (mj.
-			// URL) si sestaví ze skutečně aktivní záložky, ne z URL popupu
-			// samotného (viz buildActivationContext).
-			const { active } = await this.isModuleActive( mod, settings, "popup", undefined, key );
-			if ( !active ) continue;
+			// A module is shown only where the "Show module output" setting sends it,
+			// in any enabled mode (even "background"/"focus") — the popup shows nothing
+			// about modules that do not belong in it.
+			// Whether the module should really be rendered in the popup — the module's
+			// own activationSpec (with a fallback for modules without one) and the
+			// "Show module output" setting — is one common decision shared with
+			// the side panel and the floating window, see
+			// BaseController.isModuleActive(). It builds the context for activationSpec
+			// (including the URL) from the really active tab, not from the URL of the popup
+			// itself (see buildActivationContext).
+			const { active, delegated } = await this.isModuleActive( mod, settings, "popup", undefined, key );
+			if ( !active ) {
+				// A module the service provider of this extension shows instead — a note in its place.
+				if ( delegated ) this.mountDelegatedNote( mod, delegated, this.outputEl );
+				continue;
+			}
 
 			try {
-				// Rám podle "Element výpisu dat" — stejný jako na ostatních
-				// plochách, viz BaseController.mountModuleElement().
-				const el = this.mountModuleElement( mod, settings, this.outputEl, null, key );
+				// Frame according to "Output element" — the same as on the other
+				// surfaces, see BaseController.mountModuleElement().
+				// Creating the element and init() go into the module's load measurement (see
+				// perf.mjs), the same as in BaseController._updateModuleSlot().
+				const el = measurePerf( mod.name, "mount", () => this.mountModuleElement( mod, settings, this.outputEl, null, key ) );
 
 				const init = el.init;
 				if ( init ) {
-					await init.call( el, { outputEl: this.outputEl, name: mod.name, mode, location: "popup", instance } );
+					await measurePerf( mod.name, "init", () => init.call( el, { outputEl: this.outputEl, name: mod.name, mode, location: "popup", instance } ) );
 				}
 			} catch ( err ) {
 				console.error( `Chyba při inicializaci modulu ${ key }:`, err );

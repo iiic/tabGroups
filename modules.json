@@ -1,3 +1,5 @@
 [
-	"./modules/tabGroups/tabGroups.mjs"
+	"./modules/tabGroups/tabGroups.mjs",
+	"sandbox://tabGroupsSandbox/tabGroupsSandbox.js",
+	"./modules/onboardingModule/onboardingModule.mjs"
 ]

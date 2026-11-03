@@ -2,27 +2,27 @@
 "use strict";
 
 // modules/tabGroups/buckets.mjs
-// Časová období automatických skupin karet a výpočty nad kalendářními dny —
-// bez DOM a bez chrome.*, sdílené background částí (background-script.mjs,
-// planner.mjs), editorem nastavení (groupsEditor.mjs) i elementem
+// Time periods of the automatic tab groups and calculations over calendar days —
+// without DOM and without chrome.*, shared by the background part (background-script.mjs,
+// planner.mjs), the settings editor (groupsEditor.mjs) and the element
 // (tabGroups.mjs).
 //
-// Den je celé číslo: pořadí místního kalendářního dne od 1. 1. 1970 (viz
-// localDay()). "Dnes", "včera", týden, měsíc i rok se pak určují prostým
-// porovnáním čísel, bez ohledu na letní/zimní čas a denní dobu.
+// A day is an integer: the ordinal of the local calendar day since 1 Jan 1970 (see
+// localDay()). "Today", "yesterday", the week, month and year are then determined by plain
+// comparison of numbers, regardless of daylight saving time and the time of day.
 
 import { t, tIn } from "../../sdk.mjs";
 
-/** Délka dne v ms — jen pro převod kalendářního data na číslo dne a zpět. */
+/** Length of a day in ms — only for converting a calendar date to a day number and back. */
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-// Starší časy (i 0, kterou by prohlížeč mohl vrátit místo chybějící hodnoty)
-// nejsou skutečný čas aktivity karty.
+// Earlier times (including 0, which the browser could return instead of a missing value)
+// are not a real time of tab activity.
 const EARLIEST_REALISTIC_TIME = Date.UTC( 2000, 0, 1 );
 
-// Barvy skupin karet — stejná sada v Chrome i Firefoxu (tabGroups.Color),
-// popisky jako v nabídce prohlížeče. Náhled barvy je v tabGroups.css (třídy
-// tab-groups-color--<barva>).
+// Tab group colors — the same set in Chrome and Firefox (tabGroups.Color),
+// labels as in the browser menu. The color preview is in tabGroups.css (classes
+// tab-groups-color--<color>).
 /** @type {Types.TabGroups.ColorOption[]} */
 export const GROUP_COLORS = [
 	{ value: "grey", get label () { return t( "tabGroups_color_grey" ); } },
@@ -36,11 +36,11 @@ export const GROUP_COLORS = [
 	{ value: "orange", get label () { return t( "tabGroups_color_orange" ); } },
 ];
 
-// Období od nejnovějšího po nejstarší — v tomhle pořadí se karta zařazuje
-// (classifyDay()) a skupiny stojí v liště karet zprava doleva. title a color
-// jsou výchozí název a barva skupiny (v Nastavení jdou změnit), range popis
-// období pro editor nastavení a nápovědu v elementu. Výchozí barvy jdou po
-// barevném kruhu od zelené (nejnovější) po šedou (nejstarší), každá jiná.
+// Periods from the newest to the oldest — in this order a tab is assigned
+// (classifyDay()) and the groups stand in the tab strip from right to left. title and color
+// are the default name and color of the group (they can be changed in Settings), range a description of
+// the period for the settings editor and the hint in the element. The default colors go around
+// the color wheel from green (the newest) to grey (the oldest), each one different.
 /** @type {Types.TabGroups.Bucket[]} */
 export const BUCKETS = [
 	{
@@ -153,9 +153,9 @@ export const BUCKETS = [
 	},
 ];
 
-// Výchozí názvy období v jazyce language, ne v jazyce rozhraní (pořadí
-// BUCKETS) — skupiny v prohlížeči můžou mít názvy z jazyka, který rozhraní
-// mělo dřív (groupIdentity.mjs). Klíč textu je z klíče období:
+// Default period names in the language language, not in the UI language (BUCKETS
+// order) — groups in the browser may have names from the language the UI
+// had earlier (groupIdentity.mjs). The text key is derived from the period key:
 // "dayBeforeYesterday" → "tabGroups_bucket_day_before_yesterday_title".
 /** @type {Functions.TabGroups.Buckets.defaultTitlesIn} */
 export function defaultTitlesIn ( language )
@@ -171,12 +171,12 @@ export function isGroupColor ( value )
 	return GROUP_COLORS.some( ( color ) => color.value === value );
 }
 
-// Uložené nastavení skupin ({ [klíč období]: { title, color, collapsed } }) →
-// pole v pořadí BUCKETS, vždy použitelné: prázdný nebo chybějící název →
-// výchozí, neznámá barva → výchozí, „uzavřená skupina“ jen při true (starší
-// nastavení ji nemá). Názvy se nesmí opakovat — modul své skupiny v
-// prohlížeči pozná podle názvu —, opakovaný název proto dostane výchozí název
-// období (a když je i ten obsazený, pořadové číslo).
+// Stored group settings ({ [period key]: { title, color, collapsed } }) →
+// an array in BUCKETS order, always usable: an empty or missing name →
+// the default, an unknown color → the default, "collapsed group" only when true (older
+// settings do not have it). Names must not repeat — the module recognizes its groups in the
+// browser by name —, so a repeated name gets the period's default name
+// (and when that one is taken too, a sequence number).
 /** @type {Functions.TabGroups.Buckets.normalizeGroupsConfig} */
 export function normalizeGroupsConfig ( value )
 {
@@ -200,42 +200,42 @@ export function normalizeGroupsConfig ( value )
 	} );
 }
 
-// Pole v pořadí BUCKETS → tvar, ve kterém se nastavení ukládá (podle klíče
-// období, ne podle pořadí — přidání období tak staré nastavení nerozhodí).
+// An array in BUCKETS order → the form in which the settings are stored (by period
+// key, not by order — adding a period thus does not mess up old settings).
 /** @type {Functions.TabGroups.Buckets.toStoredGroupsConfig} */
 export function toStoredGroupsConfig ( config )
 {
 	return Object.fromEntries( BUCKETS.map( ( bucket, i ) => [ bucket.key, { title: config[ i ].title, color: config[ i ].color, collapsed: config[ i ].collapsed } ] ) );
 }
 
-// Výchozí nastavení skupin (settingsSchema, api.settings.get()).
+// Default group settings (settingsSchema, api.settings.get()).
 export const DEFAULT_GROUPS = toStoredGroupsConfig( BUCKETS.map( ( bucket ) => ( { title: "", color: bucket.color, collapsed: false } ) ) );
 
-// Předpona názvů všech automatických skupin — období i skupin ze záložek
-// (nastavení TITLE_PREFIX_KEY v module.mjs). Prázdná = bez předpony.
+// The prefix of the names of all automatic groups — periods and groups from bookmarks
+// (the TITLE_PREFIX_KEY setting in module.mjs). Empty = without a prefix.
 export const DEFAULT_TITLE_PREFIX = "ⓐ";
 
-// Uložená předpona → platná hodnota: bez mezer na krajích, cokoliv jiného než
-// text = výchozí. Prázdný text (uživatel předponu smazal) zůstane prázdný.
+// The stored prefix → a valid value: without spaces at the ends, anything other than
+// text = the default. An empty text (the user deleted the prefix) stays empty.
 /** @type {Functions.TabGroups.Buckets.normalizeTitlePrefix} */
 export function normalizeTitlePrefix ( value )
 {
 	return typeof value === "string" ? value.trim() : DEFAULT_TITLE_PREFIX;
 }
 
-// Názvy skupin s předponou oddělenou mezerou — tak je skupiny mají
-// v prohlížeči. Stejná předpona u všech zachová, že se názvy neopakují
-// (normalizeGroupsConfig(), resolveBookmarkGroups() je hlídají bez ní).
+// Group names with the prefix separated by a space — as the groups have them
+// in the browser. The same prefix for all preserves that the names do not repeat
+// (normalizeGroupsConfig(), resolveBookmarkGroups() check them without it).
 /** @type {Functions.TabGroups.Buckets.withTitlePrefix} */
 export function withTitlePrefix ( items, prefix )
 {
 	return prefix ? items.map( ( item ) => ( { ...item, title: `${ prefix } ${ item.title }` } ) ) : items;
 }
 
-// Podle kterého dne karta patří do období (nastavení GROUP_BY_KEY v
-// module.mjs): dne otevření — karta zůstane ve skupině toho dne a posouvá ji
-// jen půlnoc —, nebo dne posledního použití — karta, na kterou se uživatel
-// přepne, se přesune do "dnes" (estimateUsedDay()).
+// Which day decides the period a tab belongs to (the GROUP_BY_KEY setting in
+// module.mjs): the day it was opened — the tab stays in that day's group and only
+// midnight moves it —, or the day of last use — a tab the user
+// switches to moves into "today" (estimateUsedDay()).
 /** @type {Types.TabGroups.GroupBy} */
 export const GROUP_BY_OPENED = "opened";
 /** @type {Types.TabGroups.GroupBy} */
@@ -243,14 +243,14 @@ export const GROUP_BY_LAST_USED = "lastUsed";
 /** @type {Types.TabGroups.GroupBy} */
 export const DEFAULT_GROUP_BY = GROUP_BY_OPENED;
 
-// Uložená volba → platná hodnota; cokoliv neznámého = podle otevření.
+// The stored choice → a valid value; anything unknown = by opening.
 /** @type {Functions.TabGroups.Buckets.normalizeGroupBy} */
 export function normalizeGroupBy ( value )
 {
 	return value === GROUP_BY_LAST_USED ? GROUP_BY_LAST_USED : GROUP_BY_OPENED;
 }
 
-// Místní kalendářní den času ms jako číslo dne (viz úvodní komentář).
+// The local calendar day of the time ms as a day number (see the introductory comment).
 /** @type {Functions.TabGroups.Buckets.localDay} */
 export function localDay ( ms )
 {
@@ -258,8 +258,8 @@ export function localDay ( ms )
 	return Date.UTC( date.getFullYear(), date.getMonth(), date.getDate() ) / DAY_MS;
 }
 
-// Nejbližší místní půlnoc po čase ms (v ms) — new Date(rok, měsíc, den + 1)
-// počítá v místním čase, takže sedí i v den přechodu na letní/zimní čas.
+// The nearest local midnight after the time ms (in ms) — new Date(year, month, day + 1)
+// calculates in local time, so it is right even on the day of the daylight saving time change.
 /** @type {Functions.TabGroups.Buckets.nextLocalMidnight} */
 export function nextLocalMidnight ( ms )
 {
@@ -267,14 +267,14 @@ export function nextLocalMidnight ( ms )
 	return new Date( date.getFullYear(), date.getMonth(), date.getDate() + 1 ).getTime();
 }
 
-// Je ms skutečný čas (ne chybějící hodnota, 0 nebo nesmysl)?
+// Is ms a real time (not a missing value, 0 or nonsense)?
 /** @type {Functions.TabGroups.Buckets.isRealisticTime} */
 export function isRealisticTime ( ms )
 {
 	return typeof ms === "number" && Number.isFinite( ms ) && ms >= EARLIEST_REALISTIC_TIME;
 }
 
-// Rok, měsíc (0–11) a den v týdnu (0 = pondělí) dne day.
+// Year, month (0–11) and day of the week (0 = Monday) of the day day.
 /** @type {Functions.TabGroups.Buckets.dayParts} */
 function dayParts ( day )
 {
@@ -282,11 +282,11 @@ function dayParts ( day )
 	return { year: date.getUTCFullYear(), month: date.getUTCMonth(), weekday: ( date.getUTCDay() + 6 ) % 7 };
 }
 
-// První den každého období vůči dni today, v pořadí BUCKETS. Karta patří do
-// PRVNÍHO období, jehož první den nepředchází (classifyDay()) — karta ze
-// včerejška, který byl zároveň v minulém týdnu (dnes je pondělí), tak patří
-// do "včera", ne do "v minulém týdnu". Týden začíná pondělím. Poslední období
-// první den nemá — bere všechno starší.
+// The first day of each period relative to the day today, in BUCKETS order. A tab belongs to the
+// FIRST period whose first day it does not precede (classifyDay()) — a tab from
+// yesterday, which was also in last week (today is Monday), thus belongs
+// to "yesterday", not to "last week". The week starts on Monday. The last period
+// has no first day — it takes everything older.
 /** @type {Functions.TabGroups.Buckets.bucketBounds} */
 export function bucketBounds ( today )
 {
@@ -299,16 +299,16 @@ export function bucketBounds ( today )
 		weekStart,
 		weekStart - 7,
 		Date.UTC( year, month, 1 ) / DAY_MS,
-		// Date.UTC() měsíc -1 sám převede na prosinec předchozího roku.
+		// Date.UTC() converts month -1 to December of the previous year by itself.
 		Date.UTC( year, month - 1, 1 ) / DAY_MS,
 		Date.UTC( year, 0, 1 ) / DAY_MS,
 		Number.NEGATIVE_INFINITY,
 	];
 }
 
-// Do kterého období (index v BUCKETS) patří karta, jejíž den (otevření, nebo
-// posledního použití) je day, když je dnes today. Karta "z budoucnosti"
-// (posunuté hodiny) patří do dnešní.
+// Which period (index in BUCKETS) a tab belongs to whose day (opened, or
+// last used) is day, when today is today. A tab "from the future"
+// (a clock moved back) belongs to today's.
 /** @type {Functions.TabGroups.Buckets.classifyDay} */
 export function classifyDay ( day, today )
 {
@@ -316,9 +316,9 @@ export function classifyDay ( day, today )
 	return index === -1 ? 0 : index;
 }
 
-// Dny, které classifyDay() v den today zařadí do období bucket: [start, end),
-// end je první den, který už patří do některého novějšího období. start >= end
-// znamená, že je období ten den prázdné (v pondělí třeba "dřív v tomto týdnu").
+// Days that classifyDay() assigns to the period bucket on the day today: [start, end),
+// end is the first day that already belongs to some newer period. start >= end
+// means the period is empty that day (on Monday for example "earlier this week").
 /** @type {Functions.TabGroups.Buckets.bucketWindow} */
 export function bucketWindow ( bucket, today )
 {
@@ -326,11 +326,11 @@ export function bucketWindow ( bucket, today )
 	return { start: bounds[ bucket ], end: Math.min( Number.POSITIVE_INFINITY, ...bounds.slice( 0, bucket ) ) };
 }
 
-// Nejnovější den, který classifyDay() v den today zařadí do období bucket —
-// ten dostane karta, kterou uživatel přetáhl do skupiny období (volba
-// MANUAL_MOVES_KEY v module.mjs): ve skupině tak zůstane co nejdéle a o
-// půlnoci se posouvá dál jako ostatní karty. null, když je období ten den
-// prázdné.
+// The newest day that classifyDay() assigns to the period bucket on the day today —
+// it is given to a tab the user dragged into the period's group (the
+// MANUAL_MOVES_KEY option in module.mjs): it thus stays in the group as long as possible and at
+// midnight moves on like the other tabs. null when the period is empty
+// that day.
 /** @type {Functions.TabGroups.Buckets.latestDayOfBucket} */
 export function latestDayOfBucket ( bucket, today )
 {
@@ -338,16 +338,16 @@ export function latestDayOfBucket ( bucket, today )
 	return start < end ? Math.min( end - 1, today ) : null;
 }
 
-// Odhad dne otevření karty, kterou modul nezná — byla otevřená dřív, než
-// začal pracovat, nebo je obnovená z minulé relace (po restartu prohlížeče
-// dostanou karty nová čísla a modul o jejich dny přijde). Prohlížeč prozradí
-// jen, kdy byla karta naposledy aktivní (accessedDay): otevřená být nemohla
-// později, proto se bere jako nejpozdější možný den. Karta v automatické
-// skupině navíc nese období, do kterého ji modul zařadil v den referenceDay —
-// odhad se omezí na jeho rozsah, a nejpozději na referenceDay (skupina "dnes"
-// k tomu dni obsahuje karty právě z něj, i když byly aktivní později). Pro
-// "dnes", "včera" a "předevčírem" je tak den po obnovení relace přesný a ani u
-// delších období karta nepřeskočí jinam, než kam patřila.
+// An estimate of the opened day of a tab the module does not know — it was opened before it
+// started working, or it was restored from the previous session (after a browser restart
+// tabs get new numbers and the module loses their days). The browser reveals
+// only when the tab was last active (accessedDay): it cannot have been opened
+// later, so that is taken as the latest possible day. A tab in an automatic
+// group additionally carries the period the module put it into on the day referenceDay —
+// the estimate is limited to its range, and to referenceDay at the latest (the "today" group
+// as of that day contains tabs from exactly that day, even if they were active later). For
+// "today", "yesterday" and "2 days ago" the day after restoring a session is thus exact, and even with
+// longer periods the tab does not jump anywhere other than where it belonged.
 /** @type {Functions.TabGroups.Buckets.estimateOpenedDay} */
 export function estimateOpenedDay ( { bucket, referenceDay, accessedDay, today } )
 {
@@ -362,18 +362,18 @@ export function estimateOpenedDay ( { bucket, referenceDay, accessedDay, today }
 	return Math.min( Math.max( latest, start ), end - 1, referenceDay, today );
 }
 
-// Den posledního použití karty. Aktivní karta okna (active) se počítá jako
-// používaná právě teď — dokud ji okno ukazuje, patří do "dnes", i přes půlnoc.
-// Jinak nejpozdější den, o kterém modul ví: zapamatovaný z dřívějších průchodů
-// (knownDay), den otevření (openedDay — otevření je také použití) a den
-// poslední aktivity podle prohlížeče (accessedDay, null = prohlížeč ho
-// neprozradil). Chrome jako poslední aktivitu hlásí, kdy se karta naposledy
-// objevila na obrazovce (odchodem z karty se nemění), Firefox, kdy z ní
-// uživatel odešel — proto modul pamatuje knownDay: karta aktivní přes půlnoc
-// by jinak po přepnutí jinam spadla zpátky do "včera". Karta, kterou modul
-// nezná (knownDay null — po restartu prohlížeče), navíc nese období své
-// automatické skupiny ke dni referenceDay: v tom období byla použitá (nebo
-// otevřená), tedy nejdřív v jeho první den.
+// The day of the tab's last use. The window's active tab (active) counts as
+// in use right now — as long as the window shows it, it belongs to "today", even past midnight.
+// Otherwise the latest day the module knows about: remembered from earlier passes
+// (knownDay), the opened day (openedDay — opening is also a use) and the day of
+// last activity according to the browser (accessedDay, null = the browser did not
+// reveal it). Chrome reports as the last activity when the tab last
+// appeared on the screen (leaving the tab does not change it), Firefox when the
+// user left it — that is why the module remembers knownDay: a tab active past midnight
+// would otherwise fall back into "yesterday" after switching elsewhere. A tab the module
+// does not know (knownDay null — after a browser restart) additionally carries the period of its
+// automatic group as of the day referenceDay: it was used (or
+// opened) in that period, so on its first day at the earliest.
 /** @type {Functions.TabGroups.Buckets.estimateUsedDay} */
 export function estimateUsedDay ( { knownDay, openedDay, accessedDay, active, bucket, referenceDay, today } )
 {

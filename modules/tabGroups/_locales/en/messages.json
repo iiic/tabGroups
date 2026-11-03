@@ -1,0 +1,155 @@
+{
+	"tabGroups_description": {
+		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were opened or — an option in Settings — when they were last used, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
+	},
+	"tabGroups_color_grey": {
+		"message": "grey"
+	},
+	"tabGroups_color_blue": {
+		"message": "blue"
+	},
+	"tabGroups_color_red": {
+		"message": "red"
+	},
+	"tabGroups_color_yellow": {
+		"message": "yellow"
+	},
+	"tabGroups_color_green": {
+		"message": "green"
+	},
+	"tabGroups_color_pink": {
+		"message": "pink"
+	},
+	"tabGroups_color_purple": {
+		"message": "purple"
+	},
+	"tabGroups_color_cyan": {
+		"message": "cyan"
+	},
+	"tabGroups_color_orange": {
+		"message": "orange"
+	},
+	"tabGroups_bucket_today_title": {
+		"message": "today"
+	},
+	"tabGroups_bucket_today_range": {
+		"message": "today"
+	},
+	"tabGroups_bucket_yesterday_title": {
+		"message": "yesterday"
+	},
+	"tabGroups_bucket_yesterday_range": {
+		"message": "yesterday"
+	},
+	"tabGroups_bucket_day_before_yesterday_title": {
+		"message": "2 days ago"
+	},
+	"tabGroups_bucket_day_before_yesterday_range": {
+		"message": "2 days ago"
+	},
+	"tabGroups_bucket_this_week_title": {
+		"message": "this week"
+	},
+	"tabGroups_bucket_this_week_range": {
+		"message": "earlier this week (since Monday)"
+	},
+	"tabGroups_bucket_last_week_title": {
+		"message": "last week"
+	},
+	"tabGroups_bucket_last_week_range": {
+		"message": "last week"
+	},
+	"tabGroups_bucket_this_month_title": {
+		"message": "this month"
+	},
+	"tabGroups_bucket_this_month_range": {
+		"message": "earlier this month"
+	},
+	"tabGroups_bucket_last_month_title": {
+		"message": "last month"
+	},
+	"tabGroups_bucket_last_month_range": {
+		"message": "last month"
+	},
+	"tabGroups_bucket_this_year_title": {
+		"message": "this year"
+	},
+	"tabGroups_bucket_this_year_range": {
+		"message": "earlier this year"
+	},
+	"tabGroups_bucket_last_year_title": {
+		"message": "last year"
+	},
+	"tabGroups_bucket_last_year_range": {
+		"message": "last year and earlier"
+	},
+	"tabGroups_loading": {
+		"message": "Loading tab groups..."
+	},
+	"tabGroups_disabled": {
+		"message": "Disabled"
+	},
+	"tabGroups_intro_opened": {
+		"message": "Tabs outside your own groups are sorted into groups automatically by when they were opened."
+	},
+	"tabGroups_intro_last_used": {
+		"message": "Tabs outside your own groups are sorted into groups automatically by when they were last used."
+	},
+	"tabGroups_intro_opened_bookmarks": {
+		"message": "Tabs outside your own groups are sorted into groups automatically by when they were opened, and bookmarked tabs in the chosen folders into groups from bookmarks."
+	},
+	"tabGroups_intro_last_used_bookmarks": {
+		"message": "Tabs outside your own groups are sorted into groups automatically by when they were last used, and bookmarked tabs in the chosen folders into groups from bookmarks."
+	},
+	"tabGroups_unsupported": {
+		"message": "This browser doesn't let extensions manage tab groups (Chrome 89+, Firefox 139+ on desktop)."
+	},
+	"tabGroups_missing_permission": {
+		"message": "Tab groups permission is missing — nothing is being sorted yet."
+	},
+	"tabGroups_grant_tab_groups": {
+		"message": "Allow tab groups"
+	},
+	"tabGroups_missing_alarms": {
+		"message": "Without the alarms permission, groups move on after midnight only the next time you work with tabs."
+	},
+	"tabGroups_grant_alarms": {
+		"message": "Move exactly at midnight"
+	},
+	"tabGroups_missing_bookmarks": {
+		"message": "Groups from bookmarks need access to bookmarks and tab addresses — they aren't used yet."
+	},
+	"tabGroups_grant_bookmarks": {
+		"message": "Allow bookmarks and tab addresses"
+	},
+	"tabGroups_permission_floating": {
+		"message": "It can't be granted from the floating window — allow it in the popup, side panel or Settings."
+	},
+	"tabGroups_permissions_ok": {
+		"message": "All permissions are granted."
+	},
+	"tabGroups_overview_in_sandbox": {
+		"message": "The overview of the window's groups with \"Regroup now\" and \"Identify managed groups\" is Tab Groups Sandbox — by default in the popup."
+	},
+	"tabGroups_bookmarks_fallback_title": {
+		"message": "Bookmarks"
+	},
+	"tabGroups_bookmarks_describe_domain": {
+		"message": "on the domains of bookmarks in the \"$1\" folder"
+	},
+	"tabGroups_bookmarks_describe_folder": {
+		"message": "from bookmarks in the \"$1\" folder"
+	},
+	"tabGroups_folder_untitled": {
+		"message": "(untitled)"
+	},
+	"tabGroups_folder_in_account": {
+		"message": "$1 (in account)"
+	},
+	"tabGroups_folder_device_only": {
+		"message": "$1 (on this device only)"
+	},
+	"tabGroups_settings_invalid": {
+		"message": "Invalid value of the setting $1."
+	}
+}

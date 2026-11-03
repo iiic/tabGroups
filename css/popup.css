@@ -20,8 +20,8 @@ button {
 	font-size: 12px;
 	padding: 4px 8px;
 }
-/* Zobrazení vlastních elementů modulů (blokové/řádkové/...) řeší rám kolem
-   nich — viz css/module-frame.css. */
+/* The display of the modules' custom elements (block/inline/...) is handled by the frame around
+   them — see css/module-frame.css. */
 .module-output {
 	margin-top: 8px;
 	padding: 4px 6px;

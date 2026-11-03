@@ -6,41 +6,182 @@ body {
 	min-width: 360px;
 	color: var(--color-text);
 }
-
 h1 {
 	font-size: 16px;
 	margin: 0 0 12px;
 }
-
 h2 {
 	font-size: 14px;
 	margin: 0 0 8px;
 }
-
 section {
 	margin-bottom: 20px;
 	padding-bottom: 16px;
 	border-bottom: 1px solid var(--color-border);
 }
-
 section:last-of-type {
 	border-bottom: none;
 }
+/* Hidden visually, still read by screen readers (the h1 of the page — the tabs name the sections). */
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
 
-details.module-settings-details {
-	margin: 0 0 20px;
-	padding-bottom: 16px;
+/* Module filter above the sections (_applyModuleFilter() in options.mjs). */
+.module-filter {
+	margin-bottom: 12px;
+}
+.module-filter label {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 8px;
+}
+.module-filter input {
+	flex: 1 1 14rem;
+	max-width: 28rem;
+	margin: 0;
+}
+.module-filter-hidden {
+	display: none !important;
+}
+
+/* Sections as tabs (_initSectionTabs() in options.mjs), on a narrow screen as an accordion (below). The
+   section itself is a block — the panel keeps the flex layout of mvp.css's section that its content has always had. */
+.options-section {
+	display: block;
+	margin-bottom: 0;
+	padding-bottom: 0;
+	border-bottom: none;
+}
+.options-section[hidden],
+.options-section:not(.options-section--active) {
+	display: none;
+}
+.options-section-panel {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: safe var(--justify-important);
+}
+/* Content wider than the page (a module's settings editor) shrinks as far as it can instead of widening the page. */
+.options-section-panel > * {
+	min-width: 0;
+	max-width: 100%;
+}
+/* A line between the parts of a tab (options.html) — a line of its own across the panel (width: 100 % from mvp.css),
+   with smaller margins than the 4rem of mvp.css. */
+.options-section-panel > hr {
+	margin: 12px 0;
+}
+.options-section-heading {
+	display: none;
+}
+.options-tabbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px;
+	margin-bottom: 16px;
 	border-bottom: 1px solid var(--color-border);
 }
-
-details.module-settings-details>summary {
-	font-size: 14px;
+.options-tab {
+	margin: 0 0 -1px;
+	padding: 6px 12px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--color-text-muted);
+	background: var(--color-panel);
+	border: 1px solid var(--color-border);
+	border-radius: 6px 6px 0 0;
 }
-
-details.module-settings-details[open]>summary {
-	margin-bottom: 8px;
+.options-tab:hover {
+	filter: none;
+	color: var(--color-text);
 }
-
+.options-tab[aria-selected="true"] {
+	color: var(--color-text);
+	background: var(--color-bg);
+	border-bottom-color: var(--color-bg);
+}
+.options-tab[hidden] {
+	display: none;
+}
+/* An empty section ("Module output" with no module output, options-section--empty) — its tab cannot be chosen. */
+.options-tab:disabled,
+.options-tab:disabled:hover {
+	color: var(--color-text-muted);
+	background: var(--color-panel);
+	border-color: var(--color-border);
+	opacity: 0.5;
+}
+.options-tab:focus-visible,
+.options-section-toggle:focus-visible {
+	outline: 2px solid var(--color-link);
+	outline-offset: -2px;
+}
+/* The same width as SECTIONS_ACCORDION_QUERY in options.mjs. */
+@media (max-width: 760px) {
+	.options-tabbar {
+		display: none;
+	}
+	.options-section,
+	.options-section:not(.options-section--active) {
+		display: block;
+		border: 1px solid var(--color-border);
+		border-radius: 6px;
+		margin-bottom: 6px;
+	}
+	.options-section[hidden] {
+		display: none;
+	}
+	.options-section:not(.options-section--active) > .options-section-panel {
+		display: none;
+	}
+	.options-section-panel {
+		padding: 12px 8px;
+		overflow-x: auto;
+	}
+	.options-section-heading {
+		display: block;
+		margin: 0;
+	}
+	.options-section-toggle {
+		display: flex;
+		justify-content: space-between;
+		gap: 8px;
+		width: 100%;
+		margin: 0;
+		padding: 10px 12px;
+		font-size: 14px;
+		font-weight: 500;
+		text-align: start;
+		color: var(--color-text);
+		background: var(--color-panel);
+		border: none;
+		border-radius: 6px;
+	}
+	.options-section-toggle::after {
+		content: "▸";
+	}
+	.options-section-toggle[aria-expanded="true"] {
+		border-radius: 6px 6px 0 0;
+	}
+	.options-section-toggle[aria-expanded="true"]::after {
+		content: "▾";
+	}
+	.options-section-toggle:disabled {
+		color: var(--color-text-muted);
+		background: var(--color-panel);
+		opacity: 0.5;
+	}
+	.options-section-toggle:disabled::after {
+		content: none;
+	}
+}
 textarea {
 	width: 100%;
 	min-height: 120px;
@@ -48,7 +189,10 @@ textarea {
 	font-size: 12px;
 	box-sizing: border-box;
 }
-
+#modules-json {
+	min-height: 360px;
+	resize: vertical;
+}
 .module-row {
 	display: flex;
 	flex-direction: column;
@@ -58,71 +202,86 @@ textarea {
 	background: var(--color-panel);
 	border-radius: 4px;
 }
-
+/* A row that needs the user's decision (a pending extension of "Modules from other extensions"). */
+.module-row--attention {
+	border-left: 4px solid var(--color-error);
+}
 .module-row.dragging {
 	opacity: 0.4;
 }
-
 .module-name {
 	font-weight: 500;
 }
-
 #modules-list .module-name {
 	cursor: grab;
 }
-
 #modules-list .module-name:active {
 	cursor: grabbing;
 }
-
 .module-description {
 	color: var(--color-text-muted);
 }
-
 .module-row-field {
 	display: block;
 	font-size: 12px;
 	color: var(--color-text-label);
 }
-
 .module-row-field select {
 	margin-top: 4px;
 }
-
 .module-row-checkbox {
 	cursor: pointer;
 }
-
+/* "Do not use the sidebar" below the language choice (and the line between them). */
+.sidebar-disabled {
+	cursor: pointer;
+	margin-top: 12px;
+}
+.sidebar-disabled input[type="checkbox"] {
+	margin: 0 6px 0 0;
+	vertical-align: middle;
+}
+/* Maximum height of the pinned module output — a vertical slider (orient="vertical" for Firefox,
+   writing-mode for the others; rtl = the maximum at the top). */
+.pinned-max-height {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 12px;
+}
+.pinned-max-height input[type="range"] {
+	writing-mode: vertical-lr;
+	direction: rtl;
+	width: auto;
+	height: 120px;
+	margin: 0;
+}
 .module-row-checkbox input[type="checkbox"] {
 	margin: 0 6px 0 0;
 	vertical-align: middle;
 }
-
-/* Zablokované pole — místa výstupu vypnutého modulu, "Element výpisu dat" u
-   modulu, který se nikde nevypisuje, viz _syncOutputSettingsState() v
+/* A disabled field — the output locations of a disabled module, "Output element" of a
+   module that is not output anywhere, see _syncOutputSettingsState() in
    options.mjs. */
 .module-row-field:has(:disabled) {
 	color: var(--color-text-secondary);
 	cursor: not-allowed;
 }
-
 .module-row-field select:disabled {
 	background: var(--color-disabled-bg);
 	color: var(--color-text-secondary);
 	cursor: not-allowed;
 }
-
-/* Skupina voleb v řádku modulu (<fieldset>) — „Vypisovat data modulu“
-   (zaškrtávátko pro každé místo) a „Vzhled výpisu“ (element a nadpis), viz
-   _createFieldGroup() v options.mjs. Nadpis skupiny vypadá jako popisek
-   ostatních polí, volby jsou vedle sebe a na úzké stránce se zalomí. */
+/* A group of options in a module row (<fieldset>) — "Show module output"
+   (a checkbox for each location) and "Output look" (element and heading), see
+   _createFieldGroup() in options.mjs. The group heading looks like the label of
+   the other fields, the options are side by side and wrap on a narrow page. */
 .module-row-group {
 	margin: 0;
 	padding: 0;
 	border: none;
 	min-width: 0;
 }
-
 .module-row-group legend {
 	padding: 0;
 	margin-bottom: 4px;
@@ -130,65 +289,59 @@ textarea {
 	font-weight: bold;
 	color: var(--color-text-label);
 }
-
-.module-display-locations {
+.module-display-locations,
+.module-delegated-display-locations {
 	margin-bottom: 1rem;
 }
-
 .module-row-group-options {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 6px 18px;
 }
-
 .module-row-group-options .module-row-field {
 	display: inline-flex;
 	align-items: center;
 	margin: 0;
 	font-weight: normal;
 }
-
-/* Popisek se selectem: na úzké stránce select přeskočí pod popisek, místo
-   aby popisek zmáčkl do sloupce. */
+/* The "sidebar" location of an extension without a sidebar in its manifest (_syncOutputSettingsState()). */
+.module-row-group-options .module-row-field[hidden] {
+	display: none;
+}
+/* A label with a select: on a narrow page the select jumps below the label, instead
+   of squeezing the label into a column. */
 .module-row-group-options .module-row-field:has(select) {
 	flex-wrap: wrap;
 	gap: 4px 8px;
 }
-
 .module-row-group-options select {
 	width: auto;
 	max-width: 100%;
 	margin: 0;
 }
-
-/* Přehled závislostí na konci řádku modulu (jiné moduly, data přes kontrakt
-   details, nepovinná oprávnění), viz _createDependenciesField() v options.mjs. */
+/* The dependencies overview at the end of a module row (other modules, data via the details
+   contract, optional permissions), see _createDependenciesField() in options.mjs. */
 .module-dependencies {
 	margin-top: 1rem;
 }
-
 .module-dependencies-list {
 	margin: 0;
 	padding-left: 1.2em;
 	font-size: 12px;
 }
-
 .module-dependencies-list strong {
 	font-weight: normal;
 	color: var(--color-text-label);
 }
-
 .module-dependency-status {
 	color: var(--color-text-muted);
 }
-
 .module-dependency--warning {
 	color: var(--color-error);
 }
-
-/* Upozornění nad editorem seznamu modulů, že se uložený seznam liší od
-   modules.json. Viz _showModulesListDiff() v options.mjs. */
+/* A notice above the module list editor that the stored list differs from
+   modules.json. See _showModulesListDiff() in options.mjs. */
 .modules-json-diff {
 	width: 100%;
 	box-sizing: border-box;
@@ -199,38 +352,31 @@ textarea {
 	border-left: 3px solid var(--color-link);
 	border-radius: 4px;
 }
-
 .modules-json-diff p {
 	margin: 0;
 }
-
-.modules-json-diff p+p {
+.modules-json-diff p + p {
 	margin-top: 4px;
 }
-
-/* Věta pod místy výstupu, proč se modul nikde nevypíše. */
+/* A sentence below the output locations saying why the module is not output anywhere. */
 .module-row-hint {
 	display: block;
 	margin-top: 6px;
 	font-size: 12px;
 	color: var(--color-text-muted);
 }
-
 .module-row-hint[hidden] {
 	display: none;
 }
-
-/* Modul s vícenásobnými instancemi — řádek instance (pole instance, nastavení
-   výpisu, „Odebrat“) je odlišený proužkem vlevo, šablona má jen „Přidat“.
-   Viz _createModuleRow() v options.mjs. */
+/* A module with multiple instances — an instance row (instance fields, output
+   settings, "Remove") is distinguished by a stripe on the left, the template has only "Add".
+   See _createModuleRow() in options.mjs. */
 .module-row--instance {
 	border-left: 3px solid var(--color-input-border);
 }
-
 .module-row .module-setting-row {
 	margin-bottom: 0;
 }
-
 .module-row-button {
 	align-self: flex-start;
 	background: var(--color-button-secondary);
@@ -241,56 +387,71 @@ textarea {
 	font-size: 12px;
 	cursor: pointer;
 }
-
 .module-row-button:hover {
 	background: var(--color-button-secondary-hover);
 }
-
-.module-row-button--remove {
+.module-row-button--remove,
+.button--confirming {
 	color: var(--color-error);
 }
-
+/* The second step of the confirmation (_requireSecondClick() in options.mjs) — the button asks for one more click. */
+.button--confirming {
+	font-weight: bold;
+}
 .module-settings-block {
 	margin-bottom: 12px;
 	padding: 8px;
 	background: var(--color-panel);
 	border-radius: 4px;
 }
-
-.module-settings-block .module-name {
+.module-settings-heading-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 	margin-bottom: 6px;
 }
-
-/* Odkaz na blok (#<jméno modulu>) — vypadá jako nadpis, podtržení až při najetí. */
+.module-settings-block .module-name {
+	margin-bottom: 0;
+}
+/* The editor of an uploaded module (registerModule({ settingsView })) in its sandbox frame: the list of the blocks
+   is as wide as its widest content (a centered flex item) and a frame by itself would count only with the
+   default 300 px of an <iframe> — its table would scroll although the page has room. The width counted for
+   the list is the one the content fits in (--sandbox-content-width, reported by the sandbox); the frame itself
+   is always exactly as wide as the block (min/max-width), on a narrow page its content scrolls as before. */
+.module-settings-view .sandbox-module-frame {
+	width: var(--sandbox-content-width, 100%);
+	min-width: 100%;
+	max-width: 100%;
+}
+.module-reset-button {
+	font-size: 11px;
+	padding: 2px 6px;
+	margin-left: 8px;
+}
+/* A link to the block (#<module name>) — looks like a heading, underlined only on hover. */
 .module-settings-block .module-name a {
 	color: inherit;
 	font-weight: inherit;
 	text-decoration: none;
 }
-
 .module-settings-block .module-name a:hover {
 	text-decoration: underline;
 }
-
 .module-setting-row {
 	margin-bottom: 6px;
 }
-
 .module-setting-row:last-child {
 	margin-bottom: 0;
 }
-
 .module-setting-row label,
 .module-setting-caption {
 	display: block;
 	font-size: 12px;
 	color: var(--color-text-label);
 }
-
 .module-setting-caption {
 	margin-bottom: 4px;
 }
-
 .module-setting-row textarea,
 .module-setting-row input[type="text"],
 .module-setting-row input[type="number"] {
@@ -302,22 +463,53 @@ textarea {
 	border-radius: 4px;
 	margin-top: 4px;
 }
-
 .module-setting-row textarea {
 	min-height: 60px;
 	font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
-
 .module-setting-row input[type="checkbox"] {
 	margin-left: 6px;
 }
-
+/* A table of checkboxes (a "checkboxTable" field): the rows with their labels, a column per choice. */
+.module-setting-table {
+	overflow-x: auto;
+}
+.module-setting-table table {
+	border-collapse: collapse;
+	font-size: 12px;
+}
+.module-setting-table th,
+.module-setting-table td {
+	padding: 3px 8px;
+	border-bottom: 1px solid var(--color-border);
+}
+.module-setting-table thead th {
+	font-weight: 600;
+	text-align: center;
+	vertical-align: bottom;
+}
+.module-setting-table tbody th {
+	font-weight: normal;
+	text-align: left;
+}
+.module-setting-table td {
+	text-align: center;
+}
+.module-setting-row .module-setting-table input[type="checkbox"] {
+	margin: 0;
+}
+/* Under a field shared by several modules (SettingField.shared): which other modules have the same value. */
+.module-setting-notifications,
+.module-setting-shared {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--color-text-muted);
+}
 .no-settings {
 	font-size: 12px;
 	color: var(--color-text-muted);
 	font-style: italic;
 }
-
 select {
 	width: 100%;
 	font-size: 13px;
@@ -327,15 +519,62 @@ select {
 	background: var(--color-input-bg);
 	cursor: pointer;
 }
-
 .buttons {
-	/* section je v mvp.css flex s wrap — vlastní řádek pod obsahem */
-	flex-basis: 100%;
-	margin-top: 24px;
+	margin-top: 16px;
 	display: flex;
 	gap: 8px;
 }
-
+/* "Save" and "Restore defaults" of the last two tabs (long content) float at the bottom right of the screen.
+   Only the open section is displayed, so only its bar is shown; its panel has room below for the bar. */
+.buttons--floating {
+	position: fixed;
+	right: 16px;
+	bottom: 16px;
+	z-index: 10;
+	margin: 0;
+	padding: 8px;
+	background: var(--color-bg);
+	border: 1px solid var(--color-border);
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+}
+.buttons--floating button {
+	flex: none;
+	margin: 0;
+}
+.options-section-panel:has(> .buttons--floating) {
+	padding-bottom: 64px;
+}
+/* A reminder above the floating bar while the section has unsaved changes (_syncUnsavedChanges() in options.mjs);
+   the arrow points to "Save", the first button. It does not catch clicks — the page under it stays usable. */
+.unsaved-bubble {
+	position: absolute;
+	right: 0;
+	bottom: calc(100% + 10px);
+	left: 0;
+	margin: 0;
+	padding: 6px 10px;
+	background: #4285f4;
+	color: white;
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+	font-size: 13px;
+	pointer-events: none;
+}
+.unsaved-bubble[hidden] {
+	display: none;
+}
+.unsaved-bubble::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 24px;
+	border: 7px solid transparent;
+	border-top-color: #4285f4;
+}
+.buttons--unsaved .save-btn {
+	box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px #4285f4;
+}
 .save-btn {
 	flex: 1;
 	background: #4285f4;
@@ -346,7 +585,6 @@ select {
 	font-size: 13px;
 	cursor: pointer;
 }
-
 .reset-btn {
 	flex: 1;
 	background: var(--color-button-secondary);
@@ -357,17 +595,141 @@ select {
 	font-size: 13px;
 	cursor: pointer;
 }
-
 .save-btn:hover {
 	background: #3367d6;
 }
-
 .reset-btn:hover {
 	background: var(--color-button-secondary-hover);
 }
-
+.reset-btn.button--confirming {
+	color: var(--color-error);
+}
 .status {
 	margin-top: 12px;
 	font-size: 12px;
 	color: var(--color-text-muted);
+}
+/* The result of an action floats above the buttons — after the page it would be off-screen with a long tab. */
+.status:not(:empty) {
+	position: fixed;
+	right: 16px;
+	bottom: 72px;
+	z-index: 10;
+	margin: 0;
+	padding: 6px 10px;
+	background: var(--color-bg);
+	border: 1px solid var(--color-border);
+	border-radius: 6px;
+}
+/* Uploaded modules (sandbox) — the file input, the result of the upload (errors and
+   warnings of the module rules) and the list of uploaded modules, see
+   _uploadSandboxModule() and _renderSandboxModules() in options.mjs. */
+.section-hint {
+	margin: 0 0 8px;
+	font-size: 12px;
+	color: var(--color-text-muted);
+}
+.sandbox-upload {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 12px;
+	font-size: 13px;
+}
+.sandbox-upload input[type="file"] {
+	margin: 0;
+	font-size: 12px;
+}
+.sandbox-module-report {
+	margin-top: 8px;
+	padding: 6px 8px;
+	font-size: 12px;
+	background: var(--color-panel);
+	border-left: 3px solid var(--color-success);
+	border-radius: 4px;
+}
+.sandbox-module-report--error {
+	border-left-color: var(--color-error);
+}
+.sandbox-module-report p {
+	margin: 0;
+}
+.sandbox-module-report ul {
+	margin: 4px 0;
+	padding-left: 1.2em;
+	white-space: pre-wrap;
+}
+.sandbox-modules-list {
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+}
+.sandbox-module-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+/* Functions outside the sandbox of an uploaded module — the user's choice for each declared one
+   and the record of the requests, see _createSandboxCapabilities() in options.mjs. */
+.sandbox-capabilities {
+	margin-top: 8px;
+	padding: 6px 8px;
+	font-size: 12px;
+	background: var(--color-panel);
+	border-radius: 4px;
+}
+.sandbox-capabilities-title {
+	margin: 0 0 4px;
+	font-weight: 600;
+}
+.sandbox-capability-list {
+	margin: 0 0 6px;
+	padding: 0;
+	list-style: none;
+}
+.sandbox-capability {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 2px 8px;
+	padding: 3px 0;
+}
+.sandbox-capability + .sandbox-capability {
+	border-top: 1px solid var(--color-border);
+}
+.sandbox-capability-about {
+	flex: 1 1 16em;
+	color: var(--color-text-muted);
+}
+/* Next to the function, not a block of its own (mvp.css makes a select a block with a margin). */
+.sandbox-capability-choice {
+	display: inline-block;
+	width: auto;
+	margin: 0;
+	padding: 2px 6px;
+	font-size: 12px;
+}
+.sandbox-capability-usage {
+	flex-basis: 100%;
+	color: var(--color-text-muted);
+}
+
+/* The extension id as a faint watermark in the lower left corner (mountExtensionIdWatermark() in base.mjs) —
+   in the background behind the content (z-index: -1, above the body background; the opaque panels cover it);
+   it does not catch clicks and is not selected. */
+.extension-id-watermark {
+	position: fixed;
+	left: 12px;
+	bottom: 8px;
+	z-index: -1;
+	max-width: calc(100vw - 24px);
+	font-family: ui-monospace, Consolas, monospace;
+	/* Larger than the text of the page, smaller in a narrow panel so that even a Firefox UUID (36 characters) fits on one line. */
+	font-size: clamp(15px, calc((100vw - 24px) / 22), 20px);
+	line-height: 1.2;
+	overflow-wrap: anywhere;
+	color: var(--color-text-muted);
+	opacity: 0.25;
+	pointer-events: none;
+	user-select: none;
 }

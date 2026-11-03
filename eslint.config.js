@@ -23,7 +23,7 @@ export default [
 			reportUnusedDisableDirectives: "error",
 		},
 		rules: {
-			"no-unused-vars": ["error", { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
+			"no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_" }],
 		},
 	},
 	{
