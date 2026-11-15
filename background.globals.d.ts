@@ -131,6 +131,12 @@ declare global {
 			/** The extension icon, with a green dot in the active state */
 			type drawExtensionIcon = ( active: boolean ) => Promise<void>;
 
+			/** The center and the radius of the green dot on an icon of the given size (px, or units of an SVG viewBox) */
+			type activeDotGeometry = ( width: number, height: number ) => { cx: number, cy: number, radius: number };
+
+			/** The SVG toolbar icon (the text of its file) with the green dot, as one 32×32 SVG */
+			type svgWithActiveDot = ( svg: string ) => string;
+
 			/** Is the bookmarks permission granted? */
 			type hasBookmarksAccess = () => Promise<boolean>;
 
@@ -165,10 +171,28 @@ declare global {
 			type queueNetworkRules = <R>( task: () => Promise<R> ) => Promise<R>;
 
 			/** Puts the rules of enabled modules from the list into the browser; returns the rule status per module */
-			type applyNetworkRules = () => Promise<Record<string, Types.NetworkRulesStatus>>;
+			type applyNetworkRules = ( networkRulesStore?: Types.NetworkRulesStore | null ) => Promise<Record<string, Types.NetworkRulesStatus>>;
+
+			/** The bulk rules of the modules (IndexedDB) — the known ones, otherwise read */
+			type readBulkStore = () => Promise<Types.NetworkRulesBulkStore>;
+
+			/** Writes the bulk rules of one module (null = removes them), the known store with the change */
+			type writeBulkEntry = ( module: string, entry: Types.NetworkRulesBulkEntry | null ) => Promise<void>;
+
+			/** The names of the modules of the list — the known ones, otherwise read (modules.json) */
+			type readModuleNames = () => Promise<Set<string>>;
+
+			/** The regular rules of the modules (IndexedDB) — the known ones, otherwise read */
+			type readNetworkRulesStore = () => Promise<Types.NetworkRulesStore>;
+
+			/** Writes the regular rules of one module (null = removes them); next: the store with the change */
+			type writeNetworkRulesEntry = ( module: string, entry: Types.NetworkRulesEntry | null, next: Types.NetworkRulesStore ) => Promise<void>;
 
 			/** The module's rule status from the last recalculation (null = some recalculation is pending, or there is no status) */
 			type cachedNetworkRulesStatus = ( module: string ) => Promise<Types.NetworkRulesStatus | null>;
+
+			/** The status of the module from the last recalculation as it is stored (null — none) */
+			type readNetworkRulesStatusCache = ( module: string ) => Promise<Types.NetworkRulesStatus | null>;
 
 			/** Adds bulk rules (with ids) in batches; skips and returns the rejected ones */
 			type addBulkNetworkRules = (
@@ -188,6 +212,9 @@ declare global {
 
 			/** "Do not use the sidebar" from storage applied to the browser (Chrome sidePanel), in the background */
 			type applyStoredSidebarDisabled = () => void;
+
+			/** "The extension button opens the dashboard" from storage applied to the button (popup, tooltip), in the background */
+			type applyStoredActionOpensDashboard = () => void;
 
 			/** An operation on the load measurement overview — one after another (perfQueue), the overview loaded from IndexedDB */
 			type withPerfStats = <R>( fn: ( stats: Types.PerfStats ) => R | Promise<R> ) => Promise<R>;

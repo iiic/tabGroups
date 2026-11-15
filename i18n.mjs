@@ -293,9 +293,52 @@ export function tp(key, count, ...substitutions) {
 }
 
 // Texts in HTML: an element with data-i18n="key" gets the text, data-i18n-html="key"
-// HTML (only the extension's own texts from _locales, never anything from the web) and
+// HTML (only the extension's own texts from _locales, never anything from the web — i18nHtmlNodes()) and
 // data-i18n-<attribute>="key" the attribute value (title, placeholder, aria-label, alt, value).
 const I18N_ATTRIBUTES = ["title", "placeholder", "aria-label", "alt", "value"];
+
+// What a text of data-i18n-html may contain: a link and simple inline marks (i18nHtmlNodes()).
+const I18N_HTML_TAGS = new Set(["a", "strong", "b", "em", "i", "code", "br"]);
+// Elements that go away including their content (it is code, styles or another document, not text for the reader).
+const I18N_HTML_DROPPED = new Set(["script", "style", "template", "noscript", "title", "textarea", "iframe", "object", "embed", "svg", "math"]);
+
+// A text of data-i18n-html as nodes for the element — instead of innerHTML. The text is parsed by an inert DOMParser
+// document (nothing loads or runs in it) and rebuilt from text and I18N_HTML_TAGS only: another element gives just its
+// text (I18N_HTML_DROPPED not even that), attributes are dropped except href and target="_blank" of a link, and href
+// only to a page of the extension (a relative address, the extension's own origin) or to http(s) — so even a broken
+// translation cannot put a script, a handler, an image or a javascript: link into an extension page.
+/** @type {Functions.I18n.i18nHtmlNodes} */
+export function i18nHtmlNodes(html, doc = document) {
+	const parsed = new DOMParser().parseFromString(`<!doctype html><body>${html}`, "text/html");
+	const base = new URL(doc.baseURI);
+	/** @type {(href: string) => boolean} */
+	const allowedHref = (href) => {
+		try {
+			const url = new URL(href, base);
+			return url.protocol === "https:" || url.protocol === "http:" || (url.protocol === base.protocol && url.host === base.host);
+		} catch {
+			return false;
+		}
+	};
+	/** @type {(source: Node) => Node[]} */
+	const rebuild = (source) => {
+		if (source.nodeType === Node.TEXT_NODE) return [doc.createTextNode(source.textContent || "")];
+		if (source.nodeType !== Node.ELEMENT_NODE) return [];
+		const element = /** @type {Element} */ (source);
+		if (I18N_HTML_DROPPED.has(element.localName)) return [];
+		const children = [...element.childNodes].flatMap(rebuild);
+		if (!I18N_HTML_TAGS.has(element.localName)) return children;
+		const copy = doc.createElement(element.localName);
+		if (element.localName === "a") {
+			const href = element.getAttribute("href");
+			if (href && allowedHref(href)) copy.setAttribute("href", href);
+			if (element.getAttribute("target") === "_blank") copy.setAttribute("target", "_blank");
+		}
+		copy.append(...children);
+		return [copy];
+	};
+	return [...parsed.body.childNodes].flatMap(rebuild);
+}
 
 /** @type {Functions.I18n.applyI18n} */
 export function applyI18n(root = document) {
@@ -303,7 +346,7 @@ export function applyI18n(root = document) {
 		el.textContent = t(el.getAttribute("data-i18n") || "");
 	}
 	for (const el of root.querySelectorAll("[data-i18n-html]")) {
-		el.innerHTML = t(el.getAttribute("data-i18n-html") || "");
+		el.replaceChildren(...i18nHtmlNodes(t(el.getAttribute("data-i18n-html") || ""), el.ownerDocument));
 	}
 	for (const attr of I18N_ATTRIBUTES) {
 		for (const el of root.querySelectorAll(`[data-i18n-${attr}]`)) {

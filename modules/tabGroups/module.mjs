@@ -17,7 +17,7 @@ export const DESCRIPTION = t("tabGroups_description");
 // The version of the module (registerModule({ version })) — a standalone extension built from it gets it as its
 // version (scripts/build-module-*.ps1 read this line, keep its form). Raise it with a change of the module.
 /** @type {Types.ModuleDescriptor['VERSION']} */
-export const VERSION = "1.0.4";
+export const VERSION = "1.0.5";
 
 // The background part keeps sorting tabs as long as the module is not disabled — no
 // background/focus/popup nuance (the same as backByBackspace). The element
@@ -64,9 +64,9 @@ export const USES_PERMISSIONS = [TAB_GROUPS_PERMISSIONS, ALARMS_PERMISSIONS, BOO
 // Group names and colors — { [period key]: { title, color, collapsed } } under
 // getModuleSettingKey(MODULE_NAME, "groups"), see normalizeGroupsConfig().
 export const GROUPS_KEY = "groups";
-// Which day tabs are sorted into groups by: GROUP_BY_OPENED ("opened", the day
-// they were opened — the default) or GROUP_BY_LAST_USED ("lastUsed", the day of last
-// use), see normalizeGroupBy() in buckets.mjs.
+// Which day tabs are sorted into groups by: GROUP_BY_LAST_USED ("lastUsed", the day
+// of last use — the default) or GROUP_BY_OPENED ("opened", the day they were
+// opened), see normalizeGroupBy() in buckets.mjs.
 export const GROUP_BY_KEY = "groupBy";
 // May the user drag tabs between period groups (a checkbox, the default
 // no)? A tab dragged into another day's group stays in it — it gets a manual

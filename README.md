@@ -10,6 +10,30 @@ the sandbox (`sandbox-modules/tabGroupsSandbox/`) and the welcome page (`modules
 the files of this repository (README, CI, tests, `package.json`, …) comes from that build — change the code there, not
 here.
 
+## Changes in 1.0.5
+
+Since 1.0.4:
+
+- **Colors of groups from bookmarks by their name** — a group from bookmarks gets its default color from its name (the
+  group name, or the name of the bookmark folder when the group name is empty). The same name always gives the same
+  color: the color of the text (`colorFromText()` of the SDK) turned into the nearest of the colors the browser has for
+  tab groups (by the distance in OKLab). The color list of the editor marks it as "(default)". While a group keeps its
+  default color, the color changes along with a new name or another folder; a color the user picks stays. Groups set
+  up before keep their colors.
+- **Permission for groups from bookmarks fixed** — it could not be granted in this extension. Settings now have an
+  "Allow groups from bookmarks" button above the settings of the groups (drawn by the core,
+  `tabGroups.requestPermission`); it asks for `bookmarks` and `tabs`. The permission buttons of the overview open
+  Settings right at the settings of the groups (`options.html#tabGroupsSandbox`).
+- **Sorting by last use is the default** — a tab the user switches to moves into the "today" group. It applies after
+  the update too unless the sorting was chosen in Settings; the previous behavior is "when the tab was opened".
+- **Dashboard** — the overview of the groups can also be shown on a whole page (`dashboard.html`): "Show module
+  output" → "Dashboard" in Settings. When the overview is no longer in the popup, the toolbar button opens the
+  dashboard.
+- **Smaller changes** — the toolbar icon is an SVG that follows the light or dark look of the browser (`icon.svg`
+  instead of `icon.png`) and Settings show the version of each module.
+- **Repository** — the extension zip for addons.mozilla.org of the version is in `dist/` (`npm run sync:module` of
+  AnalyticExtension puts it there).
+
 ## Development
 
 ```sh

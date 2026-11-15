@@ -83,7 +83,9 @@
 		"tabGroupsSandbox_settings_load_failed": "The settings could not be loaded: $2",
 		"tabGroupsSandbox_settings_saved": "Saved.",
 		"tabGroupsSandbox_settings_save_failed": "Saving failed: $1",
-		"tabGroupsSandbox_bookmarks_grant": "Allow in Tab Groups"
+		"tabGroupsSandbox_bookmarks_grant": "Allow in Tab Groups",
+		"tabGroupsSandbox_bookmarks_allow": "Allow groups from bookmarks",
+		"tabGroupsSandbox_bookmarks_allow_title": "Asks for access to bookmarks (bookmarks) and to the addresses of tabs (tabs) — without it the groups from bookmarks are not used"
 	},
 	"cs": {
 		"tabGroupsSandbox_description": "Přehled automatických skupin karet aktuálního okna — barevné štítky s počtem karet v pořadí jako na liště karet — s tlačítky „Přeskupit teď“, „Nastavení skupin“ a „Identifikovat řízené skupiny“. Běží v sandboxu: karty mu řadí a skupiny čte Tab Groups.",
@@ -170,7 +172,9 @@
 		"tabGroupsSandbox_settings_load_failed": "Nastavení se nepodařilo načíst: $2",
 		"tabGroupsSandbox_settings_saved": "Uloženo.",
 		"tabGroupsSandbox_settings_save_failed": "Uložení selhalo: $1",
-		"tabGroupsSandbox_bookmarks_grant": "Povolit v Tab Groups"
+		"tabGroupsSandbox_bookmarks_grant": "Povolit v Tab Groups",
+		"tabGroupsSandbox_bookmarks_allow": "Povolit skupiny ze záložek",
+		"tabGroupsSandbox_bookmarks_allow_title": "Požádá o přístup k záložkám (bookmarks) a k adresám karet (tabs) — bez něj se skupiny ze záložek nepoužijí"
 	},
 	"de": {
 		"tabGroupsSandbox_description": "Eine Übersicht der automatischen Tabgruppen des aktuellen Fensters — farbige Chips mit der Anzahl der Tabs in der Reihenfolge der Tableiste — mit den Schaltflächen „Jetzt neu gruppieren“, „Gruppeneinstellungen“ und „Verwaltete Gruppen identifizieren“. Läuft in einer Sandbox: Tab Groups sortiert die Tabs und liest die Gruppen für sie.",
@@ -256,7 +260,9 @@
 		"tabGroupsSandbox_settings_load_failed": "Die Einstellungen konnten nicht geladen werden: $2",
 		"tabGroupsSandbox_settings_saved": "Gespeichert.",
 		"tabGroupsSandbox_settings_save_failed": "Speichern fehlgeschlagen: $1",
-		"tabGroupsSandbox_bookmarks_grant": "In Tab Groups erlauben"
+		"tabGroupsSandbox_bookmarks_grant": "In Tab Groups erlauben",
+		"tabGroupsSandbox_bookmarks_allow": "Gruppen aus Lesezeichen erlauben",
+		"tabGroupsSandbox_bookmarks_allow_title": "Fordert Zugriff auf Lesezeichen (bookmarks) und auf die Adressen der Tabs (tabs) an – ohne ihn werden die Gruppen aus Lesezeichen nicht verwendet"
 	},
 	"el": {
 		"tabGroupsSandbox_description": "Επισκόπηση των αυτόματων ομάδων καρτελών του τρέχοντος παραθύρου — έγχρωμες ετικέτες με τον αριθμό των καρτελών, με τη σειρά της γραμμής καρτελών — με τα κουμπιά «Αναδιοργάνωση τώρα», «Ρυθμίσεις ομάδων» και «Αναγνώριση διαχειριζόμενων ομάδων». Εκτελείται σε sandbox: το Tab Groups ταξινομεί τις καρτέλες και διαβάζει τις ομάδες για λογαριασμό της.",
@@ -342,7 +348,9 @@
 		"tabGroupsSandbox_settings_load_failed": "Δεν ήταν δυνατή η φόρτωση των ρυθμίσεων: $2",
 		"tabGroupsSandbox_settings_saved": "Αποθηκεύτηκε.",
 		"tabGroupsSandbox_settings_save_failed": "Η αποθήκευση απέτυχε: $1",
-		"tabGroupsSandbox_bookmarks_grant": "Να επιτραπεί στο Tab Groups"
+		"tabGroupsSandbox_bookmarks_grant": "Να επιτραπεί στο Tab Groups",
+		"tabGroupsSandbox_bookmarks_allow": "Να επιτραπούν οι ομάδες από σελιδοδείκτες",
+		"tabGroupsSandbox_bookmarks_allow_title": "Ζητά πρόσβαση στους σελιδοδείκτες (bookmarks) και στις διευθύνσεις των καρτελών (tabs) — χωρίς αυτήν οι ομάδες από σελιδοδείκτες δεν χρησιμοποιούνται"
 	},
 	"sk": {
 		"tabGroupsSandbox_description": "Prehľad automatických skupín kariet aktuálneho okna — farebné štítky s počtom kariet v poradí ako na lište kariet — s tlačidlami „Preskupiť teraz“, „Nastavenia skupín“ a „Identifikovať riadené skupiny“. Beží v sandboxe: karty mu radí a skupiny číta Tab Groups.",
@@ -429,6 +437,8 @@
 		"tabGroupsSandbox_settings_load_failed": "Nastavenia sa nepodarilo načítať: $2",
 		"tabGroupsSandbox_settings_saved": "Uložené.",
 		"tabGroupsSandbox_settings_save_failed": "Uloženie zlyhalo: $1",
-		"tabGroupsSandbox_bookmarks_grant": "Povoliť v Tab Groups"
+		"tabGroupsSandbox_bookmarks_grant": "Povoliť v Tab Groups",
+		"tabGroupsSandbox_bookmarks_allow": "Povoliť skupiny zo záložiek",
+		"tabGroupsSandbox_bookmarks_allow_title": "Požiada o prístup k záložkám (bookmarks) a k adresám kariet (tabs) — bez neho sa skupiny zo záložiek nepoužijú"
 	}
 }

@@ -12,7 +12,7 @@ declare global {
 		 * Where the measured code runs: page = a content script in a web page, background = background.js,
 		 * extension = an extension page other than those listed (e.g. a module page).
 		 */
-		type PerfContext = 'page' | 'background' | 'popup' | 'sidebar' | 'floating' | 'options' | 'onboarding' | 'extension';
+		type PerfContext = 'page' | 'background' | 'popup' | 'sidebar' | 'floating' | 'options' | 'onboarding' | 'dashboard' | 'extension';
 
 	}
 

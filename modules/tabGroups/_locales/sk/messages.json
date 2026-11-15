@@ -1,6 +1,6 @@
 {
 	"tabGroups_description": {
-		"message": "Karty, ktoré nie sú vo vlastnej skupine, sám zoraďuje do 9 skupín (dnes, včera, … v minulom roku) podľa toho, kedy boli otvorené, alebo — voľba v Nastaveniach — kedy boli naposledy použité, a po polnoci ich posúva do ďalších. V Nastaveniach sa dajú pridať aj skupiny zo záložiek: karty so záložkou vo zvolenom priečinku (voliteľne aj s adresou na doméne záložky) majú vlastnú skupinu. Automatické skupiny držia vpravo od vlastných, od najstaršej po najnovšiu."
+		"message": "Karty, ktoré nie sú vo vlastnej skupine, sám zoraďuje do 9 skupín (dnes, včera, … v minulom roku) podľa toho, kedy boli naposledy použité, alebo — voľba v Nastaveniach — kedy boli otvorené, a po polnoci ich posúva do ďalších. V Nastaveniach sa dajú pridať aj skupiny zo záložiek: karty so záložkou vo zvolenom priečinku (voliteľne aj s adresou na doméne záložky) majú vlastnú skupinu. Automatické skupiny držia vpravo od vlastných, od najstaršej po najnovšiu."
 	},
 	"tabGroups_color_grey": {
 		"message": "sivá"

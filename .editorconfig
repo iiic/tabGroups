@@ -17,6 +17,10 @@ max_line_length = 800
 [*.neon]
 tab_width = 4
 
+# YAML does not allow tabs for indentation.
+[*.{yml,yaml}]
+indent_style = space
+
 # Windows PowerShell 5.1 reads .ps1 without a BOM in the ANSI encoding — Czech texts would break.
 [*.ps1]
 charset = utf-8-bom

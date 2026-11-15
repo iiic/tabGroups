@@ -3,10 +3,13 @@
 		"message": "Tab Groups"
 	},
 	"extension_description": {
-		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were opened or — an option in Settings — when they were last used, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
+		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were last used or — an option in Settings — when they were opened, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
 	},
 	"extension_action_title": {
 		"message": "Open popup"
+	},
+	"extension_action_title_dashboard": {
+		"message": "Open dashboard"
 	},
 	"core_activation_background": {
 		"message": "Start automatically and work in the background"
@@ -40,6 +43,9 @@
 	},
 	"core_location_onboarding": {
 		"message": "On the welcome page (onboarding)"
+	},
+	"core_location_dashboard": {
+		"message": "Dashboard (a whole page for the outputs of the extension)"
 	},
 	"core_output_inline": {
 		"message": "Inline element"
@@ -79,6 +85,9 @@
 	},
 	"core_background_no_response": {
 		"message": "background.js did not respond"
+	},
+	"core_script_injection_time_limit": {
+		"message": "the page did not answer within $1 s"
 	},
 	"core_backup_invalid": {
 		"message": "The backup of module $1 is not valid."
@@ -127,6 +136,12 @@
 	},
 	"onboarding_empty_html": {
 		"message": "Nothing is shown on the welcome page yet. Send modules here in the <a href=\"./options.html\" target=\"_blank\">extension settings</a> with the “Show module output” option of each module."
+	},
+	"dashboard_page_title": {
+		"message": "Tab Groups - dashboard"
+	},
+	"dashboard_empty_html": {
+		"message": "Nothing is shown on the dashboard yet. Send modules here in the <a href=\"./options.html\" target=\"_blank\">extension settings</a> with the “Show module output” → “Dashboard” option of each module."
 	},
 	"options_page_title": {
 		"message": "Tab Groups settings"
@@ -347,6 +362,9 @@
 	"core_sandbox_capability_about_options_open": {
 		"message": "Open the extension's Settings page (an open one comes to the front)."
 	},
+	"core_sandbox_capability_about_dashboard_open": {
+		"message": "Open the extension's dashboard (an open one comes to the front) — only while at least one module sends its output there."
+	},
 	"core_sandbox_capability_about_storage_usage_get": {
 		"message": "Find out how much the extension's own storages take up — only the number of items and the sizes (localStorage, the IndexedDB database of records, navigator.storage.estimate(), chrome.storage.local), never their content."
 	},
@@ -373,6 +391,15 @@
 	},
 	"core_sandbox_capability_about_pwa_info_on_change": {
 		"message": "Be told right away when the PWA Info module records or completes a website (on any tab — that is, when you visit a website with an app) or when its settings change."
+	},
+	"core_sandbox_capability_about_pwa_info_block_domain": {
+		"message": "Block the domain of an app of the overview (the button “Block domain” in the detail of the app): the domain of the page the PWA Info module recorded it on goes into the rule “PWA info sandbox - blocked domains” of the Declarative Net Request module — the browser then sends no request to it or its subdomains until the domain is removed from the rule in Settings; only the domains of the recorded apps."
+	},
+	"core_sandbox_capability_about_pwa_info_block_service_worker": {
+		"message": "Block the service worker of an app of the overview (the button “Block service worker”): the address of its script goes into the rule “PWA info sandbox - blocked service workers” of the Declarative Net Request module — the browser then neither registers nor updates it until the address is removed from the rule in Settings; only the service workers the PWA Info module recorded."
+	},
+	"core_sandbox_capability_about_pwa_info_open_app_settings": {
+		"message": "Open the settings of an app of the overview in the browser (the button “Uninstall…”): Chrome shows the page of the app (chrome://app-settings/…) with its own button “Uninstall” — the app is uninstalled only once the user confirms it there; only the apps of the websites the PWA Info module recorded."
 	},
 	"core_sandbox_capability_about_domain_info_get_page": {
 		"message": "Read the domains of the page in the current tab as the Domain Info module knows them — which of them the page used and how, the data it loaded about them from RDAP servers (holders and contacts with names, addresses, e-mails and phones, registrars, dates, name servers) with its history, and the paused servers; only the domains of that page."
@@ -509,26 +536,38 @@
 	"core_sandbox_capability_about_tab_groups_open_permissions": {
 		"message": "opens the page where Tab Groups asks for its permissions"
 	},
+	"core_sandbox_capability_about_tab_groups_request_permission": {
+		"message": "asks the browser, on a click of its button, for the permissions of the groups from bookmarks of Tab Groups: access to bookmarks and to the addresses of tabs"
+	},
 	"core_sandbox_capability_about_tab_groups_on_change": {
 		"message": "learns when a tab group or a tab of the window changes and when the settings or permissions of Tab Groups change"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_status": {
-		"message": "reads which rules of Declarative Net Request target the page of the active tab and what they do (headers, GET parameters, blocking), which of them are suspended and how the rules turned out in the browser"
+		"message": "reads which rules of Declarative Net Request target the page of the active tab and what they do (headers, GET parameters, blocking), which of them are suspended, how the rules turned out in the browser and the domains of the requests of the page its blocking rules blocked"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_rules": {
 		"message": "reads all rules of Declarative Net Request — the domains, addresses and bookmark folders they target, the headers and parameters they set — with the names of the bookmark folders (with the permission to bookmarks), the granted permissions and the suspended rules"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_folder_urls": {
+		"message": "reads the addresses of the bookmarks in a bookmark folder (also in its subfolders) — the same the browser gets for a rule of Declarative Net Request with that folder (with the permission to bookmarks)"
 	},
 	"core_sandbox_capability_about_declarative_net_request_set_rules": {
 		"message": "replaces the rules of Declarative Net Request (it checks every rule the same way as in Settings) — the browser then changes the headers and GET parameters of requests and blocks requests by them on all pages"
 	},
 	"core_sandbox_capability_about_declarative_net_request_suspend_rule": {
-		"message": "suspends a rule of Declarative Net Request for an hour — the browser does not apply it until then"
+		"message": "suspends a rule of Declarative Net Request for an hour — everywhere or only for one domain; the browser does not apply it there until then"
 	},
 	"core_sandbox_capability_about_declarative_net_request_restore_rule": {
-		"message": "ends the suspension of a rule of Declarative Net Request — the browser applies it again"
+		"message": "ends the suspension of a rule of Declarative Net Request (everywhere or for one domain) — the browser applies it again"
 	},
 	"core_sandbox_capability_about_declarative_net_request_reload_tab": {
 		"message": "reloads the page of the active tab of the window, so that the rules of Declarative Net Request apply to all its requests"
+	},
+	"core_sandbox_capability_about_declarative_net_request_block_page": {
+		"message": "blocks the whole domain or the exact address of the page of the active tab of the window — it goes into the rule “Direct blocking list created by browsing” of Declarative Net Request and the browser then blocks all requests to it on all pages until it is removed from the rule in Settings"
+	},
+	"core_sandbox_capability_about_declarative_net_request_add_except_domain": {
+		"message": "adds the domain of the page of the active tab of the window, or a domain of the requests of that page the rule blocked, to the Except domains of a rule of Declarative Net Request — the rule then no longer applies to requests to the domain and to files its pages load from elsewhere until the domain is removed from the rule in Settings"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_log": {
 		"message": "reads the own event log of Declarative Net Request — the requests its rules with the event log were applied to on all pages: the addresses of the requests and of the pages they came from, the tabs and the times"
@@ -536,8 +575,14 @@
 	"core_sandbox_capability_about_declarative_net_request_clear_log": {
 		"message": "deletes an entry of the own event log of Declarative Net Request, or the whole log"
 	},
+	"core_sandbox_capability_about_declarative_net_request_open_permissions": {
+		"message": "opens the page where Declarative Net Request asks for its permissions"
+	},
+	"core_sandbox_capability_about_declarative_net_request_request_permission": {
+		"message": "asks the browser, on a click of its button, for the permissions of Declarative Net Request: access to all pages for its rules, access to bookmarks, notifications and tracking of the applied rules, or tracking of the requests its rules blocked"
+	},
 	"core_sandbox_capability_about_declarative_net_request_on_change": {
-		"message": "learns when the rules or the settings of Declarative Net Request change, when a rule is suspended or restored, when its event log changes, when the module list or the permissions change and when the bookmarks change"
+		"message": "learns when the rules or the settings of Declarative Net Request change, when a rule is suspended or restored, when its event log changes, when its rules block a part of a page, when the module list or the permissions change and when the bookmarks change"
 	},
 	"core_sandbox_capability_about_content_filters_set": {
 		"message": "Inject uBlock Origin scriptlets and hide elements on the pages of the hosts the module names (only those it asks the access to) by the rules of the filter lists it names — the extension downloads the lists from those addresses (https) and keeps them up to date, also when the module is not shown. The module brings no code for the pages, but the “trusted-…” scriptlets of a list it marks as trusted can change any text or code of those pages. It can also mark the tab icon of the pages the rules run in."
@@ -590,6 +635,12 @@
 	"core_sandbox_capability_about_scheduled_urls_on_change": {
 		"message": "learns when the devices or the scheduled addresses change, also on another device"
 	},
+	"core_sandbox_capability_about_scheduled_urls_send_message": {
+		"message": "sends a notification (a title, a text and the other options of a web notification) to your devices — each of them shows it as long as it allows the messages, and a click on it can open a web address there; it also decides whether this device shows the messages sent to it"
+	},
+	"core_sandbox_capability_about_scheduled_urls_remove_messages": {
+		"message": "removes messages sent to your devices"
+	},
 	"core_sandbox_capability_about_dns_overview_get_page": {
 		"message": "Read the hosts the page in the current tab contacted, as the extension follows its requests — the addresses of the servers, the responses from the HTTP cache, the names that were not resolved, in Firefox also what the browser's DNS cache holds for them and whether the connections used encrypted DNS — with the answers of the DNS queries loaded for them; only the hosts of that page. Denying it stops the following of the pages."
 	},
@@ -598,6 +649,9 @@
 	},
 	"core_sandbox_capability_about_dns_overview_on_change": {
 		"message": "Learn right away when the page in the current tab contacts another host or new DNS data of its hosts come, and when what the extension can do changes (settings, permissions)."
+	},
+	"core_sandbox_capability_about_colors_manager_get_page": {
+		"message": "Read the colors of the page in the current tab — the extension goes through all its frames: the CSS variables of :root with a color, the rules of its stylesheets with a color (the selectors, the addresses of the stylesheets, @media), the style attributes and the HTML attributes with a color and the colors its visible elements render (with a few element names, their ids and classes). Only that page, again on every request; nothing is stored."
 	},
 	"core_sandbox_domain_info_inactive": {
 		"message": "domainInfo.collect: the Domain Info module is not in the module list or is turned off — it loads nothing."
@@ -695,6 +749,12 @@
 	"core_sandbox_left_page": {
 		"message": "The sandbox page was navigated elsewhere — the module was stopped."
 	},
+	"core_sandbox_save_timeout": {
+		"message": "The module did not store its settings within $1 s."
+	},
+	"core_sandbox_save_stopped": {
+		"message": "The module stopped before it stored its settings."
+	},
 	"core_sandbox_module_failed": {
 		"message": "The uploaded module $1 cannot run:"
 	},
@@ -773,7 +833,7 @@
 	"options_modules_settings": {
 		"message": "Advanced settings"
 	},
-	"options_filter_label": {
+	"core_module_filter_label": {
 		"message": "Filter by name"
 	},
 	"options_save_settings": {
@@ -859,6 +919,9 @@
 	},
 	"options_drag_to_reorder": {
 		"message": "Drag to change the module's position in the list"
+	},
+	"options_module_version_title": {
+		"message": "Module version"
 	},
 	"options_activation_mode": {
 		"message": "Module activation mode"
@@ -973,6 +1036,9 @@
 	},
 	"options_module_settings_saved": {
 		"message": "Module settings saved."
+	},
+	"options_module_settings_views_failed": {
+		"message": "Module settings saved, but not everything — $1"
 	},
 	"options_module_settings_reset": {
 		"message": "Module settings restored to defaults."
@@ -1140,7 +1206,7 @@
 		"message": "Export of this extension's functions"
 	},
 	"options_services_hint": {
-		"message": "This extension can offer its modules to the full AnalyticExtension when it is installed: once you allow it in the Settings of AnalyticExtension, it shows them in its popup, side panel and Settings, but this extension keeps doing the work for them with its own permissions and settings. It is an export from here only — modules of other extensions cannot be added to this extension."
+		"message": "This extension can offer its modules to the full extension when it is installed: once you allow it in the Settings of the full extension, it shows them in its popup, side panel and Settings, but this extension keeps doing the work for them with its own permissions and settings. It is an export from here only — modules of other extensions cannot be added to this extension."
 	},
 	"options_services_meta": {
 		"message": "$1 · version $2 · offered $3"
@@ -1203,7 +1269,7 @@
 		"message": "$1 refused to show the modules of this extension — it shows them itself."
 	},
 	"options_services_client_unknown": {
-		"message": "AnalyticExtension, to which this extension offers its modules, is not installed or did not answer — only this extension shows its modules."
+		"message": "The full extension, to which this extension offers its modules, is not installed or did not answer — only this extension shows its modules."
 	},
 	"options_services_client_register": {
 		"message": "Offer again"
@@ -1246,6 +1312,12 @@
 	},
 	"background_dns_overview_no_dns": {
 		"message": "This browser has no browser.dns — DNS queries of its own work only in Firefox."
+	},
+	"background_colors_manager_extension_pages_only": {
+		"message": "The colors of a page can only be read from extension pages."
+	},
+	"background_colors_manager_invalid_request": {
+		"message": "Invalid request for the colors of a page (the tab)."
 	},
 	"background_network_filters_unknown_module": {
 		"message": "The network filters are only for uploaded modules — “$1” is not one."

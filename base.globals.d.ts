@@ -39,7 +39,7 @@ declare global {
 		 * The surface on which the module's custom element is rendered — WHERE (see DISPLAY_LOCATIONS), written as one
 		 * string; "none" = nowhere. For several locations at once see Types.DisplayLocationValue.
 		 */
-		type DisplayLocation = 'popup' | 'sidebar' | 'floating' | 'options' | 'onboarding' | 'none';
+		type DisplayLocation = 'popup' | 'sidebar' | 'floating' | 'options' | 'onboarding' | 'dashboard' | 'none';
 
 		/** A surface that really renders module elements (DisplayLocation except "none"). */
 		type RenderLocation = Exclude<DisplayLocation, 'none'>;
@@ -48,7 +48,7 @@ declare global {
 		type ElementLocation = RenderLocation | 'settings';
 
 		/** A surface where the user can pin one module output to the top (see PIN_LOCATIONS). */
-		type PinLocation = Extract<RenderLocation, 'sidebar' | 'floating'>;
+		type PinLocation = Extract<RenderLocation, 'sidebar' | 'floating' | 'dashboard'>;
 
 		/** HOW the module output is framed on a surface (see OUTPUT_ELEMENTS). */
 		type OutputElement = 'inline' | 'block' | 'indented' | 'details-closed' | 'details-open';
@@ -216,7 +216,11 @@ declare global {
 			permissionActivity?: PermissionActivityLog;
 			badgeRules?: BadgeRulesStore;
 			rateLimits?: RateLimitStore;
+			/** Before version 2 of the database of the rules — background.js moves it into IndexedDB (migrateNetworkRulesStore()) */
 			networkRules?: NetworkRulesStore;
+
+			/** A change of the regular rules in IndexedDB by another page than background.js (NETWORK_RULES_REVISION_KEY) */
+			networkRulesRevision?: string;
 			sandboxModules?: SandboxModuleStore;
 			sandboxCapabilityGrants?: SandboxCapabilityGrants;
 			sandboxCapabilityLog?: SandboxCapabilityLogEntry[];
@@ -425,10 +429,16 @@ declare global {
 		/** A declarativeNetRequest rule without an id — ids are assigned by background.js. */
 		type NetworkRule = Omit<chrome.declarativeNetRequest.Rule, 'id'>;
 
+		/**
+		 * The change of the dynamic rules (diffNetworkRules()): the ids to remove, the rules to add (with free ids) and the desired
+		 * rules with their ids — what the browser has after updateDynamicRules({ removeRuleIds, addRules }) — with their signatures.
+		 */
+		type NetworkRulesDiff = { removeRuleIds: number[]; addRules: chrome.declarativeNetRequest.Rule[]; rules: chrome.declarativeNetRequest.Rule[]; signatures: string[] };
+
 		/** Stored rules of one module and its default activation mode (background.js has no module registry). */
 		type NetworkRulesEntry = { rules: NetworkRule[]; defaultMode?: Enums.ActivationMode };
 
-		/** Rules of all modules: module name → its rules (chrome.storage.local, NETWORK_RULES_KEY). */
+		/** Regular rules of all modules: module name → its rules (IndexedDB NETWORK_RULES_DB_NAME / regular; before chrome.storage.local, NETWORK_RULES_KEY). */
 		type NetworkRulesStore = Record<string, NetworkRulesEntry>;
 
 		/** A module's bulk rules (IndexedDB NETWORK_RULES_DB_NAME): rules, the default mode and indexes of rules the browser rejected. */
@@ -554,6 +564,9 @@ declare global {
 		 * (interface merging) — so the sender and the receiver are checked against the same shape.
 		 */
 		interface Messages {
+
+			/** The popup → background.js: it opened — a click on the extension button (notifyIconClick()), the active tab of its window */
+			SDK_ICON_CLICK: { request: { tabId: number | null; windowId: number | null }; response: undefined };
 
 			/** A page of a client → background.js: register with the service provider right now; what the provider said */
 			EXTENSION_SERVICE_REGISTER_NOW: { request: {}; response: { state: ExtensionServiceProviderState | null; error?: string } };
@@ -1025,6 +1038,12 @@ declare global {
 
 		/** A module list entry to show (resolveModuleEntries()) — including the module definition. */
 		type ResolvedModuleEntry = ModuleEntry & { mod: ModuleDefinition };
+
+		/** An enabled module list entry with the locations it may be shown in (listEnabledEntryLocations() in base.mjs) */
+		type EnabledEntryLocations = { key: string; locations: Enums.RenderLocation[] };
+
+		/** A tab with the dashboard open (findDashboardTabs() in base.mjs) */
+		type DashboardTab = { tabId: number; windowId: number };
 
 		/** Result of BaseController.isModuleActive(); delegated — the module is shown by the service provider of this extension instead. */
 		type ModuleActivity = { active: boolean; mode: Enums.ActivationMode; ctx: SpecificationContext; delegated: ExtensionServiceProviderState | null };
@@ -1508,6 +1527,9 @@ declare global {
 
 
 
+
+
+
 		// #region standalone: tabGroups, tabGroupsSandbox
 		/** The result of tabGroups.getOverview (the catalog): the overview of the window, or why tabGroups does not work */
 		type SandboxTabGroupsOverview = {
@@ -1626,12 +1648,25 @@ declare global {
 			onChange( handler: () => void ): () => void;
 
 			/**
+			 * After every click on the extension button (the popup opened, or the button opened the dashboard) — in a background part
+			 * before the extension pages; on a page also a click at most ICON_CLICK_RECENT_MS old right after subscribing. Returns a
+			 * function to unsubscribe
+			 */
+			onIconClick( handler: ( click: IconClick ) => void ): () => void;
+
+			/**
 			 * After the extension is installed/updated, once the core has filled in the default settings — only in a module's background part;
 			 * returns a function to unsubscribe
 			 */
 			onInstalled( handler: InstalledHandler ): () => void;
 
 		}
+
+		/** A click on the extension button: when, and the active tab of the window of the click (null — not known). */
+		type IconClick = { at: number; tabId: number | null; windowId: number | null };
+
+		/** Listener of api.activation.onIconClick() in the core registry of the context, including the module name (for error reports). */
+		type IconClickListener = { moduleName: string; deliver: ( value: unknown ) => void };
 
 		/** Listener of api.activation.onInstalled() — details from chrome.runtime.onInstalled. */
 		type InstalledHandler = ( details: chrome.runtime.InstalledDetails ) => void | Promise<void>;
@@ -2059,6 +2094,15 @@ declare global {
 			/** Calls the api.activation.onInstalled() listeners of all modules (background.js after preparing the installation) */
 			type notifyInstalled = ( details: chrome.runtime.InstalledDetails ) => void;
 
+			/** A click on the extension button from a stored or sent value; null — not a click */
+			type readIconClick = ( value: unknown ) => Types.IconClick | null;
+
+			/** background.js: a click on the extension button to the listeners of the background parts, then into chrome.storage.local */
+			type notifyIconClick = ( source: { tabId?: unknown; windowId?: unknown } ) => Promise<void>;
+
+			/** popup.mjs: the popup opened — background.js announces the click with the active tab of its window */
+			type announceIconClick = () => Promise<void>;
+
 			/** Delivering messages to core listeners in the same context — like chrome.runtime (a copy through JSON, the first response) */
 			type createLocalDispatcher = (
 				listeners: Types.BackgroundMessageListener[],
@@ -2183,11 +2227,32 @@ declare global {
 			/** Bulk rules only into the space left after the regular ones (dropped = did not fit) */
 			type fitNetworkRules = ( groups: Types.NetworkRulesGroup[], limits: Types.NetworkRulesLimits ) => Types.NetworkRulesGroup[];
 
-			/** Database of bulk rules */
+			/** Database of the rules of the modules (the bulk and the regular ones) */
 			type openNetworkRulesDb = () => Promise<IDBDatabase>;
+
+			/** One request on a store of the rules (resolves when the transaction completes) */
+			type networkRulesRequest = <T>( storeName: string, mode: IDBTransactionMode, work: ( store: IDBObjectStore ) => IDBRequest<T> ) => Promise<T>;
 
 			/** One request on the bulk rule storage (resolves when the transaction completes) */
 			type bulkNetworkRulesRequest = <T>( mode: IDBTransactionMode, work: ( store: IDBObjectStore ) => IDBRequest<T> ) => Promise<T>;
+
+			/** All the records of a store of the rules (module name → record) */
+			type readAllNetworkRules = ( storeName: string ) => Promise<Record<string, unknown>>;
+
+			/** Regular rules of all modules (IndexedDB) */
+			type readRegularNetworkRules = () => Promise<Types.NetworkRulesStore>;
+
+			/** Regular rules of one module (null = none) */
+			type readRegularNetworkRulesOf = ( module: string ) => Promise<Types.NetworkRulesEntry | null>;
+
+			/** Writes the regular rules of the module (null = deletes them) */
+			type writeRegularNetworkRules = ( module: string, entry: Types.NetworkRulesEntry | null ) => Promise<void>;
+
+			/** Moves the regular rules from chrome.storage.local (NETWORK_RULES_KEY) into IndexedDB — how many modules it moved */
+			type migrateNetworkRulesStore = () => Promise<number>;
+
+			/** A new value of NETWORK_RULES_REVISION_KEY (different from every one before) */
+			type networkRulesRevision = () => string;
 
 			/** Bulk rules of all modules */
 			type readBulkNetworkRules = () => Promise<Types.NetworkRulesBulkStore>;
@@ -2198,8 +2263,14 @@ declare global {
 			/** Writes the module's bulk rules (null = deletes them) */
 			type writeBulkNetworkRules = ( module: string, entry: Types.NetworkRulesBulkEntry | null ) => Promise<void>;
 
-			/** Do exactly the requested rules apply in the browser (the same ids, only the content of the requested ones is compared)? */
+			/** Do exactly the requested rules apply in the browser (the same ids, the same content — a field the requested rule does not have may only be empty there)? */
 			type networkRulesMatch = ( current: chrome.declarativeNetRequest.Rule[], desired: chrome.declarativeNetRequest.Rule[] ) => boolean;
+
+			/** The content of a rule without its id as a comparable text (priority, action, condition — sorted keys, no empty fields) */
+			type networkRuleSignature = ( rule: Types.NetworkRule ) => string;
+
+			/** Only the change from the dynamic rules in the browser to the desired ones: the rules to remove and to add, and the desired ones with their ids */
+			type diffNetworkRules = ( current: chrome.declarativeNetRequest.Rule[], desired: Types.NetworkRule[], currentSignatures?: string[] | null ) => Types.NetworkRulesDiff;
 
 			/** Document key of a content script (performance.timeOrigin); null outside a web page */
 			type getDocumentKey = () => number | null;
@@ -2210,7 +2281,7 @@ declare global {
 			/** Domain key (hostname without a trailing dot); only for http(s), otherwise null */
 			type getDomainKey = ( url: string | null | undefined ) => string | null;
 
-			/** The extension id (the host of its address) as a watermark in the lower left corner of the page */
+			/** The extension id (the host of its address) as a watermark in the lower left corner of the page, after a dot in the color of that id */
 			type mountExtensionIdWatermark = () => void;
 
 			/** Does the extension run in Firefox (a moz-extension:// address)? */
@@ -2221,6 +2292,9 @@ declare global {
 
 			/** A regular web page (http/https/file outside add-on stores), not a special browser page? */
 			type isWebPageUrl = ( url: string | null | undefined ) => boolean;
+
+			/** chrome.scripting.executeScript() that rejects once the frames have not answered within timeMs (SCRIPT_INJECTION_TIME_LIMIT_MS) */
+			type executeScriptWithin = <Args extends unknown[], Result>( injection: chrome.scripting.ScriptInjection<Args, Result>, timeMs?: number ) => Promise<chrome.scripting.InjectionResult<chrome.scripting.Awaited<Result>>[]>;
 
 			/** Shallow copies of the definitions of all registered modules */
 			type getRegisteredModules = () => Types.ModuleDefinition[];
@@ -2258,6 +2332,12 @@ declare global {
 			/** A readable module title from its name */
 			type formatModuleName = ( key: string ) => string;
 
+			/** Does the module of the list entry key match the filter text (trimmed, lower-cased; empty = every module)? */
+			type matchesModuleFilter = ( key: string, query: string ) => boolean;
+
+			/** Fills the suggestions of the filter with the names of the modules (each once); returns their count */
+			type fillModuleFilterNames = ( namesEl: HTMLDataListElement, entries: string[] ) => number;
+
 			/** Size in bytes as text ("1.5 KB") */
 			type formatBytes = ( bytes: number ) => string;
 
@@ -2268,6 +2348,26 @@ declare global {
 
 				/** Linear value of one color channel from position offset in "#rrggbb" */
 				type channel = ( offset: number ) => number;
+
+			}
+
+			/** SHA-1 of the bytes (20 bytes) — for colorFromText() only */
+			type textSha1 = ( bytes: Uint8Array ) => Uint8Array;
+
+			namespace textSha1 {
+
+				/** A 32-bit word rotated left by bits */
+				type rotl = ( value: number, bits: number ) => number;
+
+			}
+
+			/** The color of a text ("#rrggbb" by its SHA-1, the same text always the same color), "" for an empty text */
+			type colorFromText = ( text: unknown ) => string;
+
+			namespace colorFromText {
+
+				/** One channel of the color from HSL as two hex digits (n: 0 red, 8 green, 4 blue) */
+				type channel = ( n: number ) => string;
 
 			}
 
@@ -2292,6 +2392,9 @@ declare global {
 
 			/** The "current" tab from the point of view of an extension page with chrome.tabs, or null */
 			type queryCurrentTab = () => Promise<chrome.tabs.Tab | null>;
+
+			/** Follows the tab the user came from to this extension page in a tab: its opener, then the other tabs activated in its window */
+			type trackPreviousTab = ( current: chrome.tabs.Tab ) => void;
 
 			/** The tab the surface relates to (api.tabs.getActive()), or null */
 			type readActiveTab = () => Promise<Types.ActiveTabInfo | null>;
@@ -2736,6 +2839,12 @@ declare global {
 			type activateSandboxTab = ( options: unknown ) => Promise<void>;
 
 
+
+			// #region standalone: tabGroups
+			/** tabGroups.requestPermission("bookmarks") of a module the extension brings itself: whether the browser granted the permissions of the groups from bookmarks */
+			type requestSandboxTabGroupsPermission = ( what: unknown, context: Types.SandboxCapabilityContext ) => Promise<boolean>;
+			// #endregion standalone: tabGroups
+
 			/** Selects the tab in its window and focuses the window */
 			type activateTab = ( tabId: number ) => Promise<void>;
 
@@ -2758,6 +2867,52 @@ declare global {
 
 			/** Chrome: turns the extension's side panel off or on for all tabs; Firefox: nothing */
 			type applySidebarDisabled = ( disabled: boolean ) => Promise<void>;
+
+			/** Does the surface stay open while tabs switch, so that its output follows the tab (the side panel, the dashboard)? */
+			type followsActiveTab = ( location: string | null | undefined ) => boolean;
+
+			/** On a surface that follows tabs: handler() after a tab switch and a finished load of the surface's tab; returns the unsubscribe */
+			type followSurfaceTab = ( location: string | null | undefined, handler: () => void ) => () => void;
+
+			/** Each enabled entry of the module list the page has loaded with its output locations (both sets of a client's module) */
+			type listEnabledEntryLocations = ( paths: unknown[], settings: Types.ModuleSettings ) => Promise<Types.EnabledEntryLocations[]>;
+
+			/** The output locations of each enabled entry of the module list the page has loaded (both sets of a client's module) */
+			type listEnabledDisplayLocations = ( paths: unknown[], settings: Types.ModuleSettings ) => Promise<Enums.RenderLocation[][]>;
+
+			/** The keys of the enabled entries of the module list the surface may show (by the settings) */
+			type listEnabledModulesFor = ( paths: unknown[], settings: Types.ModuleSettings, location: Enums.RenderLocation ) => Promise<string[]>;
+
+			/** Should the extension button open the dashboard — no enabled module in the popup, at least one on the dashboard? */
+			type resolveActionOpensDashboard = ( paths: unknown[], settings: Types.ModuleSettings ) => Promise<boolean>;
+
+			/** resolveActionOpensDashboard() into ACTION_OPENS_DASHBOARD_KEY when it changed; returns the result */
+			type syncActionOpensDashboard = ( paths: unknown[], settings: Types.ModuleSettings ) => Promise<boolean>;
+
+			/** syncActionOpensDashboard() right away and after changes of the settings, the module list and the client extensions (once per page) */
+			type watchActionOpensDashboard = () => void;
+
+			namespace watchActionOpensDashboard {
+
+				/** One sync with the current module list and settings, after the previous one; its error only logged */
+				type sync = () => void;
+
+			}
+
+			/** The extension button without the popup (opens the dashboard) or with it, and its tooltip */
+			type applyActionOpensDashboard = ( opens: boolean ) => Promise<void>;
+
+			/** Brings the open dashboard to the front, otherwise opens it in a new tab (next to openerTabId) */
+			type openDashboard = ( openerTabId?: number ) => Promise<void>;
+
+			/** Refreshes whether at least one enabled module is sent to the dashboard (for dashboard.open) and returns it */
+			type loadDashboardHasModules = () => Promise<boolean>;
+
+			/** dashboard.open of the catalog: the dashboard in front, next to the tab of the surface */
+			type openSandboxDashboard = ( context: Types.SandboxCapabilityContext ) => Promise<void>;
+
+			/** The tabs with the dashboard open (chrome.runtime.getContexts()) */
+			type findDashboardTabs = ( url: string ) => Promise<Types.DashboardTab[]>;
 
 			/** Can the page control the sidebar (Firefox sidebarAction, Chrome sidePanel)? */
 			type hasSidebarControl = () => boolean;
@@ -2831,6 +2986,7 @@ declare global {
 
 			/** The configuration of the core's filters the module declared in its stored registration (not checked yet); undefined = none */
 			type getDeclaredFiltersConfig = ( record: Types.SandboxModuleRecord, key: Types.DeclaredFilters['key'] ) => unknown;
+
 
 
 
@@ -2982,6 +3138,9 @@ declare global {
 
 			/** The modules from the package a client runs instead: module name → the client */
 			type getReplacedModules = () => Promise<Map<string, Types.ExtensionServiceClient>>;
+
+			/** The same from the given records of the clients (without reading them) */
+			type replacedModulesOf = ( clients: Record<string, Types.ExtensionServiceClient> ) => Map<string, Types.ExtensionServiceClient>;
 
 			/** Installs the packages of an allowed client that are not installed in their version; returns the problems */
 			type installClientSandboxModules = ( id: string, options?: Types.SandboxInstallOptions ) => Promise<string[]>;
@@ -3199,6 +3358,9 @@ declare global {
 			/** The last loaded/saved moduleSettings */
 			_settings: Types.ModuleSettings;
 
+			/** The tab of the last buildPageContext() (null = none) — _followActiveTab() follows its load too */
+			_pageTabId: number | null;
+
 			constructor ();
 
 			/** Loads moduleSettings (and remembers them) */
@@ -3233,6 +3395,9 @@ declare global {
 			/** A snapshot of the ACTIVE TAB: the address, and when the browser does not reveal it, also the access to pages */
 			buildPageContext(): Promise<Types.PageContext>;
 
+			/** The tab buildPageContext() takes the address from — the active tab of the window (the dashboard: the tab the user came from) */
+			queryPageTab(): Promise<chrome.tabs.Tab | null>;
+
 			/** Context { mode, url, hostAccess } for Specification — url is the address of the ACTIVE TAB */
 			buildActivationContext( mode: Enums.ActivationMode ): Promise<Types.SpecificationContext>;
 
@@ -3244,6 +3409,9 @@ declare global {
 
 			/** The notice before beforeEl while a client waits for the user's decision (hidden while there is none); returns its box */
 			mountPendingServiceNotice( beforeEl: HTMLElement, location: Enums.RenderLocation ): HTMLElement;
+
+			/** "Filter by name" above the output of the side panel / the dashboard (from OUTPUT_MODULE_FILTER_MIN outputs); returns the keys of the entries the surface may show */
+			mountModuleFilter( outputEl: HTMLElement, location: Enums.RenderLocation ): Promise<string[]>;
 
 			/** On the Settings page scrolls to its section (element id) — OptionsController first opens its tab */
 			scrollToSettingsSection( id: string ): void;
@@ -3298,6 +3466,9 @@ declare global {
 			/** The module's API for communication with the core (created by init()) */
 			api: Types.ModuleApi;
 
+			/** A settings view (location "settings") has changes not stored yet (setUnsavedChanges()) */
+			_unsavedChanges: boolean;
+
 			constructor ();
 			connectedCallback(): void;
 			disconnectedCallback(): void;
@@ -3307,6 +3478,21 @@ declare global {
 
 			/** Initialization of the element after it is inserted into a surface */
 			init( options: Types.ModuleInitOptions ): Promise<void>;
+
+			/**
+			 * A settings view: whether it has changes not stored yet — Settings shows the reminder above "Save module settings"
+			 * and the button then calls saveSettings(); a change fires SETTINGS_VIEW_UNSAVED_EVENT (bubbling)
+			 */
+			setUnsavedChanges( unsaved: boolean ): void;
+
+			/** A settings view: what it reported last with setUnsavedChanges() */
+			hasUnsavedChanges(): boolean;
+
+			/**
+			 * A settings view: "Save module settings" stores what it reported as unsaved (called only then, after the fields of
+			 * the form are stored); rejects with the reason for the user. The default stores nothing.
+			 */
+			saveSettings(): Promise<void>;
 
 			/** Does the module's activation rule hold for the given mode? */
 			isActivationSatisfied( mode?: Enums.ActivationMode ): boolean;
@@ -3324,7 +3510,7 @@ declare global {
 		namespace BaseElement {
 
 			/** Instance properties (without methods); the base of the class is cast to them in JS — see Types.WithFields */
-			type Fields = Pick<BaseElement, '_name' | '_mode' | '_location' | '_instance' | 'activationSpec' | '_messageListeners' | 'api'>;
+			type Fields = Pick<BaseElement, '_name' | '_mode' | '_location' | '_instance' | 'activationSpec' | '_messageListeners' | 'api' | '_unsavedChanges'>;
 
 		}
 
@@ -3417,6 +3603,18 @@ declare global {
 			/** Stops scrolling again as the page grows after api.ui.scrollIntoView() (null = not scrolling) */
 			_stopScrollFollow: ( () => void ) | null;
 
+			/** The savings of a settings view sent to the sandbox ("save") and not answered yet, by their id */
+			_pendingSaves: Map<number, { resolve: () => void; reject: ( reason: Error ) => void; timer: ReturnType<typeof setTimeout> }>;
+
+			/** The id of the last "save" */
+			_lastSaveId: number;
+
+			/** "Save module settings": the settings view in the sandbox stores its settings ("save" → "saved"), at most SANDBOX_SAVE_TIMEOUT_MS */
+			override saveSettings(): Promise<void>;
+
+			/** Settles a pending saving (error null = stored); an unknown id does nothing */
+			_finishSave( id: unknown, error: string | null ): void;
+
 			/** A message from the sandbox page */
 			_handleMessage( event: MessageEvent ): void;
 
@@ -3463,6 +3661,8 @@ declare global {
 				| '_uiControls'
 				| '_uiListeners'
 				| '_stopScrollFollow'
+				| '_pendingSaves'
+				| '_lastSaveId'
 			>;
 
 		}

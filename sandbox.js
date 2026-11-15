@@ -49,7 +49,9 @@
 //   "init"    — when rendering: evaluate the module, create its element, call init();
 // then "call"/"subscribe"/"unsubscribe" (api requests) → "result"/"event"/"denied",
 // "resize" (the content height and width for the <iframe>), "theme" (page colors) and
-// "problems". Every message to the core carries the token from the page address
+// "problems"; a settings view (registerModule({ settingsView })) reports its unsaved
+// changes ("unsaved", setUnsavedChanges() of its element) and the core asks it to store them
+// when the user saves the module settings ("save" → saveSettings() → "saved"). Every message to the core carries the token from the page address
 // (#…): after a navigation of the frame elsewhere the new page does not know it and
 // the core no longer answers.
 (() => {
@@ -89,6 +91,9 @@
 	let moduleApi = null;
 	/** @type {Types.SandboxPackage | null} */
 	let pkg = null;
+	// The element of the module once it is rendered ("init").
+	/** @type {Classes.SandboxElement | null} */
+	let moduleElement = null;
 	// Addresses of the files of the package (data:), created on first use.
 	/** @type {Map<string, string>} */
 	const fileUrls = new Map();
@@ -637,6 +642,8 @@
 			// As in BaseElement: without its own value init() takes the registered rule.
 			/** @type {Classes.SandboxElement['activationSpec']} */
 			this.activationSpec = undefined;
+			/** @type {Classes.SandboxElement['_unsavedChanges']} */
+			this._unsavedChanges = false;
 		}
 
 		/** @type {Classes.SandboxElement['connectedCallback']} */
@@ -682,6 +689,26 @@
 		/** @type {Classes.SandboxElement['isActivationSatisfied']} */
 		isActivationSatisfied(mode = this._mode) {
 			return (this.activationSpec || NOT_DISABLED_SPEC).isSatisfiedBy({ mode });
+		}
+
+		// A settings view (location "settings"): the same as BaseElement — whether it has changes not stored yet (the
+		// reminder above "Save module settings"; only a change goes to the core), and the button then calls saveSettings().
+		/** @type {Classes.SandboxElement['setUnsavedChanges']} */
+		setUnsavedChanges(unsaved) {
+			const next = unsaved === true;
+			if (next === this._unsavedChanges) return;
+			this._unsavedChanges = next;
+			post({ kind: "unsaved", unsaved: next });
+		}
+
+		/** @type {Classes.SandboxElement['hasUnsavedChanges']} */
+		hasUnsavedChanges() {
+			return this._unsavedChanges;
+		}
+
+		/** @type {Classes.SandboxElement['saveSettings']} */
+		saveSettings() {
+			return Promise.resolve();
 		}
 	}
 
@@ -752,6 +779,78 @@
 		}
 	}
 
+	// #region colorFromText — the same code as in base.mjs (tests/colorFromText.test.mjs checks it), for sdk.colorFromText
+	// SHA-1 (FIPS 180-4) of the bytes — only for colorFromText(), not for anything that has to be secure. Synchronous (not
+	// crypto.subtle), so an editor sets the color right in its event handler and the sandbox needs no secure context for it.
+	/** @type {Functions.Base.textSha1} */
+	function textSha1(bytes) {
+		const words = new Uint32Array((((bytes.length + 8) >> 6) + 1) * 16);
+		for (let index = 0; index < bytes.length; index++) words[index >> 2] |= bytes[index] << (24 - (index % 4) * 8);
+		words[bytes.length >> 2] |= 0x80 << (24 - (bytes.length % 4) * 8);
+		words[words.length - 2] = Math.floor((bytes.length * 8) / 0x100000000);
+		words[words.length - 1] = (bytes.length * 8) >>> 0;
+		/** @type {Functions.Base.textSha1.rotl} */
+		const rotl = (value, bits) => ((value << bits) | (value >>> (32 - bits))) >>> 0;
+		const state = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+		const w = new Uint32Array(80);
+		for (let block = 0; block < words.length; block += 16) {
+			for (let i = 0; i < 16; i++) w[i] = words[block + i];
+			for (let i = 16; i < 80; i++) w[i] = rotl(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
+			let [a, b, c, d, e] = state;
+			for (let i = 0; i < 80; i++) {
+				const f = i < 20 ? (b & c) | (~b & d) : i < 40 ? b ^ c ^ d : i < 60 ? (b & c) | (b & d) | (c & d) : b ^ c ^ d;
+				const k = i < 20 ? 0x5a827999 : i < 40 ? 0x6ed9eba1 : i < 60 ? 0x8f1bbcdc : 0xca62c1d6;
+				const next = (rotl(a, 5) + f + e + k + w[i]) >>> 0;
+				e = d;
+				d = c;
+				c = rotl(b, 30);
+				b = a;
+				a = next;
+			}
+			state[0] = (state[0] + a) >>> 0;
+			state[1] = (state[1] + b) >>> 0;
+			state[2] = (state[2] + c) >>> 0;
+			state[3] = (state[3] + d) >>> 0;
+			state[4] = (state[4] + e) >>> 0;
+		}
+		const digest = new Uint8Array(20);
+		state.forEach((word, index) => {
+			digest[index * 4] = word >>> 24;
+			digest[index * 4 + 1] = (word >>> 16) & 0xff;
+			digest[index * 4 + 2] = (word >>> 8) & 0xff;
+			digest[index * 4 + 3] = word & 0xff;
+		});
+		return digest;
+	}
+
+	// The color of a text — the name of a rule, of a bookmark folder, of a navigation kind: the same text always gives the same
+	// color, so it serves as the default color of what it names (the user can pick another one afterwards). The SHA-1 of the
+	// text (trimmed, Unicode NFC, UTF-8) chooses the hue (its first two bytes), the saturation (55–80 %, the third byte) and the
+	// lightness (38–55 %, the fourth byte) — not just any RGB of the hash: a color close to white or black would not be seen in
+	// the light or the dark look. "#rrggbb" in lowercase as <input type="color"> has it; an empty text has none (""). For the
+	// color editors of modules (declarativeNetRequestSandbox, visualHistory, bookmarkChecker).
+	/** @type {Functions.Base.colorFromText} */
+	function colorFromText(text) {
+		const value = typeof text === "string" ? text.trim().normalize("NFC") : "";
+		if (!value) return "";
+		const digest = textSha1(new TextEncoder().encode(value));
+		const hue = ((digest[0] << 8) | digest[1]) % 360;
+		const saturation = (55 + (digest[2] % 26)) / 100;
+		const lightness = (38 + (digest[3] % 18)) / 100;
+		// HSL → RGB as CSS Color 4 computes it.
+		const chroma = saturation * Math.min(lightness, 1 - lightness);
+		/** @type {Functions.Base.colorFromText.channel} */
+		const channel = (n) => {
+			const k = (n + hue / 30) % 12;
+			const level = lightness - chroma * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+			return Math.round(level * 255)
+				.toString(16)
+				.padStart(2, "0");
+		};
+		return `#${channel(0)}${channel(8)}${channel(4)}`;
+	}
+	// #endregion colorFromText
+
 	/** @type {Functions.Sandbox.createSdk} */
 	function createSdk(context) {
 		const constants = context.constants;
@@ -770,6 +869,10 @@
 			getExtensionInfo: () => ({ ...extension }),
 			getFileUrl,
 			getFileText,
+			// The same color of a text as colorFromText() of sdk.mjs (the default color of a named thing in an editor).
+			colorFromText,
+			// The same as followsActiveTab() of sdk.mjs: the surfaces that stay open while tabs switch.
+			followsActiveTab: (location) => location === "sidebar" || location === "dashboard",
 			Specification: SandboxSpecification,
 			AndSpecification: SandboxAndSpecification,
 			OrSpecification: SandboxOrSpecification,
@@ -994,6 +1097,7 @@
 		}
 		// The same order as in BaseController: attach (connectedCallback()), then init().
 		root.replaceChildren(element);
+		moduleElement = element;
 		try {
 			await element.init({
 				outputEl: root,
@@ -1005,6 +1109,22 @@
 		} catch (err) {
 			console.error(err);
 			post({ kind: "problems", problems: [{ code: "initFailed", args: [describeError(err)] }] });
+		}
+	}
+
+	// "Save module settings" in Settings: the element of the settings view stores what it reported as unsaved. A plain Error
+	// goes to the core as its text only (the user reads it next to the button), other errors with their name.
+	/** @type {Functions.Sandbox.saveSettings} */
+	async function saveSettings(id) {
+		try {
+			if (!moduleElement) throw new Error("The module element is not rendered");
+			await moduleElement.saveSettings();
+			post({ kind: "saved", id, ok: true });
+		} catch (err) {
+			const plain = err instanceof Error && err.name === "Error";
+			// A bug of the module (TypeError, …) with its stack in the console.
+			if (!plain) console.error(err);
+			post({ kind: "saved", id, ok: false, error: plain ? err.message : describeError(err) });
 		}
 	}
 
@@ -1044,6 +1164,9 @@
 				break;
 			case "theme":
 				applyTheme(message.theme);
+				break;
+			case "save":
+				if (typeof message.id === "number") saveSettings(message.id);
 				break;
 		}
 	});

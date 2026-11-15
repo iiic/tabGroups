@@ -79,7 +79,7 @@ export const PERF_MODE_SEPARATOR = ",";
 // Where the code runs: page = a content script in a web page, background =
 // background.js, extension = another extension page (e.g. a module page).
 /** @type {Enums.PerfContext[]} */
-export const PERF_CONTEXTS = ["page", "background", "popup", "sidebar", "floating", "options", "onboarding", "extension"];
+export const PERF_CONTEXTS = ["page", "background", "popup", "sidebar", "floating", "options", "onboarding", "dashboard", "extension"];
 
 // Thresholds for the counters: a callback longer than a frame at 60 Hz delays
 // rendering, one longer than 50 ms is a long task (Long Tasks API).
@@ -125,6 +125,7 @@ const PAGE_CONTEXTS = {
 	"/floating.html": "floating",
 	"/options.html": "options",
 	"/onboarding.html": "onboarding",
+	"/dashboard.html": "dashboard",
 	"/_generated_background_page.html": "background",
 };
 

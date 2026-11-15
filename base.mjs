@@ -7,7 +7,7 @@
 // (an expando on globalThis) instead of var __extensionModules from base.globals.d.ts.
 /** @type {typeof globalThis} */ (globalThis).__extensionModules = globalThis.__extensionModules || [];
 
-import { t, loadI18n, loadModuleI18n, addModuleI18n, getUiLanguage, UI_LANGUAGES, DEFAULT_UI_LANGUAGE } from "./i18n.mjs";
+import { t, loadI18n, loadModuleI18n, addModuleI18n, getUiLanguage, getUiLocale, UI_LANGUAGES, DEFAULT_UI_LANGUAGE } from "./i18n.mjs";
 import {
 	installPerfHooks,
 	detectPerfContext,
@@ -54,7 +54,7 @@ export const FRAME_STATE_SEEN_REFRESH_MS = 24 * 60 * 60 * 1000;
 // and its order stay unchanged.
 export const PINNED_MODULE_KEY_PREFIX = "pinnedModule.";
 /** @type {Enums.PinLocation[]} */
-export const PIN_LOCATIONS = ["sidebar", "floating"];
+export const PIN_LOCATIONS = ["sidebar", "floating", "dashboard"];
 // The maximum height of the pinned frame in % of the surface height (Settings, the first tab) — a frame
 // taller than that scrolls inside itself. Missing = PINNED_MAX_HEIGHT_DEFAULT; the value applies on all
 // PIN_LOCATIONS surfaces as the CSS variable --pinned-max-height (css/module-frame.css).
@@ -69,6 +69,14 @@ export const PINNED_MAX_HEIGHT_MAX = 100;
 // locations stay stored ("sidebar" included) for when the user turns the panel on again. An extension
 // without a sidebar in its manifest has it on for good (hasManifestSidebar()).
 export const SIDEBAR_DISABLED_KEY = "sidebarDisabled";
+// The dashboard — the page of the "dashboard" output surface (DISPLAY_LOCATIONS), a whole tab of the browser window
+// that shows the module outputs the same way as the side panel. The path in the extension for chrome.runtime.getURL().
+export const DASHBOARD_PAGE = "dashboard.html";
+// true = the extension button opens the dashboard (or brings its open tab to the front) instead of the popup: no
+// module is sent to the popup and at least one to the dashboard (resolveActionOpensDashboard()). Only a value derived
+// from the settings, written by the pages that know the modules (syncActionOpensDashboard()) — the background cannot
+// load the module descriptions and only follows it (applyActionOpensDashboard()).
+export const ACTION_OPENS_DASHBOARD_KEY = "actionOpensDashboard";
 // The build settings of a module for its standalone extension (modules/<module>/standalone.json) — read by
 // scripts/build-module-*.ps1 and shown by buildSettings.get; the same name as STANDALONE_CONFIG in scripts/build.mjs.
 export const STANDALONE_CONFIG_FILE = "standalone.json";
@@ -310,14 +318,26 @@ export const NETWORK_FILTERS_PERMISSIONS = { permissions: [...(NETWORK_RULES_PER
 
 // Dynamic declarativeNetRequest rules of modules (api.networkRules): a module
 // sends the WHOLE set of its rules (without ids) in the NETWORK_RULES_SET_MESSAGE message,
-// background.js stores it under NETWORK_RULES_KEY ({ "<module>": { rules,
-// defaultMode } }) and puts into the browser only the rules of modules that are
+// background.js stores it in IndexedDB (NETWORK_RULES_DB_NAME, the store of the regular rules — module name → { rules,
+// defaultMode }) and puts into the browser only the rules of modules that are
 // in the module list and not turned off (see planNetworkRules()). Rule ids
 // are assigned by background.js itself — dynamic rules have one id namespace
 // for the whole extension, so no module adds them directly. Response:
 // { status } (Types.NetworkRulesStatus).
+//
+// NETWORK_RULES_KEY: where the regular rules were before — one chrome.storage.local value with the rules of all modules
+// ({ "<module>": { rules, defaultMode } }). It grew to 2.6 MB (trackingParamsCleaner) and every change of the rules of any
+// module wrote all of it again (~0.5 s in Chrome) and sent the old and the new value to every page and content script that
+// listens to storage.onChanged — Firefox then held up the next work of the extension for 3–7 s (verified in Firefox 159:
+// fetch() of a file of the extension took 6.9 s after such a write, 3 ms without it). background.js moves it into IndexedDB
+// at its start (migrateNetworkRulesStore()).
 export const NETWORK_RULES_KEY = "networkRules";
 export const NETWORK_RULES_SET_MESSAGE = "SDK_NETWORK_RULES_SET";
+
+// A change of the regular rules in IndexedDB made by another page than background.js (a restored backup, the reset of
+// a module — importModuleBackup(), resetModule()): nobody hears a change of IndexedDB, so the page also writes a new value
+// of this small chrome.storage.local key and background.js recalculates the rules after its storage.onChanged.
+export const NETWORK_RULES_REVISION_KEY = "networkRulesRevision";
 
 // Status of a module's rules in the browser without changing the set (api.networkRules.getStatus())
 // — background.js recalculates the rules (without a change it writes nothing) and returns
@@ -399,10 +419,11 @@ export const ACTIVATION_MODES = [
 // is shown). A module can be shown in several places at once —
 // the setting is a list of locations (see getModuleDisplayLocations() below), empty =
 // nowhere; in Settings the module has a checkbox for each location. Used by
-// popup.mjs, sidebar.mjs, floating.mjs, options.mjs and onboarding.mjs (see
+// popup.mjs, sidebar.mjs, floating.mjs, options.mjs, onboarding.mjs and dashboard.mjs (see
 // BaseController.renderModulesFor) for the same decision whether a given module
 // belongs on that particular surface. "onboarding" is the welcome page
-// onboarding.html, which the onboardingModule module opens after the extension is installed.
+// onboarding.html, which the onboardingModule module opens after the extension is installed;
+// "dashboard" is dashboard.html (DASHBOARD_PAGE) — the side panel as a whole tab of the window.
 /** @type {Types.DisplayLocationOption[]} */
 export const DISPLAY_LOCATIONS = [
 	{ value: "popup", get label() { return t("core_location_popup"); } },
@@ -410,7 +431,21 @@ export const DISPLAY_LOCATIONS = [
 	{ value: "floating", get label() { return t("core_location_floating"); } },
 	{ value: "options", get label() { return t("core_location_options"); } },
 	{ value: "onboarding", get label() { return t("core_location_onboarding"); } },
+	{ value: "dashboard", get label() { return t("core_location_dashboard"); } },
 ];
+// The surfaces that stay open while the user switches tabs and navigates — the side panel and the dashboard (the
+// popup closes, the floating window belongs to one page, Settings and the welcome page are not for following pages).
+// Their module output follows the tab the surface relates to (BaseController._followActiveTab(), the modules through
+// followsActiveTab()).
+/** @type {Enums.RenderLocation[]} */
+const TAB_FOLLOWING_LOCATIONS = ["sidebar", "dashboard"];
+
+// Does the surface stay open while tabs switch (TAB_FOLLOWING_LOCATIONS)? For a module that refreshes its output after
+// another tab or a finished load of the page — exported by sdk.mjs.
+/** @type {Functions.Base.followsActiveTab} */
+export function followsActiveTab(location) {
+	return TAB_FOLLOWING_LOCATIONS.some((item) => item === location);
+}
 // "Show nowhere" written as one string — from the time when only one location
 // could be chosen. Today it is an empty list of locations, but the string still applies in
 // stored settings (and in backups from importExport) and in a module's defaultDisplayLocation
@@ -555,7 +590,7 @@ export function sanitizeNetworkRules(rules) {
 		}));
 }
 
-// Which stored rules (NETWORK_RULES_KEY and bulk rules
+// Which stored rules (the regular rules and the bulk rules
 // from NETWORK_RULES_DB_NAME) should apply in the browser: only modules from the module
 // list that are not turned off — the mode from the settings, otherwise the default mode
 // stored with the rules (background.js has no module registry). Returns the rules
@@ -628,8 +663,10 @@ export function planNetworkRules(store, settings, moduleNames, bulkStore = {}) {
 //   the module derives them again.
 export const NETWORK_RULES_BULK_MAX_PRIORITY = 10;
 export const NETWORK_RULES_DB_NAME = "networkRules";
-const NETWORK_RULES_DB_VERSION = 1;
+// Version 2 added the store of the regular rules (before in chrome.storage.local, NETWORK_RULES_KEY).
+const NETWORK_RULES_DB_VERSION = 2;
 const NETWORK_RULES_BULK_STORE = "bulk";
+const NETWORK_RULES_REGULAR_STORE = "regular";
 
 // Dynamic rule limits when the browser does not state them (Firefox 157:
 // 5000 rules in total, 1000 with a regular expression; Chrome 154 states 30000,
@@ -703,9 +740,9 @@ export function fitNetworkRules(groups, limits) {
 /** @type {Promise<IDBDatabase> | null} */
 let networkRulesDbPromise = null;
 
-// Database of bulk rules (module name → Types.NetworkRulesBulkEntry).
-// Extension pages and background.js have the same origin, and thus the same
-// IndexedDB.
+// Database of the rules of the modules: bulk rules (module name → Types.NetworkRulesBulkEntry) and regular rules (module
+// name → Types.NetworkRulesEntry), each kind in its own store. Extension pages and background.js have the same origin,
+// and thus the same IndexedDB.
 /** @type {Functions.Base.openNetworkRulesDb} */
 function openNetworkRulesDb() {
 	if (!networkRulesDbPromise) {
@@ -716,7 +753,9 @@ function openNetworkRulesDb() {
 				reject(request.error);
 			};
 			request.onupgradeneeded = () => {
-				if (!request.result.objectStoreNames.contains(NETWORK_RULES_BULK_STORE)) request.result.createObjectStore(NETWORK_RULES_BULK_STORE);
+				for (const name of [NETWORK_RULES_BULK_STORE, NETWORK_RULES_REGULAR_STORE]) {
+					if (!request.result.objectStoreNames.contains(name)) request.result.createObjectStore(name);
+				}
 			};
 			request.onsuccess = () => {
 				const db = request.result;
@@ -735,31 +774,35 @@ function openNetworkRulesDb() {
 	return networkRulesDbPromise;
 }
 
-// One request on the bulk rule storage; resolves when the transaction
-// completes.
-/** @type {Functions.Base.bulkNetworkRulesRequest} */
-async function bulkNetworkRulesRequest(mode, work) {
+// One request on a store of the rules (the bulk ones, the regular ones); resolves when the transaction completes.
+/** @type {Functions.Base.networkRulesRequest} */
+async function networkRulesRequest(storeName, mode, work) {
 	const db = await openNetworkRulesDb();
 	return new Promise((resolve, reject) => {
-		const tx = db.transaction(NETWORK_RULES_BULK_STORE, mode);
-		const request = work(tx.objectStore(NETWORK_RULES_BULK_STORE));
+		const tx = db.transaction(storeName, mode);
+		const request = work(tx.objectStore(storeName));
 		tx.oncomplete = () => resolve(request.result);
 		tx.onerror = () => reject(tx.error);
 		tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted"));
 	});
 }
 
-// Bulk rules of all modules (module name → record).
-/** @type {Functions.Base.readBulkNetworkRules} */
-export async function readBulkNetworkRules() {
+/** @type {Functions.Base.bulkNetworkRulesRequest} */
+function bulkNetworkRulesRequest(mode, work) {
+	return networkRulesRequest(NETWORK_RULES_BULK_STORE, mode, work);
+}
+
+// All the records of a store of the rules (module name → record; only objects).
+/** @type {Functions.Base.readAllNetworkRules} */
+async function readAllNetworkRules(storeName) {
 	const db = await openNetworkRulesDb();
 	return new Promise((resolve, reject) => {
-		const tx = db.transaction(NETWORK_RULES_BULK_STORE, "readonly");
-		const store = tx.objectStore(NETWORK_RULES_BULK_STORE);
+		const tx = db.transaction(storeName, "readonly");
+		const store = tx.objectStore(storeName);
 		const keys = store.getAllKeys();
 		const values = store.getAll();
 		tx.oncomplete = () => {
-			/** @type {Types.NetworkRulesBulkStore} */
+			/** @type {Record<string, unknown>} */
 			const result = {};
 			keys.result.forEach((key, i) => {
 				if (typeof key === "string" && values.result[i] && typeof values.result[i] === "object") result[key] = values.result[i];
@@ -769,6 +812,74 @@ export async function readBulkNetworkRules() {
 		tx.onerror = () => reject(tx.error);
 		tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted"));
 	});
+}
+
+// Bulk rules of all modules (module name → record).
+/** @type {Functions.Base.readBulkNetworkRules} */
+export async function readBulkNetworkRules() {
+	return /** @type {Types.NetworkRulesBulkStore} */ (await readAllNetworkRules(NETWORK_RULES_BULK_STORE));
+}
+
+// Regular rules of all modules (module name → { rules, defaultMode }).
+/** @type {Functions.Base.readRegularNetworkRules} */
+export async function readRegularNetworkRules() {
+	return /** @type {Types.NetworkRulesStore} */ (await readAllNetworkRules(NETWORK_RULES_REGULAR_STORE));
+}
+
+// Regular rules of one module (null = none).
+/** @type {Functions.Base.readRegularNetworkRulesOf} */
+export async function readRegularNetworkRulesOf(module) {
+	const entry = await networkRulesRequest(NETWORK_RULES_REGULAR_STORE, "readonly", (store) => store.get(module));
+	return entry && typeof entry === "object" ? /** @type {Types.NetworkRulesEntry} */ (entry) : null;
+}
+
+// Writes the regular rules of the module (null = deletes them) — only its record, the others stay untouched.
+/** @type {Functions.Base.writeRegularNetworkRules} */
+export async function writeRegularNetworkRules(module, entry) {
+	if (entry) await networkRulesRequest(NETWORK_RULES_REGULAR_STORE, "readwrite", (store) => store.put(entry, module));
+	else await networkRulesRequest(NETWORK_RULES_REGULAR_STORE, "readwrite", (store) => store.delete(module));
+}
+
+// Moves the regular rules from chrome.storage.local (NETWORK_RULES_KEY, before version 2 of the database) into IndexedDB
+// and removes the key — background.js at its start, before any other work with the rules. A module that already has its
+// record in IndexedDB keeps it (a newer one: the migration ran but the removal of the key did not, a restored backup).
+// Returns how many modules it moved (0 — nothing to move).
+/** @type {Functions.Base.migrateNetworkRulesStore} */
+export async function migrateNetworkRulesStore() {
+	const legacy = /** @type {Types.StorageLocal} */ (await chrome.storage.local.get(NETWORK_RULES_KEY))[NETWORK_RULES_KEY];
+	if (legacy === undefined) return 0;
+	const entries = isPlainObject(legacy)
+		? Object.entries(legacy).filter(([module, entry]) => module && isPlainObject(entry) && Array.isArray(/** @type {Record<string, unknown>} */ (entry).rules))
+		: [];
+	let moved = 0;
+	if (entries.length > 0) {
+		const db = await openNetworkRulesDb();
+		await new Promise((resolve, reject) => {
+			const tx = db.transaction(NETWORK_RULES_REGULAR_STORE, "readwrite");
+			const store = tx.objectStore(NETWORK_RULES_REGULAR_STORE);
+			for (const [module, entry] of entries) {
+				const existing = store.getKey(module);
+				existing.onsuccess = () => {
+					if (existing.result !== undefined) return;
+					store.put(entry, module);
+					moved += 1;
+				};
+			}
+			tx.oncomplete = () => resolve(undefined);
+			tx.onerror = () => reject(tx.error);
+			tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted"));
+		});
+	}
+	await chrome.storage.local.remove(NETWORK_RULES_KEY);
+	return moved;
+}
+
+// A new value of NETWORK_RULES_REVISION_KEY — a page that changed the regular rules in IndexedDB writes it, so that
+// background.js recalculates the rules (a value different from every one before — chrome.storage.onChanged does not come
+// for the same one).
+/** @type {Functions.Base.networkRulesRevision} */
+export function networkRulesRevision() {
+	return `${Date.now()}:${Math.random().toString(36).slice(2)}`;
 }
 
 // Bulk rules of one module (null = none).
@@ -786,24 +897,96 @@ export async function writeBulkNetworkRules(module, entry) {
 }
 
 // Do exactly these rules already apply in the browser (the same ids in the same order)?
-// The browser returns rules completed with default values, so only what is in
-// the requested rule is compared.
+// The browser returns rules completed: Firefox gives every field the rule does not set the value
+// null and a rule without a priority priority 1, Chrome returns them as they were added (verified
+// in Chrome 156 and Firefox 159). So a field the requested rule does not have may only be empty in
+// the browser (NETWORK_RULE_DEFAULTS at the level of the rule) — a field a rule no longer has (its
+// excludedRequestDomains removed, the rest the same) is a change, too.
+const NETWORK_RULE_DEFAULTS = { priority: 1 };
 /** @type {Functions.Base.networkRulesMatch} */
 export function networkRulesMatch(current, desired) {
-	/** @type {(want: unknown, have: unknown) => boolean} */
-	const contains = (want, have) => {
+	/** @type {(want: unknown, have: unknown, defaults?: Record<string, unknown>) => boolean} */
+	const contains = (want, have, defaults = {}) => {
 		if (Array.isArray(want)) {
 			return Array.isArray(have) && want.length === have.length && want.every((item, i) => contains(item, have[i]));
 		}
 		if (want && typeof want === "object") {
-			if (!have || typeof have !== "object") return false;
+			if (!have || typeof have !== "object" || Array.isArray(have)) return false;
+			const wantRecord = /** @type {Record<string, unknown>} */ (want);
 			const haveRecord = /** @type {Record<string, unknown>} */ (have);
-			return Object.entries(want).every(([key, value]) => value === undefined || contains(value, haveRecord[key]));
+			return (
+				Object.entries(wantRecord).every(([key, value]) => value === undefined || contains(value, haveRecord[key])) &&
+				Object.entries(haveRecord).every(
+					([key, value]) => wantRecord[key] !== undefined || value === null || value === undefined || (Object.hasOwn(defaults, key) && defaults[key] === value)
+				)
+			);
 		}
 		return want === have;
 	};
 	const sorted = [...current].sort((a, b) => a.id - b.id);
-	return sorted.length === desired.length && desired.every((rule, i) => contains(rule, sorted[i]));
+	return sorted.length === desired.length && desired.every((rule, i) => contains(rule, sorted[i], NETWORK_RULE_DEFAULTS));
+}
+
+// The content of a rule without its id as a comparable text: the priority (missing = 1), the action and the condition with
+// the keys sorted and without empty fields — the same text for a rule as the core asks for it and as the browser gives it
+// back (Firefox fills every unset field with null, Chrome keeps its own order of the keys; see networkRulesMatch()).
+/** @type {Functions.Base.networkRuleSignature} */
+export function networkRuleSignature(rule) {
+	/** @type {(value: unknown) => unknown} */
+	const canonical = (value) => {
+		if (Array.isArray(value)) return value.map(canonical);
+		if (!value || typeof value !== "object") return value;
+		/** @type {Record<string, unknown>} */
+		const out = {};
+		for (const key of Object.keys(value).sort()) {
+			const item = /** @type {Record<string, unknown>} */ (value)[key];
+			if (item !== null && item !== undefined) out[key] = canonical(item);
+		}
+		return out;
+	};
+	return JSON.stringify(canonical({ priority: rule.priority ?? 1, action: rule.action, condition: rule.condition }));
+}
+
+// The change of the dynamic rules from those in the browser (current, with ids) to the desired ones (without ids, in the
+// order of the plan) — only the rules that differ: a desired rule the browser already has (the same content,
+// networkRuleSignature(); a repeated one as many times as it has it) keeps its id, the other desired rules get the free ids
+// (the smallest ones no kept rule has — the browser removes removeRuleIds before it adds addRules, so the ids of the
+// removed rules are free again), and the rules of the browser no desired rule took are removed. Chrome indexes all the
+// dynamic rules again after every change (~0.75 s with 22,500 rules, also for one rule), but it does not have to remove,
+// receive and check all of them again (~1.2 s); Firefox checks only the added ones. rules: the desired rules with their ids
+// — what the browser has after the change; signatures: their signatures (the same order). currentSignatures: the signatures
+// of current from the previous change (its signatures) — the core does not compute them again for 22,500 rules (~50 ms);
+// without them (or of another length) they are computed.
+/** @type {Functions.Base.diffNetworkRules} */
+export function diffNetworkRules(current, desired, currentSignatures = null) {
+	const known = currentSignatures && currentSignatures.length === current.length ? currentSignatures : null;
+	/** @type {Map<string, number[]>} */
+	const available = new Map();
+	const order = current.map((_rule, index) => index).sort((a, b) => current[a].id - current[b].id);
+	for (const index of order) {
+		const signature = known ? known[index] : networkRuleSignature(current[index]);
+		const ids = available.get(signature);
+		if (ids) ids.push(current[index].id);
+		else available.set(signature, [current[index].id]);
+	}
+	const signatures = desired.map(networkRuleSignature);
+	/** @type {(number | null)[]} */
+	const assigned = signatures.map((signature) => available.get(signature)?.shift() ?? null);
+	const kept = new Set(/** @type {number[]} */ (assigned.filter((id) => id !== null)));
+	let nextId = 1;
+	/** @type {chrome.declarativeNetRequest.Rule[]} */
+	const addRules = [];
+	const rules = desired.map((rule, index) => {
+		let id = assigned[index];
+		if (id === null) {
+			while (kept.has(nextId)) nextId++;
+			id = nextId++;
+			addRules.push({ ...rule, id });
+		}
+		return /** @type {chrome.declarativeNetRequest.Rule} */ ({ ...rule, id });
+	});
+	const removeRuleIds = current.map((rule) => rule.id).filter((id) => !kept.has(id));
+	return { removeRuleIds, addRules, rules, signatures };
 }
 
 /** @type {Functions.Base.registerModule} */
@@ -1040,6 +1223,68 @@ export function notifyInstalled(details) {
 		} catch (err) {
 			console.error(`Chyba v posluchači instalace modulu "${moduleName}":`, err);
 		}
+	}
+}
+
+// --- A click on the extension button (api.activation.onIconClick()) ---
+//
+// The "icon_click" activation mode — a module works when the user clicks the extension button: the popup opens
+// (popup.mjs tells background.js right away, ICON_CLICK_MESSAGE with the active tab of its window), or — when the button
+// opens the dashboard instead (ACTION_OPENS_DASHBOARD_KEY) — chrome.action.onClicked comes to background.js.
+// background.js announces it (notifyIconClick()) first to the listeners of the background parts, synchronously: a listing
+// an extension page asks for right after the click (imageInfo.getPage) then waits for the work the click started. Then it
+// writes the click into chrome.storage.local under ICON_CLICK_KEY ({ at, tabId, windowId }, Types.IconClick) — the
+// extension pages get the write as a change of chrome.storage, also the floating window's <iframe> in Firefox (no
+// messages from background.js and no chrome.storage.session there, see NOTIFICATION_CLICK_KEY_PREFIX). The last click
+// stays stored: a page the click opened (the dashboard) subscribes only after it, so a click at most
+// ICON_CLICK_RECENT_MS old is delivered to a listener of an extension page right after it subscribes too.
+export const ICON_CLICK_MESSAGE = "SDK_ICON_CLICK";
+export const ICON_CLICK_KEY = "iconClick";
+export const ICON_CLICK_RECENT_MS = 10000;
+
+// Listeners of api.activation.onIconClick() of this context — notifyIconClick() calls them only in background.js
+// (the background parts); on the pages the clicks come as a change of chrome.storage.
+/** @type {Types.IconClickListener[]} */
+const iconClickListeners = [];
+
+// A click on the extension button from a stored or sent value (null — not a click).
+/** @type {Functions.Base.readIconClick} */
+export function readIconClick(value) {
+	if (!isPlainObject(value) || typeof value.at !== "number" || !Number.isFinite(value.at)) return null;
+	const id = (/** @type {unknown} */ item) => (typeof item === "number" && Number.isInteger(item) && item >= 0 ? item : null);
+	return { at: value.at, tabId: id(value.tabId), windowId: id(value.windowId) };
+}
+
+// Announces a click on the extension button (see above) — only background.js (ICON_CLICK_MESSAGE of the popup,
+// chrome.action.onClicked). The listeners of the background parts first, synchronously, then the write for the pages.
+// An error of one listener does not break the others.
+/** @type {Functions.Base.notifyIconClick} */
+export async function notifyIconClick(source) {
+	const click = readIconClick({ at: Date.now(), tabId: source.tabId, windowId: source.windowId });
+	if (!click) return;
+	for (const { moduleName, deliver } of iconClickListeners) {
+		try {
+			measurePerf(moduleName, "iconClick", () => deliver(click));
+		} catch (err) {
+			console.error(`Chyba v posluchači kliknutí na tlačítko rozšíření modulu "${moduleName}":`, err);
+		}
+	}
+	try {
+		await chrome.storage.local.set({ [ICON_CLICK_KEY]: click });
+	} catch (err) {
+		console.warn("Kliknutí na tlačítko rozšíření nejde zapsat:", err);
+	}
+}
+
+// The popup opened — a click on the extension button: background.js announces it with the active tab of the popup's window
+// (ICON_CLICK_MESSAGE). Called by popup.mjs right at its start, before its modules ask for anything.
+/** @type {Functions.Base.announceIconClick} */
+export async function announceIconClick() {
+	try {
+		const [tab] = typeof chrome.tabs?.query === "function" ? await chrome.tabs.query({ active: true, currentWindow: true }) : [];
+		await sendToBackground({ type: ICON_CLICK_MESSAGE, tabId: tab?.id ?? null, windowId: tab?.windowId ?? null });
+	} catch (err) {
+		console.warn("Kliknutí na tlačítko rozšíření nejde ohlásit:", err);
 	}
 }
 
@@ -1422,13 +1667,21 @@ const FIREFOX_RESTRICTED_PAGES = [
 // <iframe> has no chrome.sidebarAction even in Firefox).
 // The id of the extension as a watermark in the lower left corner of the page (options, sidebar) — the host of
 // the extension's own address: the 32-character id in Chrome, the random UUID of the installation in Firefox
-// (there chrome.runtime.id is the add-on id from the manifest, not the one in the address).
+// (there chrome.runtime.id is the add-on id from the manifest, not the one in the address). Before it a dot in the
+// color of that id (colorFromText()), in its full color: only the text is faint, see .extension-id-watermark-text.
 /** @type {Functions.Base.mountExtensionIdWatermark} */
 export function mountExtensionIdWatermark() {
 	const mark = document.createElement("div");
 	mark.className = "extension-id-watermark";
 	mark.setAttribute("aria-hidden", "true");
-	mark.textContent = location.host;
+	const dot = document.createElement("span");
+	dot.className = "extension-id-watermark-dot";
+	dot.style.color = colorFromText(location.host);
+	dot.textContent = "•";
+	const id = document.createElement("span");
+	id.className = "extension-id-watermark-text";
+	id.textContent = location.host;
+	mark.append(dot, id);
 	document.body.append(mark);
 }
 
@@ -1473,6 +1726,28 @@ export function isWebPageUrl(url) {
 	if (!WEB_PAGE_PROTOCOLS.includes(parsed.protocol)) return false;
 	const restricted = isFirefox() ? FIREFOX_RESTRICTED_PAGES : CHROMIUM_RESTRICTED_PAGES;
 	return !restricted.some(({ host, path }) => parsed.hostname === host && parsed.pathname.startsWith(path));
+}
+
+// The default time limit of executeScriptWithin() (ms) — far above the start of a content script of a module (its
+// imports, the settings, a message to the background part), which takes a fraction of a second.
+export const SCRIPT_INJECTION_TIME_LIMIT_MS = 10000;
+
+// chrome.scripting.executeScript() that rejects (an Error) once the frames have not answered within timeMs. Firefox
+// (verified in 159) never settles executeScript() while the injected function or file still waits (a Promise — every
+// content-script.js of the modules ends with an async function) and its document goes away: the page goes into the
+// back-forward cache frozen, the result comes only when the user goes back to it. The caller then waited for good — a
+// listing that never refreshed again (imageInfoSandbox), a button left disabled. An injected async function should
+// also answer right away at pagehide (see runCollectFrame of modules/imageInfo/background-script.mjs); a file is left
+// to the time limit (its start is short). Exported by sdk.mjs.
+/** @type {Functions.Base.executeScriptWithin} */
+export function executeScriptWithin(injection, timeMs = SCRIPT_INJECTION_TIME_LIMIT_MS) {
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	let timer;
+	/** @type {Promise<never>} */
+	const limit = new Promise((_resolve, reject) => {
+		timer = setTimeout(() => reject(new Error(t("core_script_injection_time_limit", String(Math.round(timeMs / 1000))))), timeMs);
+	});
+	return Promise.race([chrome.scripting.executeScript(injection), limit]).finally(() => clearTimeout(timer));
 }
 
 // Returns the definitions of all modules registered so far (a shallow copy — the caller
@@ -1998,6 +2273,42 @@ export function formatModuleName(key) {
 	return key.charAt(0).toUpperCase() + key.slice(1);
 }
 
+// --- Module filter by name ---
+//
+// "Filter by name" (#module-filter) above Settings (options.mjs) and above the module output of the side panel and
+// the dashboard (BaseController.mountModuleFilter()): only the modules whose name (as shown, "Storage Manager") or id
+// ("storageManager", an instance "contentDividerSandbox#k3j9x2") contains the text stay visible. With few modules it
+// would only get in the way — hence the minimums below.
+
+// Settings: the filter only from this many modules in the list (instances of one module count once).
+export const MODULE_FILTER_MIN = 5;
+// The side panel and the dashboard: the filter only from this many module outputs the surface may show (by the
+// settings — each instance is an output of its own).
+export const OUTPUT_MODULE_FILTER_MIN = 5;
+
+// Does the module of the list entry key (a module name or an instance key) match the filter text? query: already
+// trimmed and lower-cased, empty = every module.
+/** @type {Functions.Base.matchesModuleFilter} */
+export function matchesModuleFilter(key, query) {
+	if (!query) return true;
+	return [key, formatModuleName(parseModuleEntry(key).name)].some((text) => text.toLowerCase().includes(query));
+}
+
+// Fills the suggestions of the filter (namesEl, a <datalist>) with the names of the modules as shown, sorted, each once
+// (instances of one module share it). entries: module list entries or keys. Returns how many names there are.
+/** @type {Functions.Base.fillModuleFilterNames} */
+export function fillModuleFilterNames(namesEl, entries) {
+	const names = [...new Set(entries.map((entry) => formatModuleName(parseModuleEntry(entry).name)))].sort((a, b) => a.localeCompare(b, getUiLocale()));
+	namesEl.replaceChildren(
+		...names.map((name) => {
+			const option = document.createElement("option");
+			option.value = name;
+			return option;
+		})
+	);
+	return names.length;
+}
+
 /** @type {Functions.Base.formatBytes} */
 export function formatBytes(bytes) {
 	if (bytes === 0) return "0 B";
@@ -2027,6 +2338,78 @@ export function contrastColor(hex) {
 	const contrastWithBlack = (luminance + 0.05) / 0.05;
 	return contrastWithWhite > contrastWithBlack ? "#ffffff" : "#000000";
 }
+
+// #region colorFromText — sandbox.js has the same code for the modules in the sandbox (tests/colorFromText.test.mjs checks it)
+// SHA-1 (FIPS 180-4) of the bytes — only for colorFromText(), not for anything that has to be secure. Synchronous (not
+// crypto.subtle), so an editor sets the color right in its event handler and the sandbox needs no secure context for it.
+/** @type {Functions.Base.textSha1} */
+function textSha1(bytes) {
+	const words = new Uint32Array((((bytes.length + 8) >> 6) + 1) * 16);
+	for (let index = 0; index < bytes.length; index++) words[index >> 2] |= bytes[index] << (24 - (index % 4) * 8);
+	words[bytes.length >> 2] |= 0x80 << (24 - (bytes.length % 4) * 8);
+	words[words.length - 2] = Math.floor((bytes.length * 8) / 0x100000000);
+	words[words.length - 1] = (bytes.length * 8) >>> 0;
+	/** @type {Functions.Base.textSha1.rotl} */
+	const rotl = (value, bits) => ((value << bits) | (value >>> (32 - bits))) >>> 0;
+	const state = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+	const w = new Uint32Array(80);
+	for (let block = 0; block < words.length; block += 16) {
+		for (let i = 0; i < 16; i++) w[i] = words[block + i];
+		for (let i = 16; i < 80; i++) w[i] = rotl(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
+		let [a, b, c, d, e] = state;
+		for (let i = 0; i < 80; i++) {
+			const f = i < 20 ? (b & c) | (~b & d) : i < 40 ? b ^ c ^ d : i < 60 ? (b & c) | (b & d) | (c & d) : b ^ c ^ d;
+			const k = i < 20 ? 0x5a827999 : i < 40 ? 0x6ed9eba1 : i < 60 ? 0x8f1bbcdc : 0xca62c1d6;
+			const next = (rotl(a, 5) + f + e + k + w[i]) >>> 0;
+			e = d;
+			d = c;
+			c = rotl(b, 30);
+			b = a;
+			a = next;
+		}
+		state[0] = (state[0] + a) >>> 0;
+		state[1] = (state[1] + b) >>> 0;
+		state[2] = (state[2] + c) >>> 0;
+		state[3] = (state[3] + d) >>> 0;
+		state[4] = (state[4] + e) >>> 0;
+	}
+	const digest = new Uint8Array(20);
+	state.forEach((word, index) => {
+		digest[index * 4] = word >>> 24;
+		digest[index * 4 + 1] = (word >>> 16) & 0xff;
+		digest[index * 4 + 2] = (word >>> 8) & 0xff;
+		digest[index * 4 + 3] = word & 0xff;
+	});
+	return digest;
+}
+
+// The color of a text — the name of a rule, of a bookmark folder, of a navigation kind: the same text always gives the same
+// color, so it serves as the default color of what it names (the user can pick another one afterwards). The SHA-1 of the
+// text (trimmed, Unicode NFC, UTF-8) chooses the hue (its first two bytes), the saturation (55–80 %, the third byte) and the
+// lightness (38–55 %, the fourth byte) — not just any RGB of the hash: a color close to white or black would not be seen in
+// the light or the dark look. "#rrggbb" in lowercase as <input type="color"> has it; an empty text has none (""). For the
+// color editors of modules (declarativeNetRequestSandbox, visualHistory, bookmarkChecker).
+/** @type {Functions.Base.colorFromText} */
+export function colorFromText(text) {
+	const value = typeof text === "string" ? text.trim().normalize("NFC") : "";
+	if (!value) return "";
+	const digest = textSha1(new TextEncoder().encode(value));
+	const hue = ((digest[0] << 8) | digest[1]) % 360;
+	const saturation = (55 + (digest[2] % 26)) / 100;
+	const lightness = (38 + (digest[3] % 18)) / 100;
+	// HSL → RGB as CSS Color 4 computes it.
+	const chroma = saturation * Math.min(lightness, 1 - lightness);
+	/** @type {Functions.Base.colorFromText.channel} */
+	const channel = (n) => {
+		const k = (n + hue / 30) % 12;
+		const level = lightness - chroma * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+		return Math.round(level * 255)
+			.toString(16)
+			.padStart(2, "0");
+	};
+	return `#${channel(0)}${channel(8)}${channel(4)}`;
+}
+// #endregion colorFromText
 
 // A general (module-independent) utility over chrome.bookmarks: is there in the
 // given bookmark folder (even arbitrarily deep in its subfolders) a bookmark with
@@ -2095,11 +2478,14 @@ function hasPermissionsApi() {
 
 // The "current" tab from the point of view of an extension page that has chrome.tabs
 // (popup, side panel, Settings): the active tab of the current window.
-// But an extension page opened as a tab (Settings and the welcome page, see
-// DISPLAY_LOCATIONS "options" and "onboarding") is ITSELF the active tab and
+// But an extension page opened as a tab (Settings, the welcome page and the dashboard, see
+// DISPLAY_LOCATIONS "options", "onboarding" and "dashboard") is ITSELF the active tab and
 // has no module data —
-// the "current" one there is the tab the user came from: the last used
-// other tab of the same window (tab.lastAccessed does not require the "tabs" permission).
+// the "current" one there is the tab the user came from (trackPreviousTab()): the other tab of
+// the same window that was activated last while the page is open, before that the tab that opened
+// the page (openerTabId — the extension button passes it, openDashboard()), and without either the
+// last used other tab of the window (tab.lastAccessed does not require the "tabs" permission; Chrome
+// sets it for a tab opened in the background too, so it is only the last resort).
 // The popup/sidebar are not a tab, getCurrent() returns undefined there. The floating
 // window's <iframe> used to have no chrome.tabs at all (see hasTabsApi()), newer
 // Chrome (verified in 153) has it — getCurrent() returns the tab the
@@ -2107,23 +2493,44 @@ function hasPermissionsApi() {
 // exception the condition for Settings below would mistake it for another tab). Returns
 // the tab object (tab.url only with a host permission for that page), or null.
 /** @type {Functions.Base.queryCurrentTab} */
-async function queryCurrentTab() {
+export async function queryCurrentTab() {
 	try {
 		const current = chrome.tabs.getCurrent ? await chrome.tabs.getCurrent() : undefined;
 		if (current && typeof window !== "undefined" && window.top !== window) return current;
+		if (current) trackPreviousTab(current);
 		const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 		if (tab && current && current.id === tab.id) {
-			const others = (await chrome.tabs.query({ currentWindow: true })).filter(
-				(t) => t.id !== current.id && typeof t.lastAccessed === "number"
-			);
+			const others = (await chrome.tabs.query({ currentWindow: true })).filter((t) => t.id !== current.id);
+			const previous = previousTabId === null ? undefined : others.find((t) => t.id === previousTabId);
+			if (previous) return previous;
+			const used = others.filter((t) => typeof t.lastAccessed === "number");
 			// filter() above let through only tabs with a numeric lastAccessed.
-			others.sort((a, b) => /** @type {number} */ (b.lastAccessed) - /** @type {number} */ (a.lastAccessed));
-			return others[0] || null;
+			used.sort((a, b) => /** @type {number} */ (b.lastAccessed) - /** @type {number} */ (a.lastAccessed));
+			return used[0] || null;
 		}
 		return tab || null;
 	} catch {
 		return null;
 	}
+}
+
+// The tab the user came from to this extension page opened as a tab (queryCurrentTab()) — null = not known.
+/** @type {number | null} */
+let previousTabId = null;
+// The chrome.tabs it is followed with (tests replace chrome between tests).
+/** @type {unknown} */
+let previousTabSource = null;
+
+// Starts following it once per page: at first the tab that opened the page (openerTabId), then every other tab of its
+// window that becomes the active one — the last of them is the one the user left for this page.
+/** @type {Functions.Base.trackPreviousTab} */
+function trackPreviousTab(current) {
+	if (previousTabSource === chrome.tabs) return;
+	previousTabSource = chrome.tabs;
+	previousTabId = typeof current.openerTabId === "number" ? current.openerTabId : null;
+	chrome.tabs.onActivated?.addListener((activeInfo) => {
+		if (activeInfo.windowId === current.windowId && activeInfo.tabId !== current.id) previousTabId = activeInfo.tabId;
+	});
 }
 
 // api.tabs.getActive() — the tab the surface relates to as { tabId, url, domain }, or null
@@ -2143,6 +2550,57 @@ async function readActiveTab() {
 	}
 	if (!tab || typeof tab.id !== "number") return null;
 	return { tabId: tab.id, url: tab.url || null, domain: getDomainKey(tab.url) };
+}
+
+// For a module on a surface that stays open while tabs switch (followsActiveTab()): handler() after another tab of the
+// surface's window became the active one and after the page in the tab of the surface finished loading (a navigation, a
+// reload) — the active tab, on the dashboard the tab it relates to (queryCurrentTab(), not the dashboard). A navigation
+// only after the load completes, not right with the new address: a module refreshed in the middle of loading would
+// measure the page before its content script runs in it (api.tabs.onChange() reports the address right away, but no
+// reload). On another surface, or without chrome.tabs (the floating window's <iframe>), it does nothing. Returns a
+// function to unsubscribe. Exported by sdk.mjs.
+/** @type {Functions.Base.followSurfaceTab} */
+export function followSurfaceTab(location, handler) {
+	if (!followsActiveTab(location) || !hasTabsApi() || !chrome.tabs.onActivated || !chrome.tabs.onUpdated) return () => {};
+	let active = true;
+	// Events of other windows do not concern the surface (until its window is known, they all count).
+	/** @type {number | null} */
+	let ownWindowId = null;
+	if (typeof chrome.windows?.getCurrent === "function") {
+		chrome.windows
+			.getCurrent()
+			.then((own) => {
+				ownWindowId = own.id ?? null;
+			})
+			.catch((err) => console.error("Okno plochy nejde zjistit:", err));
+	}
+	/** @type {(windowId: number | undefined) => boolean} */
+	const isOwnWindow = (windowId) => ownWindowId === null || windowId === ownWindowId;
+	/** @type {Parameters<typeof chrome.tabs.onActivated.addListener>[0]} */
+	const onActivated = (activeInfo) => {
+		if (isOwnWindow(activeInfo.windowId)) handler();
+	};
+	/** @type {Parameters<typeof chrome.tabs.onUpdated.addListener>[0]} */
+	const onUpdated = (tabId, changeInfo, tab) => {
+		if (changeInfo.status !== "complete" || !isOwnWindow(tab.windowId)) return;
+		if (tab.active) {
+			handler();
+			return;
+		}
+		if (location !== "dashboard") return;
+		queryCurrentTab()
+			.then((current) => {
+				if (active && current && current.id === tabId) handler();
+			})
+			.catch((err) => console.error("Záložku plochy nejde zjistit:", err));
+	};
+	chrome.tabs.onActivated.addListener(onActivated);
+	chrome.tabs.onUpdated.addListener(onUpdated);
+	return () => {
+		active = false;
+		chrome.tabs.onActivated.removeListener(onActivated);
+		chrome.tabs.onUpdated.removeListener(onUpdated);
+	};
 }
 
 // How often (ms) api.tabs.onChange() reads the tab where there are no chrome.tabs events (the floating
@@ -2791,18 +3249,23 @@ export function getSettingFieldKey(moduleKey, field) {
 export const MAIN_WORLD_DOMAINS_FIELD = "mainWorldDomains";
 
 // Normalizes one domain entered by the user ("https://www.Example.com:8080/x",
-// "*.example.com", "example.com.") to the shape of a hostname ("www.example.com") — lower
+// "*.example.com", "example.com.", "::1") to the shape of a hostname ("www.example.com") — lower
 // case, international names in punycode, without the scheme, port, path, a leading
-// "*." and a trailing dot. IPv6 addresses and nonsense return null (patterns in
-// matches cannot write them reliably).
+// "*." and a trailing dot. An IPv6 address in brackets in its shortest form, as the hostname of its address is
+// ("[::1]" also from "::1", "[0:0::1]" or "http://[::1]:8080/") — declarativeNetRequest (requestDomains,
+// initiatorDomains and their exclusions) and the match pattern "*://[::1]/*" take it only so: Chrome accepts a bare
+// "::1" and never uses it, Firefox rejects the whole batch of rules with it (verified in Chrome 154 and Firefox 159).
+// Nonsense returns null.
 /** @type {Functions.Base.normalizeDomain} */
 export function normalizeDomain(raw) {
 	const trimmed = String(raw).trim().replace(/^\*\./, "");
 	if (!trimmed) return null;
+	// A bare IPv6 address (two colons at least, hexadecimal digits, an IPv4 end) gets the brackets of an address.
+	const value = /^[0-9a-f]*:[0-9a-f.:]*:[0-9a-f.:]*$/i.test(trimmed) ? `[${trimmed}]` : trimmed;
 	try {
-		const hostname = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`).hostname
+		const hostname = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(value) ? value : `http://${value}`).hostname
 			.replace(/\.$/, "");
-		return /^[a-z0-9-]+(\.[a-z0-9-]+)*$/.test(hostname) ? hostname : null;
+		return /^[a-z0-9-]+(\.[a-z0-9-]+)*$/.test(hostname) || /^\[[0-9a-f:]+\]$/.test(hostname) ? hostname : null;
 	} catch {
 		return null;
 	}
@@ -2936,12 +3399,13 @@ export async function getMainWorldDomains(settings, moduleName) {
 // Patterns for chrome.scripting.registerContentScripts({ matches }) for the module's
 // domains (getMainWorldDomains(); an empty array without them).
 // "*://*.example.com/*" covers http and https, the domain itself and all
-// subdomains and any port; an IPv4 address and a one-word host (localhost) are
-// written without "*.", otherwise the pattern would not be valid.
+// subdomains and any port; an IPv4 address, an IPv6 address ("*://[::1]/*") and a one-word host (localhost) are
+// written without "*.", otherwise the pattern would not be valid (Chrome 154 refuses "*://*.[::1]/*", Firefox 159
+// accepts it and injects nothing).
 /** @type {Functions.Base.getMainWorldMatches} */
 export async function getMainWorldMatches(settings, moduleName) {
 	return (await getMainWorldDomains(settings, moduleName)).map((domain) =>
-		/^\d+(\.\d+){3}$/.test(domain) || !domain.includes(".") ? `*://${domain}/*` : `*://*.${domain}/*`
+		/^\d+(\.\d+){3}$/.test(domain) || domain.startsWith("[") || !domain.includes(".") ? `*://${domain}/*` : `*://*.${domain}/*`
 	);
 }
 
@@ -3281,6 +3745,10 @@ export class BaseController {
 	constructor() {
 		/** @type {Classes.BaseController['_settings']} */
 		this._settings = {};
+		// The tab of the last buildPageContext() — _followActiveTab() follows the finished load of it too, when it is
+		// not the active one (the dashboard).
+		/** @type {Classes.BaseController['_pageTabId']} */
+		this._pageTabId = null;
 	}
 
 	/** @type {Classes.BaseController['loadSettings']} */
@@ -3479,8 +3947,9 @@ export class BaseController {
 			return { url };
 		}
 		try {
-			const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+			const tab = await this.queryPageTab();
 			url = (tab && tab.url) || "";
+			this._pageTabId = tab && typeof tab.id === "number" ? tab.id : null;
 		} catch (err) {
 			console.error("Nelze zjistit URL aktivní záložky:", err);
 		}
@@ -3495,6 +3964,14 @@ export class BaseController {
 			}
 		}
 		return page;
+	}
+
+	// The tab buildPageContext() above takes the address from: the active tab of the window. The dashboard is a tab
+	// itself — there it is the tab the user came from (DashboardController, queryCurrentTab()).
+	/** @type {Classes.BaseController['queryPageTab']} */
+	async queryPageTab() {
+		const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+		return tab || null;
 	}
 
 	// Context { mode, url, hostAccess } for evaluating a Specification — the module's
@@ -3552,6 +4029,43 @@ export class BaseController {
 		frame.appendChild(note);
 		outputEl.insertBefore(frame, before);
 		return frame;
+	}
+
+	// "Filter by name" above the module output of the side panel and the dashboard (#module-filter of the page, see
+	// matchesModuleFilter()): only the module frames whose name or id contains the text stay visible — the note of a
+	// module another extension shows too (the frames have the id from mountModuleElement()/mountDelegatedNote()). It is
+	// shown from OUTPUT_MODULE_FILTER_MIN outputs the surface may show (listEnabledModulesFor()) — by the settings, not
+	// by what the current tab shows, so it does not come and go when switching tabs. Called after renderModulesFor()
+	// (the modules are loaded then); a frame shown later (another tab, a page load) is filtered by the observer before it
+	// is painted. Returns the keys of the entries the surface may show.
+	/** @type {Classes.BaseController['mountModuleFilter']} */
+	async mountModuleFilter(outputEl, location) {
+		/** @type {string[]} */
+		let keys = [];
+		try {
+			const paths = JSON.parse(await this.getModulesJson());
+			if (Array.isArray(paths)) keys = await listEnabledModulesFor(paths, await this.loadSettings(), location);
+		} catch (err) {
+			console.error("Moduly pro filtr podle názvu nejde zjistit:", err);
+		}
+		const filterEl = document.getElementById("module-filter");
+		const input = /** @type {HTMLInputElement | null} */ (document.getElementById("module-filter-input"));
+		const namesEl = /** @type {HTMLDataListElement | null} */ (document.getElementById("module-filter-names"));
+		if (!filterEl || !input || !namesEl) return keys;
+		filterEl.hidden = keys.length < OUTPUT_MODULE_FILTER_MIN;
+		// The settings the count comes from are read once — the page shows a module turned on later only after a reload.
+		if (filterEl.hidden) return keys;
+		fillModuleFilterNames(namesEl, keys);
+		const apply = () => {
+			const query = input.value.trim().toLowerCase();
+			for (const frame of /** @type {NodeListOf<HTMLElement>} */ (outputEl.querySelectorAll(":scope > .module-frame[data-module]"))) {
+				frame.classList.toggle("module-filter-hidden", !matchesModuleFilter(frame.dataset.moduleKey ?? frame.dataset.module ?? "", query));
+			}
+		};
+		input.addEventListener("input", apply);
+		new MutationObserver(apply).observe(outputEl, { childList: true });
+		apply();
+		return keys;
 	}
 
 	// The notice before beforeEl (the module output, the top of Settings) while an extension that offers its modules to this one (a client) waits for
@@ -3734,9 +4248,9 @@ export class BaseController {
 	}
 
 	// Renders into outputEl the custom elements of all (not turned-off) modules
-	// for which the given location ("sidebar" | "floating" | "options" | "onboarding")
+	// for which the given location ("sidebar" | "floating" | "options" | "onboarding" | "dashboard")
 	// is among the locations from their "Show module output" setting — shared between
-	// sidebar.mjs, floating.mjs, options.mjs and onboarding.mjs (popup.mjs has
+	// sidebar.mjs, floating.mjs, options.mjs, onboarding.mjs and dashboard.mjs (popup.mjs has
 	// its own loop over the same methods), so the decision "where the module is
 	// shown" is in one place, not duplicated on each surface separately.
 	/** @type {Classes.BaseController['renderModulesFor']} */
@@ -3835,9 +4349,12 @@ export class BaseController {
 			return running;
 		};
 
-		if (location === "sidebar") {
+		if (followsActiveTab(location)) {
 			this._followActiveTab(update);
 		}
+		// What the extension button opens follows the settings of the modules this page knows (the floating window in a
+		// foreign page does not take part).
+		if (location !== "floating") watchActionOpensDashboard();
 		await update();
 
 		return {
@@ -3923,13 +4440,14 @@ export class BaseController {
 		}
 	}
 
-	// The side panel stays open even after switching tabs or navigating in
+	// The side panel and the dashboard stay open even after switching tabs or navigating in
 	// a tab (the popup closes, the floating window belongs to one page, Settings are
-	// a tab themselves) — so module rules depending on the active tab (WEB_PAGE_SPEC,
+	// a tab themselves, see TAB_FOLLOWING_LOCATIONS) — so module rules depending on the active tab (WEB_PAGE_SPEC,
 	// UrlPatternSpecification) are re-evaluated there after every such change
 	// (update() from renderModulesFor()). For a navigation only after the load
 	// completes, not right with the new address: a module shown in the middle of loading would
-	// measure the page before its content script runs in it.
+	// measure the page before its content script runs in it. The dashboard relates to the tab the user came
+	// from (queryPageTab()), which is not the active one while the dashboard is shown — its load counts too.
 	/** @type {Classes.BaseController['_followActiveTab']} */
 	_followActiveTab(update) {
 		if (!hasTabsApi() || !chrome.tabs.onActivated || !chrome.tabs.onUpdated) return;
@@ -3937,8 +4455,8 @@ export class BaseController {
 		chrome.tabs.onActivated.addListener(() => {
 			update();
 		});
-		chrome.tabs.onUpdated.addListener((_tabId, changeInfo, tab) => {
-			if (tab.active && changeInfo.status === "complete") {
+		chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+			if ((tab.active || tabId === this._pageTabId) && changeInfo.status === "complete") {
 				update();
 			}
 		});
@@ -4060,7 +4578,8 @@ export async function exportModuleBackup(moduleName) {
 		settings,
 		instances: await listModuleInstances(moduleName),
 		badgeRules: (stored[BADGE_RULES_KEY] || {})[moduleName] || null,
-		networkRules: (stored[NETWORK_RULES_KEY] || {})[moduleName] || null,
+		// IndexedDB; before the migration of background.js (migrateNetworkRulesStore()) still chrome.storage.local.
+		networkRules: (await readRegularNetworkRulesOf(moduleName)) || (stored[NETWORK_RULES_KEY] || {})[moduleName] || null,
 		state,
 		records,
 	};
@@ -4095,6 +4614,8 @@ export async function importModuleBackup(moduleName, backup, options = {}) {
 	const removed = [];
 	/** @type {string[]} */
 	let instances = [];
+	/** @type {Types.NetworkRulesEntry | null} */
+	let networkRules = null;
 
 	// Instance id from a module settings key ("<module>#<id>.<field>"), null for the key
 	// of the module itself.
@@ -4144,13 +4665,17 @@ export async function importModuleBackup(moduleName, backup, options = {}) {
 			items[BADGE_RULES_KEY] = badgeStore;
 		}
 
-		const networkRules = isPlainObject(input.networkRules) && Array.isArray(/** @type {Record<string, unknown>} */ (input.networkRules).rules) ? input.networkRules : null;
-		/** @type {Types.NetworkRulesStore} */
-		const networkStore = { ...(stored[NETWORK_RULES_KEY] || {}) };
-		if (networkRules || moduleName in networkStore) {
-			if (networkRules) networkStore[moduleName] = /** @type {Types.NetworkRulesEntry} */ (networkRules);
-			else delete networkStore[moduleName];
-			items[NETWORK_RULES_KEY] = networkStore;
+		// The regular network rules in IndexedDB (only the record of this module) — written below, background.js
+		// recalculates them after the new NETWORK_RULES_REVISION_KEY.
+		networkRules =
+			isPlainObject(input.networkRules) && Array.isArray(/** @type {Record<string, unknown>} */ (input.networkRules).rules)
+				? /** @type {Types.NetworkRulesEntry} */ (input.networkRules)
+				: null;
+		// A store not moved into IndexedDB yet must not bring the old rules of the module back at the migration.
+		const legacyStore = stored[NETWORK_RULES_KEY];
+		if (legacyStore && moduleName in legacyStore) {
+			const { [moduleName]: _removed, ...rest } = legacyStore;
+			items[NETWORK_RULES_KEY] = rest;
 		}
 	}
 
@@ -4164,6 +4689,10 @@ export async function importModuleBackup(moduleName, backup, options = {}) {
 		}
 	}
 
+	if (withSettings && (networkRules || (await readRegularNetworkRulesOf(moduleName)))) {
+		await writeRegularNetworkRules(moduleName, networkRules);
+		items[NETWORK_RULES_REVISION_KEY] = networkRulesRevision();
+	}
 	const toRemove = removed.filter((key) => !(key in items));
 	if (toRemove.length > 0) await chrome.storage.local.remove(toRemove);
 	if (Object.keys(items).length > 0) await chrome.storage.local.set(items);
@@ -4227,11 +4756,17 @@ export async function resetModule(moduleName) {
 	}
 	/** @type {Record<string, unknown>} */
 	const items = { [SETTINGS_KEY]: settings };
+	// NETWORK_RULES_KEY: a store not moved into IndexedDB yet (migrateNetworkRulesStore()).
 	for (const rulesKey of [BADGE_RULES_KEY, NETWORK_RULES_KEY]) {
 		const store = /** @type {Record<string, unknown> | undefined} */ (stored[rulesKey]);
 		if (!store || !(moduleName in store)) continue;
 		const { [moduleName]: _removed, ...rest } = store;
 		items[rulesKey] = rest;
+	}
+	// The regular network rules in IndexedDB — background.js recalculates them after the new NETWORK_RULES_REVISION_KEY.
+	if (await readRegularNetworkRulesOf(moduleName)) {
+		await writeRegularNetworkRules(moduleName, null);
+		items[NETWORK_RULES_REVISION_KEY] = networkRulesRevision();
 	}
 	await chrome.storage.local.set(items);
 
@@ -4538,6 +5073,52 @@ export function createModuleApi(moduleName, instance = null) {
 				chrome.storage.onChanged.addListener(listener);
 				return () => chrome.storage.onChanged.removeListener(listener);
 			},
+			// Calls handler({ at, tabId, windowId }) after every click on the extension button (the popup opened, or the
+			// button opened the dashboard) — tabId/windowId: the active tab of the window of the click (null when not
+			// known). For the "icon_click" activation mode: the module checks the mode itself. In a background part
+			// (register it synchronously in setup()) right when background.js learns of the click, before the extension
+			// pages; on an extension page (also in the floating window) a moment later — and right after it subscribes
+			// also a click at most ICON_CLICK_RECENT_MS old (the click that opened the page — the dashboard). Every click
+			// once, never an older one after a newer one, nor one older than ICON_CLICK_RECENT_MS (a stored click from a
+			// restored backup). Returns a function to unsubscribe.
+			onIconClick(handler) {
+				let lastAt = 0;
+				let active = true;
+				const deliver = (/** @type {unknown} */ value) => {
+					const click = readIconClick(value);
+					if (!active || !click || click.at <= lastAt || Date.now() - click.at > ICON_CLICK_RECENT_MS) return;
+					lastAt = click.at;
+					handler(click);
+				};
+				/** @type {Types.IconClickListener} */
+				const own = { moduleName, deliver };
+				iconClickListeners.push(own);
+				/** @type {Types.StorageChangeListener} */
+				const listener = (changes, area) => {
+					const change = area === "local" ? changes[ICON_CLICK_KEY] : undefined;
+					if (!change) return;
+					try {
+						deliver(change.newValue);
+					} catch (err) {
+						console.error(`Chyba v posluchači kliknutí na tlačítko rozšíření modulu "${moduleName}":`, err);
+					}
+				};
+				chrome.storage.onChanged.addListener(listener);
+				// The click that opened this page — not in background.js (backgroundDispatcher is set by then: it gets
+				// every click right away, a stored one is from before its start).
+				chrome.storage.local
+					.get(ICON_CLICK_KEY)
+					.then((stored) => {
+						if (!backgroundDispatcher) deliver(stored[ICON_CLICK_KEY]);
+					})
+					.catch((err) => console.warn(`Poslední kliknutí na tlačítko rozšíření modulu "${moduleName}" nejde přečíst:`, err));
+				return () => {
+					active = false;
+					const index = iconClickListeners.indexOf(own);
+					if (index !== -1) iconClickListeners.splice(index, 1);
+					chrome.storage.onChanged.removeListener(listener);
+				};
+			},
 			// Calls handler(details) from chrome.runtime.onInstalled — after installation
 			// (details.reason "install"), an update or a reload of the
 			// extension ("update") —, once the core has filled in the default settings (see
@@ -4565,10 +5146,24 @@ export function createModuleApi(moduleName, instance = null) {
 			on(type, handler) {
 				// A cast instead of @type: the listener may return true (asynchronous
 				// sendResponse), but the shape from @types/chrome declares a void return.
+				// An answer still pending when the document goes away (pagehide) is sent empty right then: Firefox
+				// (verified in 159) never settles chrome.tabs.sendMessage() of the sender while a content script's
+				// answer is pending and its page goes into the back-forward cache frozen — the caller (a listing,
+				// a button) waited for good. Empty = as if no content script answered; a later answer is ignored.
 				const listener = /** @type {Types.RuntimeMessageListener} */ ((message, sender, sendResponse) => {
-					if (message && message.type === type) {
-						return handler(message, sender, sendResponse);
-					}
+					if (!message || message.type !== type) return;
+					const left = typeof window !== "undefined" && typeof window.addEventListener === "function" ? new AbortController() : null;
+					let answered = false;
+					/** @type {(response?: unknown) => void} */
+					const respond = (response) => {
+						if (answered) return;
+						answered = true;
+						left?.abort();
+						sendResponse(response);
+					};
+					const result = handler(message, sender, respond);
+					if (result === true && left && !answered) window.addEventListener("pagehide", () => respond(), { once: true, signal: left.signal });
+					return result;
 				});
 				chrome.runtime.onMessage.addListener(listener);
 				// In background.js also for the messages of the other background parts (see deliverToBackgroundParts()).
@@ -5042,7 +5637,7 @@ export function createModuleApi(moduleName, instance = null) {
 					return;
 				}
 				try {
-					await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: [FLOATING_WINDOW_SCRIPT] });
+					await executeScriptWithin({ target: { tabId: tab.id }, files: [FLOATING_WINDOW_SCRIPT] });
 				} catch (err) {
 					// Most often because the page does not allow injection (chrome://,
 					// Web Store, an empty new tab, ...) — harmless, just logged.
@@ -5468,12 +6063,8 @@ export function createModuleApi(moduleName, instance = null) {
 			},
 			async getIpForActiveTab() {
 				if (!hasTabsApi()) return null;
-				let tab;
-				try {
-					[tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-				} catch {
-					return null;
-				}
+				// The tab the surface relates to — on the dashboard and Settings the last used other tab.
+				const tab = await queryCurrentTab();
 				if (!tab || !tab.id) return null;
 				try {
 					const response = await sendToBackground({ type: GET_TAB_IP_MESSAGE, tabId: tab.id });
@@ -5636,6 +6227,10 @@ export function createModuleApi(moduleName, instance = null) {
 // Typed always as HTMLElement — BaseElement is instantiated only in a realm with a real DOM.
 const HTMLElementOrFallback = /** @type {typeof HTMLElement} */ (typeof HTMLElement !== "undefined" ? HTMLElement : class {});
 
+// The event (bubbling) a settings view fires when its unsaved changes come or go (BaseElement.setUnsavedChanges()) —
+// Settings (options.mjs) then shows or hides the reminder above "Save module settings".
+export const SETTINGS_VIEW_UNSAVED_EVENT = "module-settings-unsaved";
+
 /** @implements {Classes.BaseElement} */
 export class BaseElement extends /** @type {Types.WithFields<typeof HTMLElement, Classes.BaseElement.Fields>} */ (HTMLElementOrFallback) {
 	// No HTML attributes are observed by default — modules are configured
@@ -5666,6 +6261,9 @@ export class BaseElement extends /** @type {Types.WithFields<typeof HTMLElement,
 		// so they can be properly unsubscribed in disconnectedCallback().
 		/** @type {Classes.BaseElement['_messageListeners']} */
 		this._messageListeners = [];
+		// A settings view: whether it has changes not stored yet (setUnsavedChanges()).
+		/** @type {Classes.BaseElement['_unsavedChanges']} */
+		this._unsavedChanges = false;
 	}
 
 	// --- Custom Elements lifecycle: the common base ---
@@ -5780,6 +6378,32 @@ export class BaseElement extends /** @type {Types.WithFields<typeof HTMLElement,
 		chrome.runtime.onMessage.addListener(listener);
 		this._messageListeners.push(listener);
 	}
+
+	// --- A settings view (registerModule({ settingsView }), init({ location: "settings" })) ---
+	// The editor tells Settings whether it has changes not stored yet: the reminder above "Save module settings" shows while
+	// a field of the section's form or a settings view has them, and the button stores the fields first and then calls
+	// saveSettings() of every settings view with unsaved changes. A view that stores every change right away
+	// (tabGroupsSandbox) never reports any.
+
+	/** @type {Classes.BaseElement['setUnsavedChanges']} */
+	setUnsavedChanges(unsaved) {
+		const next = unsaved === true;
+		if (next === this._unsavedChanges) return;
+		this._unsavedChanges = next;
+		this.dispatchEvent(new Event(SETTINGS_VIEW_UNSAVED_EVENT, { bubbles: true }));
+	}
+
+	/** @type {Classes.BaseElement['hasUnsavedChanges']} */
+	hasUnsavedChanges() {
+		return this._unsavedChanges;
+	}
+
+	// Stores what the view reported as unsaved; rejects with the reason the user then reads next to the button (the view
+	// shows it itself too). The default has nothing to store.
+	/** @type {Classes.BaseElement['saveSettings']} */
+	saveSettings() {
+		return Promise.resolve();
+	}
 }
 
 // --------------------------------------------------------------------
@@ -5851,7 +6475,8 @@ export class BaseElement extends /** @type {Types.WithFields<typeof HTMLElement,
 // in chrome.storage.sync and opens them on the target device, scheduledUrls.* —, and the DNS overview of the pages DNSOverviewSandbox —
 // the core follows the requests of the pages and asks browser.dns for it, dnsOverview.* —, and the overview and the editor of the
 // network rules declarativeNetRequestSandbox — modules/declarativeNetRequest converts the rules into the browser and keeps them
-// for it, declarativeNetRequest.*): its package is part of the extension
+// for it, declarativeNetRequest.* —, and the colors of the page colorsManagerSandbox — the core reads the frames of the tab
+// for it, colorsManager.*): its package is part of the extension
 // and the core installs it the same way as an uploaded one, from the files of the extension, the
 // first time a page needs it (ensureBundledSandboxModules()) — on a new installation that is the
 // welcome page. The user cannot remove it or upload another module under its name.
@@ -5872,8 +6497,10 @@ export const SANDBOX_ENTRY_PREFIX = "sandbox://";
 
 // Uploaded modules the extension brings itself: module name → the files of its package. The
 // package is in the extension (BUNDLED_SANDBOX_DIR/<name>/ — scripts/build.mjs puts the folders
-// of the sandbox:// entries of modules.json into the package, every such module is in the default
-// list), the core installs it from there (ensureBundledSandboxModules()).
+// of these modules into the package, scripts/build-module-*.ps1 read their names from here: one
+// "<name>: Object.freeze([" line each), the core installs it from there when the module list has
+// it (ensureBundledSandboxModules()). Every such module is in the default list (modules.json),
+// except UNLISTED_MODULES.
 /** @type {Readonly<Record<string, readonly string[]>>} */
 export const BUNDLED_SANDBOX_MODULES = Object.freeze({
 	// #region standalone: tabGroupsSandbox
@@ -5881,6 +6508,22 @@ export const BUNDLED_SANDBOX_MODULES = Object.freeze({
 	// #endregion standalone: tabGroupsSandbox
 });
 export const BUNDLED_SANDBOX_DIR = "sandbox-modules";
+
+// Modules the extension has — from the package (modules/<name>/) or brought by it (BUNDLED_SANDBOX_MODULES) — that
+// the default module list (modules.json) leaves out: they are released as standalone extensions
+// (scripts/build-module-*.ps1 build them from this project) and the full extension shows them from there, as the
+// modules of its client ("Modules from other extensions"). Their code stays in the package — the user can put their
+// entries into the module list — and their names stay taken (isModuleNameTaken()). Every other module is in the
+// default list (tests/manifests.test.mjs checks both).
+/** @type {readonly string[]} */
+export const UNLISTED_MODULES = Object.freeze([
+	// #region standalone: tabGroups
+	"tabGroups",
+	// #endregion standalone: tabGroups
+	// #region standalone: tabGroupsSandbox
+	"tabGroupsSandbox",
+	// #endregion standalone: tabGroupsSandbox
+]);
 
 // The modules of BUNDLED_SANDBOX_MODULES checked in this browser session (chrome.storage.session —
 // the browser clears it on a restart and when the extension is updated or reloaded): the next
@@ -6018,6 +6661,8 @@ const SANDBOX_API = Object.freeze({
 	// The rule and the default mode the module registered — a Specification cannot cross the boundary.
 	"activation.isActive": { kind: "call", run: (api, _args, mod) => api.activation.isActive(mod.defaultActivationMode, mod.activationSpec) },
 	"activation.onChange": { kind: "subscribe", run: (api, _args, _mod, emit) => api.activation.onChange(() => emit(null)) },
+	// A click on the extension button ({ at, tabId, windowId }) — for the "icon_click" mode on a surface that stays open.
+	"activation.onIconClick": { kind: "subscribe", run: (api, _args, _mod, emit) => api.activation.onIconClick(emit) },
 	"notifications.show": {
 		kind: "call",
 		run: (api, [title, options]) =>
@@ -6199,7 +6844,10 @@ const SANDBOX_API = Object.freeze({
 // PWAInfo keeps recording websites with a PWA app (content script, MAIN-world script, background
 // part, the details for domainDetailsSandbox, its settings and the permission button), and its overview
 // became PWAInfoSandbox — it renders what websites wrote into their manifests, in the sandbox
-// (pwaInfo.listRecords, pwaInfo.getStatus, the listener pwaInfo.onChange). The same way domainInfo
+// (pwaInfo.listRecords, pwaInfo.getStatus, the listener pwaInfo.onChange); its buttons "Block domain" and "Block service
+// worker" of the detail of an app hand the address of a page or of the script of the service worker of a record of PWAInfo
+// over to declarativeNetRequest the same way imageInfo hands an image over (pwaInfo.blockDomain, pwaInfo.blockServiceWorker —
+// see below). The same way domainInfo
 // keeps collecting the RDAP data of the domains of visited pages (content script, pageInit, the
 // details, the RDAP server editor and the permission button), and its listing of the page domains
 // became domainInfoSandbox — it renders what the registries answered (names, addresses, e-mails of
@@ -6210,9 +6858,9 @@ const SANDBOX_API = Object.freeze({
 // EXIF, XMP, IPTC: cameras, places, authors), in the sandbox (imageInfo.getPage, the listeners
 // imageInfo.onChange and imageInfo.onView — which of them the user sees and points at); its marks over the images
 // on the page itself are only text the core checks and passes to the frames of the page (imageInfo.markImages). Its button "Block
-// the image permanently" hands one address over to another module of the package through the core
-// (imageInfo.blockImage): the core checks it against the listing and sends it to the background part of
-// declarativeNetRequest, which keeps it in its rule of the blocked images — the modules know nothing of each
+// the image permanently" hands one address over to another module through the core
+// (imageInfo.blockImage): the core checks it against the listing and asks the background part of
+// declarativeNetRequest wherever it runs (also in a client of this extension), which keeps it in its rule of the blocked images — the modules know nothing of each
 // other's data, the core passes only the address and the result. studiesManager records the scientific studies of
 // the pages the user browses (content script, background part — the metadata from doi.org), and its manager is
 // studiesManagerSandbox — it renders what pages and DOI registries say about the studies (titles, abstracts,
@@ -6237,10 +6885,11 @@ const SANDBOX_API = Object.freeze({
 // declarativeNetRequest keeps converting its rules of header and GET parameter edits and blocking into the browser (its
 // background part, the notifications and the own log of applied rules, the rule of the blocked images, the permission
 // buttons), and the overview of the rules for the page and the editor of the rules became declarativeNetRequestSandbox — the
-// editor renders what the user and imageInfo.blockImage wrote into the rules, in the sandbox; the background part of
+// editor renders what the user, imageInfo.blockImage, pwaInfo.blockDomain and pwaInfo.blockServiceWorker wrote into the rules, in the sandbox; the background part of
 // declarativeNetRequest does the work for it as its services (api.services — declarativeNetRequest.getStatus, getRules,
-// setRules — checked the same way the editor in Settings did —, suspendRule, restoreRule, reloadTab, getLog, clearLog); the
-// listener declarativeNetRequest.onChange follows the settings, the state, the permissions and the bookmarks in the page.
+// setRules — checked the same way the editor in Settings did —, suspendRule, restoreRule, reloadTab, blockPage, addExceptDomain, getLog,
+// clearLog, openPermissions); the listener declarativeNetRequest.onChange follows the settings, the state, the permissions and the bookmarks
+// in the page. The permission buttons of its editor are buttons of the core (declarativeNetRequest.requestPermission, within the click).
 //
 // A service of the core. What a module did outside its element can also become a general function of
 // the core that any uploaded module asks for with data, and the core does the work itself — also in
@@ -6296,8 +6945,8 @@ const SANDBOX_API = Object.freeze({
 //     scriptlets of the content filters are the core's own code, the module names them as data;
 //   - private browser data: cookies of all sites, history, browsingData, sessions, topSites,
 //     webNavigation;
-//   - network rules and intercepting requests: webRequest, declarativeNetRequest, proxy (imageInfo.blockImage
-//     is no way to them — declarativeNetRequest itself turns one checked address into its own rule; the
+//   - network rules and intercepting requests: webRequest, declarativeNetRequest, proxy (imageInfo.blockImage,
+//     pwaInfo.blockDomain and pwaInfo.blockServiceWorker are no way to them — declarativeNetRequest itself turns one checked address into its own rule; the
 //     network filters convert lists, the rules are the core's own; declarativeNetRequest.* of the catalog are
 //     the services of the module declarativeNetRequest on its own rules, which it checks itself — the names of
 //     the API stay forbidden);
@@ -6389,7 +7038,12 @@ const SANDBOX_FLOATING_WINDOW_SIZE_RE = /^\d{1,7}(?:\.\d{1,6})?px$/;
 // the listener tabGroups.onChange uses in the page (watchWindowGroups() of overview.mjs, imported only then,
 // importSandboxTabGroups()) — MODULE_NAME of modules/tabGroups/module.mjs (tests/sandbox.test.mjs checks it is the same).
 export const SANDBOX_TAB_GROUPS_MODULE = "tabGroups";
+// The permissions of the groups from bookmarks of tabGroups (tabGroups.requestPermission("bookmarks")) —
+// BOOKMARK_GROUPS_PERMISSIONS of modules/tabGroups/bookmarkGroups.mjs (tests/sandbox.test.mjs checks they are the same).
+/** @type {Types.PermissionSet} */
+export const SANDBOX_TAB_GROUPS_BOOKMARKS_PERMISSIONS = { permissions: ["bookmarks", "tabs"] };
 // #endregion standalone: tabGroups
+
 
 
 
@@ -6476,6 +7130,16 @@ const SANDBOX_CAPABILITIES = Object.freeze({
 		risk: "low",
 		about: () => t("core_sandbox_capability_about_tabs_activate"),
 		run: ([options]) => activateSandboxTab(options),
+	},
+	// The dashboard (DASHBOARD_PAGE) — an open one comes to the front, otherwise it opens next to the tab the surface
+	// relates to (openDashboard()). Unavailable while no enabled module of the list is sent to the dashboard: it would be
+	// empty (dashboardHasModules, refreshed by getSandboxCapabilityStates()).
+	"dashboard.open": {
+		risk: "low",
+		clickOnly: true,
+		about: () => t("core_sandbox_capability_about_dashboard_open"),
+		available: () => dashboardHasModules,
+		run: (_args, context) => openSandboxDashboard(context),
 	},
 	// The Settings page of the extension — an open one comes to the front; with { hash } (the id of an element of
 	// the page, e.g. a module's card) a new tab opens at options.html#<hash>.
@@ -6576,6 +7240,17 @@ const SANDBOX_CAPABILITIES = Object.freeze({
 		risk: "low",
 		about: () => t("core_sandbox_capability_about_tab_groups_open_permissions"),
 		run: (_args, context) => callModuleService("tabGroups.openPermissions", [], context.location),
+	},
+	// Asks the browser for the permissions of the groups from bookmarks of tabGroups (["bookmarks"] — "bookmarks" and "tabs",
+	// the only set) from a button the core draws above its editor (hence clickOnly — a click in the sandbox frame does not
+	// count, see mainButtonsSandbox). Only for a module the extension brings itself: a permission of a module of a client
+	// belongs to the client (tabGroups.openPermissions opens its Settings).
+	"tabGroups.requestPermission": {
+		risk: "low",
+		clickOnly: true,
+		about: () => t("core_sandbox_capability_about_tab_groups_request_permission"),
+		available: (context) => context.module.sandbox?.bundled === true && hasPermissionsApi(),
+		run: ([what], context) => requestSandboxTabGroupsPermission(what, context),
 	},
 	// A listener: "groups" after a group or a tab of the page's windows changed (created, moved, renamed, closed), "status"
 	// after a change of the settings of tabGroups, of the module list or of the permissions.
@@ -7203,12 +7878,14 @@ export async function readSandboxCapabilityGrants() {
 /** @type {Functions.Base.getSandboxCapabilityStates} */
 export async function getSandboxCapabilityStates(mod, context = null) {
 	const holder = sandboxCapabilityHolder(mod);
+	if (holder.capabilities.includes("dashboard.open")) await loadDashboardHasModules();
 	const grants = await readSandboxCapabilityGrants();
 	return Object.fromEntries(holder.capabilities.map((name) => [name, sandboxCapabilityState(holder, name, grants, context)]));
 }
 
 // capabilities.onChange() of the module's api: the states again after every change of the decisions
-// that changes one of them. Returns a function to unsubscribe.
+// that changes one of them — and of the settings, the module list or the client extensions for a module with
+// dashboard.open (whether the dashboard has any module). Returns a function to unsubscribe.
 /** @type {Functions.Base.onSandboxCapabilityStatesChange} */
 function onSandboxCapabilityStatesChange(mod, emit, context = null) {
 	let last = "";
@@ -7216,9 +7893,12 @@ function onSandboxCapabilityStatesChange(mod, emit, context = null) {
 	const ready = getSandboxCapabilityStates(mod, context).then((states) => {
 		last = JSON.stringify(states);
 	});
+	const dashboard = sandboxCapabilityHolder(mod).capabilities.includes("dashboard.open");
 	/** @type {Types.StorageChangeListener} */
 	const listener = (changes, area) => {
-		if (area !== "local" || !changes[SANDBOX_CAPABILITY_GRANTS_KEY]) return;
+		if (area !== "local") return;
+		const modules = dashboard && !!(changes[SETTINGS_KEY] || changes[MODULES_JSON_KEY] || changes[EXTENSION_SERVICE_CLIENTS_KEY]);
+		if (!changes[SANDBOX_CAPABILITY_GRANTS_KEY] && !modules) return;
 		ready
 			.then(() => getSandboxCapabilityStates(mod, context))
 			.then((states) => {
@@ -7996,6 +8676,20 @@ async function openSandboxWebTab(options) {
 }
 
 
+
+// #region standalone: tabGroups
+// tabGroups.requestPermission("bookmarks") — still within the click (no await before the request): the groups from bookmarks need
+// "bookmarks" and "tabs" (SANDBOX_TAB_GROUPS_BOOKMARKS_PERMISSIONS). Firefox refuses a request that names a permission the
+// manifest requires — such ones are left out, the manifest is read synchronously.
+/** @type {Functions.Base.requestSandboxTabGroupsPermission} */
+export async function requestSandboxTabGroupsPermission(what, context) {
+	if (what !== "bookmarks") throw new Error(t("core_sandbox_buttons_invalid", "args"));
+	const required = chrome.runtime.getManifest().permissions ?? [];
+	const permissions = (SANDBOX_TAB_GROUPS_BOOKMARKS_PERMISSIONS.permissions ?? []).filter((name) => !required.includes(name));
+	return context.api.permissions.request({ permissions });
+}
+// #endregion standalone: tabGroups
+
 // tabs.activate({ tabId }) — the page that embeds the module, from the floating window's <iframe> background.js
 // (ACTIVATE_TAB_MESSAGE).
 /** @type {Functions.Base.activateSandboxTab} */
@@ -8125,6 +8819,189 @@ export async function applySidebarDisabled(disabled) {
 	await chrome.sidePanel.setOptions({ enabled: !disabled });
 }
 
+// --- The extension button and the dashboard (ACTION_OPENS_DASHBOARD_KEY) ---
+
+// Each enabled entry of the module list (resolveModuleEntries(): only the modules the page has loaded — the popup does
+// not load a turned-off module, and that one does not count anyway) with its output locations: both sets of a client's
+// module (getModuleDelegatedDisplayLocations()); a module another extension runs instead is left out.
+/** @type {Functions.Base.listEnabledEntryLocations} */
+async function listEnabledEntryLocations(paths, settings) {
+	const replaced = await getReplacedModules();
+	/** @type {Types.EnabledEntryLocations[]} */
+	const result = [];
+	for (const { mod, key } of resolveModuleEntries(paths)) {
+		if (DISABLED_SPEC.isSatisfiedBy({ mode: getModuleMode(settings, key, mod.defaultActivationMode) })) continue;
+		if (replaced.has(mod.name)) continue;
+		const locations = getModuleDisplayLocations(settings, key, mod.defaultDisplayLocation);
+		result.push({ key, locations: [...new Set([...locations, ...getModuleDelegatedDisplayLocations(settings, key, locations)])] });
+	}
+	return result;
+}
+
+// The output locations of each enabled entry of the module list (listEnabledEntryLocations()).
+/** @type {Functions.Base.listEnabledDisplayLocations} */
+export async function listEnabledDisplayLocations(paths, settings) {
+	return (await listEnabledEntryLocations(paths, settings)).map((entry) => entry.locations);
+}
+
+// The keys of the enabled entries of the module list (listEnabledEntryLocations()) that the surface may show — the
+// module itself or the note that another extension shows it (mountDelegatedNote()). By the settings, not by what is
+// shown right now: the rules of a module (WEB_PAGE_SPEC) may not hold for the current tab.
+/** @type {Functions.Base.listEnabledModulesFor} */
+export async function listEnabledModulesFor(paths, settings, location) {
+	return (await listEnabledEntryLocations(paths, settings)).filter((entry) => entry.locations.includes(location)).map((entry) => entry.key);
+}
+
+// Does the extension button open the dashboard instead of the popup? When no enabled module of the list is sent to the
+// popup and at least one is sent to the dashboard (listEnabledDisplayLocations()) — the popup would stay empty and the
+// outputs are on the dashboard.
+/** @type {Functions.Base.resolveActionOpensDashboard} */
+export async function resolveActionOpensDashboard(paths, settings) {
+	const locations = await listEnabledDisplayLocations(paths, settings);
+	return !locations.some((list) => list.includes("popup")) && locations.some((list) => list.includes("dashboard"));
+}
+
+// Writes the result of resolveActionOpensDashboard() to ACTION_OPENS_DASHBOARD_KEY when it differs from the stored one
+// (false = the key removed) — background.js then switches the button (applyActionOpensDashboard()). Returns the result.
+/** @type {Functions.Base.syncActionOpensDashboard} */
+export async function syncActionOpensDashboard(paths, settings) {
+	const opens = await resolveActionOpensDashboard(paths, settings);
+	const stored = await chrome.storage.local.get(ACTION_OPENS_DASHBOARD_KEY);
+	if ((stored[ACTION_OPENS_DASHBOARD_KEY] === true) === opens) return opens;
+	if (opens) await chrome.storage.local.set({ [ACTION_OPENS_DASHBOARD_KEY]: true });
+	else await chrome.storage.local.remove(ACTION_OPENS_DASHBOARD_KEY);
+	return opens;
+}
+
+// The pages with module output (renderModulesFor()) keep ACTION_OPENS_DASHBOARD_KEY up to date: right away and after
+// every change of the settings, of the module list or of the extensions that run modules instead of this one — from this
+// page, another one, or a restored backup. Once per page; a module added to the list later than the page loaded is not
+// known to it (resolveActionOpensDashboard()), the next page that loads it says so. The listener comes first and every
+// sync reads the current list and settings, one after another (actionOpensDashboardSyncs) — a change during the
+// loading of the page is not lost and an older read does not overwrite the result of a newer one.
+let actionOpensDashboardWatching = false;
+/** @type {Promise<void>} */
+let actionOpensDashboardSyncs = Promise.resolve();
+
+/** @type {Functions.Base.watchActionOpensDashboard} */
+function watchActionOpensDashboard() {
+	/** @type {Functions.Base.watchActionOpensDashboard.sync} */
+	const sync = () => {
+		actionOpensDashboardSyncs = actionOpensDashboardSyncs
+			.then(async () => {
+				const controller = new BaseController();
+				const [json, settings] = await Promise.all([controller.getModulesJson(), controller.loadSettings()]);
+				const list = JSON.parse(json);
+				if (Array.isArray(list)) await syncActionOpensDashboard(list, settings);
+			})
+			.catch((err) => console.error("Co otevírá tlačítko rozšíření, nejde uložit:", err));
+	};
+	if (!actionOpensDashboardWatching && chrome.storage?.onChanged) {
+		actionOpensDashboardWatching = true;
+		chrome.storage.onChanged.addListener((changes, area) => {
+			if (area === "local" && (changes[SETTINGS_KEY] || changes[MODULES_JSON_KEY] || changes[EXTENSION_SERVICE_CLIENTS_KEY])) sync();
+		});
+	}
+	sync();
+}
+
+// The extension button by ACTION_OPENS_DASHBOARD_KEY: without a popup (a click then comes to action.onClicked in
+// background.js, which opens the dashboard — openDashboard()) or with the popup of the manifest, and its tooltip in the
+// UI language (t() — after loadI18n()). Called by background.js on every start and after every change of the key.
+/** @type {Functions.Base.applyActionOpensDashboard} */
+export async function applyActionOpensDashboard(opens) {
+	const action = chrome.action;
+	if (typeof action?.setPopup !== "function") return;
+	const manifest = /** @type {chrome.runtime.ManifestV3} */ (chrome.runtime.getManifest());
+	await action.setPopup({ popup: opens ? "" : manifest.action?.default_popup || "popup.html" });
+	if (typeof action.setTitle === "function") {
+		await action.setTitle({ title: t(opens ? "extension_action_title_dashboard" : "extension_action_title") });
+	}
+}
+
+// The dashboard (DASHBOARD_PAGE) in front: its open tab (in the last focused window first) is selected and its window
+// focused, otherwise it opens in a new tab — right after the tab the user came from, in its window (openerTabId: the
+// dashboard relates to that tab, see trackPreviousTab(), and closing the dashboard returns the browser there; Chrome
+// would put a new tab at the end of the window). For the extension button (background.js, popup.mjs).
+/** @type {Functions.Base.openDashboard} */
+export async function openDashboard(openerTabId) {
+	const url = chrome.runtime.getURL(DASHBOARD_PAGE);
+	const tabs = await findDashboardTabs(url);
+	if (tabs.length > 0) {
+		let windowId = null;
+		try {
+			windowId = typeof chrome.windows?.getLastFocused === "function" ? ((await chrome.windows.getLastFocused()).id ?? null) : null;
+		} catch {
+			// Without a window the first tab found is enough.
+		}
+		const tab = tabs.find((item) => item.windowId === windowId) || tabs[0];
+		await activateTab(tab.tabId);
+		return;
+	}
+	/** @type {chrome.tabs.CreateProperties} */
+	const properties = { url };
+	if (typeof openerTabId === "number" && openerTabId >= 0) {
+		properties.openerTabId = openerTabId;
+		try {
+			const opener = await chrome.tabs.get(openerTabId);
+			properties.windowId = opener.windowId;
+			properties.index = opener.index + 1;
+		} catch {
+			// The tab is gone (tabs.create() would refuse its id) — the dashboard opens where the browser puts a new tab.
+			delete properties.openerTabId;
+		}
+	}
+	await chrome.tabs.create(properties);
+}
+
+// Is at least one enabled module of the list sent to the dashboard (listEnabledDisplayLocations() — the modules this
+// page has loaded)? In the page's memory for available() of dashboard.open, which is synchronous — refreshed by
+// loadDashboardHasModules() before the states of the functions are read (getSandboxCapabilityStates()).
+let dashboardHasModules = false;
+
+/** @type {Functions.Base.loadDashboardHasModules} */
+export async function loadDashboardHasModules() {
+	try {
+		const controller = new BaseController();
+		const [json, settings] = await Promise.all([controller.getModulesJson(), controller.loadSettings()]);
+		const list = JSON.parse(json);
+		const locations = Array.isArray(list) ? await listEnabledDisplayLocations(list, settings) : [];
+		dashboardHasModules = locations.some((items) => items.includes("dashboard"));
+	} catch (err) {
+		console.error("Moduly dashboardu nejde zjistit:", err);
+		dashboardHasModules = false;
+	}
+	return dashboardHasModules;
+}
+
+// dashboard.open of the catalog — next to the tab the surface relates to (api.tabs.getActive()). Without chrome.tabs
+// (the floating window's <iframe> in Firefox) a new tab through window.open(), still within the click.
+/** @type {Functions.Base.openSandboxDashboard} */
+async function openSandboxDashboard(context) {
+	if (typeof chrome.tabs?.create !== "function") {
+		window.open(chrome.runtime.getURL(DASHBOARD_PAGE));
+		return;
+	}
+	const tab = await context.api.tabs.getActive();
+	await openDashboard(tab ? tab.tabId : undefined);
+}
+
+// The tabs with the dashboard open — chrome.runtime.getContexts() (Chrome 116+, Firefox 129+) knows the extension's own
+// pages without the "tabs" permission; without it none is found and the dashboard opens anew.
+/** @type {Functions.Base.findDashboardTabs} */
+async function findDashboardTabs(url) {
+	if (typeof chrome.runtime.getContexts !== "function") return [];
+	const contexts = await chrome.runtime.getContexts({ contextTypes: [/** @type {chrome.runtime.ContextType} */ (/** @type {unknown} */ ("TAB"))] });
+	/** @type {Types.DashboardTab[]} */
+	const tabs = [];
+	for (const context of contexts) {
+		if (typeof context.tabId !== "number" || context.tabId < 0 || typeof context.documentUrl !== "string") continue;
+		if (context.documentUrl.split(/[?#]/)[0] !== url) continue;
+		tabs.push({ tabId: context.tabId, windowId: context.windowId });
+	}
+	return tabs;
+}
+
 // Firefox: chrome.sidebarAction (missing in the floating window's <iframe>); Chrome: chrome.sidePanel.
 /** @type {Functions.Base.hasSidebarControl} */
 function hasSidebarControl() {
@@ -8219,8 +9096,9 @@ async function getSandboxStorageUsage() {
 	return { localStorage: localStorageUsage, indexedDb, estimate, chromeStorage };
 }
 
-// buildSettings.get — modules/<module>/standalone.json of the modules of the default list in the package (modules.json:
-// every folder of modules/ is in it, tests/manifests.test.mjs). Only the build scripts use the files and scripts/build.mjs
+// buildSettings.get — modules/<module>/standalone.json of the modules of the default list in the package (modules.json)
+// and of those it leaves out (UNLISTED_MODULES, after them — every folder of modules/ is in one of them,
+// tests/manifests.test.mjs). Only the build scripts use the files and scripts/build.mjs
 // leaves them out of every package, so they are there only in an extension run unpacked from the project (installType
 // "development"; in another one nothing is looked for — every module would be a missing file). A file that is not
 // valid JSON carries the reason ({ error }), the module checks the content itself.
@@ -8232,9 +9110,9 @@ async function getSandboxBuildSettings() {
 	const res = await fetch(chrome.runtime.getURL("modules.json"));
 	if (!res.ok) throw new Error(t("core_file_load_failed", "modules.json", res.status));
 	const entries = /** @type {unknown} */ (await res.json());
-	const folders = [...new Set((Array.isArray(entries) ? entries : []).map((entry) => (typeof entry === "string" ? /^\.\/modules\/([^/]+)\//.exec(entry)?.[1] : undefined)))].filter(
-		(folder) => folder !== undefined
-	);
+	const listed = (Array.isArray(entries) ? entries : []).map((entry) => (typeof entry === "string" ? /^\.\/modules\/([^/]+)\//.exec(entry)?.[1] : undefined));
+	const unlisted = UNLISTED_MODULES.filter((name) => !Object.hasOwn(BUNDLED_SANDBOX_MODULES, name));
+	const folders = [...new Set([...listed, ...unlisted])].filter((folder) => folder !== undefined);
 	const found = await Promise.all(
 		folders.map(async (module) => {
 			let text;
@@ -8535,6 +9413,7 @@ function ownModuleSettings(settings, moduleName, sharedGroups = []) {
 		Object.entries(settings || {}).filter(([key]) => isModuleSettingsKey(moduleName, key) || shared.some((prefix) => key.startsWith(prefix)))
 	);
 }
+
 
 
 
@@ -9050,16 +9929,21 @@ export function getReplacedModules() {
 			if (area === "local" && changes[EXTENSION_SERVICE_CLIENTS_KEY]) replacedModules = null;
 		});
 	}
-	replacedModules = readExtensionServiceClients().then((clients) => {
-		/** @type {Map<string, Types.ExtensionServiceClient>} */
-		const replaced = new Map();
-		for (const client of Object.values(clients)) {
-			if (client.status !== "approved" || client.alive === false) continue;
-			for (const name of replaceableModules(client.replaces)) if (!replaced.has(name)) replaced.set(name, client);
-		}
-		return replaced;
-	});
+	replacedModules = readExtensionServiceClients().then(replacedModulesOf);
 	return replacedModules;
+}
+
+// The modules the records of the clients say a client runs instead (getReplacedModules() without reading them) — also for
+// a listener that compares the records before and after a change of EXTENSION_SERVICE_CLIENTS_KEY.
+/** @type {Functions.Base.replacedModulesOf} */
+function replacedModulesOf(clients) {
+	/** @type {Map<string, Types.ExtensionServiceClient>} */
+	const replaced = new Map();
+	for (const client of Object.values(clients)) {
+		if (client.status !== "approved" || client.alive === false) continue;
+		for (const name of replaceableModules(client.replaces)) if (!replaced.has(name)) replaced.set(name, client);
+	}
+	return replaced;
 }
 
 // Installs the packages of an allowed client its record does not have installed in their registered version —
@@ -9765,12 +10649,14 @@ async function deleteSandboxPackage(name) {
 // Is the name (or the element tag derived from it) already used by a module from the package,
 // by a module the extension brings itself (BUNDLED_SANDBOX_MODULES — an upload would replace
 // it) or by another uploaded module? Modules from the package are recognized by the default list
-// (every folder in modules/ is in it, tests/manifests.test.mjs checks that) and by the registry
-// of the page; a tag is compared because "myModule" and "MyModule" would have the same one.
+// and UNLISTED_MODULES (every folder in modules/ is in one of them, tests/manifests.test.mjs
+// checks that) and by the registry of the page; a tag is compared because "myModule" and
+// "MyModule" would have the same one.
 /** @type {Functions.Base.isModuleNameTaken} */
 async function isModuleNameTaken(name, store) {
 	const tag = getTagName(name);
 	if (Object.keys(BUNDLED_SANDBOX_MODULES).some((bundled) => getTagName(bundled) === tag)) return true;
+	if (UNLISTED_MODULES.some((unlisted) => getTagName(unlisted) === tag)) return true;
 	if ((globalThis.__extensionModules || []).some((m) => m.tag === tag && !(m.sandbox && m.name === name))) return true;
 	if (Object.keys(store).some((other) => other !== name && getTagName(other) === tag)) return true;
 	try {
@@ -10453,6 +11339,8 @@ export function collectSandboxTheme(doc = document) {
 export const SANDBOX_SCROLL_FOLLOW_MS = 3000;
 // The largest offset of api.ui.scrollIntoView({ offset }) — px from the top of the module's frame.
 const SANDBOX_SCROLL_MAX_OFFSET = 10000000;
+// How long "Save module settings" waits for a settings view in the sandbox to store its settings ("save" → "saved").
+export const SANDBOX_SAVE_TIMEOUT_MS = 30000;
 
 // The element of an uploaded module on an extension page — it has the place, the frame and the
 // settings of a module (BaseController renders it like any other), its content is the
@@ -10501,6 +11389,10 @@ export class SandboxModuleElement extends /** @type {Types.WithFields<typeof Bas
 		this._uiListeners = new Set();
 		/** @type {Classes.SandboxModuleElement['_stopScrollFollow']} */
 		this._stopScrollFollow = null;
+		/** @type {Classes.SandboxModuleElement['_pendingSaves']} */
+		this._pendingSaves = new Map();
+		/** @type {Classes.SandboxModuleElement['_lastSaveId']} */
+		this._lastSaveId = 0;
 	}
 
 	/**
@@ -10820,6 +11712,44 @@ export class SandboxModuleElement extends /** @type {Types.WithFields<typeof Bas
 			case "problems":
 				this._showProblems(describeSandboxProblems(message.problems));
 				break;
+			// A settings view (registerModule({ settingsView })) reports its unsaved changes — only there the button of the page
+			// stores them (saveSettings()).
+			case "unsaved":
+				if (this._location === "settings") this.setUnsavedChanges(message.unsaved === true);
+				break;
+			case "saved":
+				this._finishSave(message.id, message.ok === true ? null : String(message.error || ""));
+				break;
+		}
+	}
+
+	// "Save module settings": the settings view in the sandbox stores its settings (its element's saveSettings()) and answers
+	// "saved" — with the reason when it failed. A view that does not answer within SANDBOX_SAVE_TIMEOUT_MS, or stops
+	// before it answers, failed too.
+	/**
+	 * @override
+	 * @type {Classes.SandboxModuleElement['saveSettings']}
+	 */
+	saveSettings() {
+		return new Promise((resolve, reject) => {
+			const id = ++this._lastSaveId;
+			const timer = setTimeout(() => this._finishSave(id, t("core_sandbox_save_timeout", String(SANDBOX_SAVE_TIMEOUT_MS / 1000))), SANDBOX_SAVE_TIMEOUT_MS);
+			this._pendingSaves.set(id, { resolve, reject, timer });
+			if (!this._started || !this._post({ kind: "save", id })) this._finishSave(id, t("core_sandbox_save_stopped"));
+		});
+	}
+
+	// The answer to a "save" (error null = stored); an unknown id (already timed out) does nothing.
+	/** @type {Classes.SandboxModuleElement['_finishSave']} */
+	_finishSave(id, error) {
+		const pending = typeof id === "number" ? this._pendingSaves.get(id) : undefined;
+		if (!pending) return;
+		this._pendingSaves.delete(/** @type {number} */ (id));
+		clearTimeout(pending.timer);
+		if (error === null) {
+			pending.resolve();
+		} else {
+			pending.reject(new Error(error || t("core_sandbox_save_stopped")));
 		}
 	}
 
@@ -10933,9 +11863,11 @@ export class SandboxModuleElement extends /** @type {Types.WithFields<typeof Bas
 
 	// Stops serving the sandbox: the listeners of the module's api, the message listener, the
 	// look and decision watching, the drawn buttons and content. Called when the element is detached
-	// and when the module fails.
+	// and when the module fails — the unsaved changes of a settings view are gone with it, a saving it did not answer fails.
 	/** @type {Classes.SandboxModuleElement['_stop']} */
 	_stop() {
+		for (const id of [...this._pendingSaves.keys()]) this._finishSave(id, t("core_sandbox_save_stopped"));
+		this.setUnsavedChanges(false);
 		window.removeEventListener("message", this._onMessage);
 		for (const unsubscribe of this._subscriptions.values()) {
 			try {

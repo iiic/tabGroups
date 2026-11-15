@@ -71,6 +71,9 @@ declare global {
 			activation: {
 				isActive(): Promise<boolean>;
 				onChange( handler: () => void ): () => void;
+
+				/** After every click on the extension button (also one that opened the page a moment ago); returns a function to unsubscribe */
+				onIconClick( handler: ( click: IconClick ) => void ): () => void;
 			};
 			notifications: Pick<ModuleNotificationsApi, 'show' | 'onClick'>;
 			data: ModuleDataApi;
@@ -360,6 +363,12 @@ declare global {
 			/** A file of the package as text (UTF-8) */
 			getFileText( path: string | URL ): string;
 
+			/** The color of a text by its SHA-1 ("#rrggbb", the same as colorFromText() of sdk.mjs), "" for an empty text */
+			colorFromText( text: unknown ): string;
+
+			/** Does the surface stay open while tabs switch (the side panel, the dashboard) — the same as followsActiveTab() of sdk.mjs */
+			followsActiveTab( location: string | null | undefined ): boolean;
+
 			Specification: typeof Classes.SandboxSpecification;
 			AndSpecification: typeof Classes.SandboxAndSpecification;
 			OrSpecification: typeof Classes.SandboxOrSpecification;
@@ -413,7 +422,8 @@ declare global {
 				| { kind: 'result'; id: number; ok: false; error: string }
 				| { kind: 'event'; id: number; value: unknown }
 				| { kind: 'denied'; id: number; error: string }
-				| { kind: 'theme'; theme: SandboxTheme };
+				| { kind: 'theme'; theme: SandboxTheme }
+				| { kind: 'save'; id: number };
 
 			/** A message from the sandbox to the core (post() adds the token from the page address). */
 			type ToHost =
@@ -423,7 +433,10 @@ declare global {
 				| { kind: 'resize'; height: number; width: number }
 				| { kind: 'call'; id: number; method: string; args: unknown[] }
 				| { kind: 'subscribe'; id: number; method: string; args: unknown[] }
-				| { kind: 'unsubscribe'; id: number };
+				| { kind: 'unsubscribe'; id: number }
+				| { kind: 'unsaved'; unsaved: boolean }
+				| { kind: 'saved'; id: number; ok: true }
+				| { kind: 'saved'; id: number; ok: false; error: string };
 
 			/** A message to the core as it travels — with the token of the sandbox page (#… of its address). */
 			type Envelope = ToHost & { token: string };
@@ -553,6 +566,9 @@ declare global {
 			/** Settles a pending api request by the core's response */
 			type settle = ( message: Extract<Types.Sandbox.FromHost, { kind: 'result' }> ) => void;
 
+			/** "save": the element of the settings view stores its settings (saveSettings()), the core gets "saved" */
+			type saveSettings = ( id: number ) => Promise<void>;
+
 		}
 
 	}
@@ -631,6 +647,9 @@ declare global {
 			/** Requests to the core (created by init()) */
 			api: Types.SandboxModuleApi;
 
+			/** A settings view has changes not stored yet (what setUnsavedChanges() reported to the core last) */
+			_unsavedChanges: boolean;
+
 			constructor ();
 			connectedCallback(): void;
 			disconnectedCallback(): void;
@@ -641,12 +660,21 @@ declare global {
 
 			/** Does the module's activation rule hold for the given mode? */
 			isActivationSatisfied( mode?: Enums.ActivationMode ): boolean;
+
+			/** A settings view: tells the core whether it has changes not stored yet ("unsaved") — the reminder and the button in Settings */
+			setUnsavedChanges( unsaved: boolean ): void;
+
+			/** A settings view: what it reported last with setUnsavedChanges() */
+			hasUnsavedChanges(): boolean;
+
+			/** A settings view: "Save module settings" stores what it reported as unsaved; rejects with the reason for the user. The default stores nothing. */
+			saveSettings(): Promise<void>;
 		}
 
 		namespace SandboxElement {
 
 			/** Instance properties (without methods) — see Types.WithFields */
-			type Fields = Pick<SandboxElement, '_name' | '_mode' | '_location' | '_instance' | 'activationSpec' | 'api'>;
+			type Fields = Pick<SandboxElement, '_name' | '_mode' | '_location' | '_instance' | 'activationSpec' | 'api' | '_unsavedChanges'>;
 
 		}
 

@@ -3,6 +3,7 @@
 
 // popup.mjs
 import {
+	announceIconClick,
 	BaseController,
 	getModuleMode,
 	isSandboxModuleEntry,
@@ -14,6 +15,8 @@ import {
 	validateModuleFileExtension,
 	DISABLED_SPEC,
 	getModuleFolder,
+	openDashboard,
+	syncActionOpensDashboard,
 } from "./base.mjs";
 import { measurePerf } from "./perf.mjs";
 import { t, initPageI18n, loadModuleI18n } from "./i18n.mjs";
@@ -186,11 +189,34 @@ class PopupController extends BaseController
 		}
 	}
 
+	// The popup opens while background.js does not know yet that the button should open the dashboard (a settings
+	// change no page with module output saw, the first click after an update): with no module sent to the popup and
+	// at least one to the dashboard, the dashboard comes to the front instead of an empty popup, and the next click
+	// opens it right away (syncActionOpensDashboard() lets background.js know, see ACTION_OPENS_DASHBOARD_KEY in base.mjs).
+	/** @type {Classes.PopupController['_openDashboardInstead']} */
+	async _openDashboardInstead ()
+	{
+		try {
+			if ( !( await syncActionOpensDashboard( this._paths, await this.loadSettings() ) ) ) return false;
+			const [ tab ] = await chrome.tabs.query( { active: true, currentWindow: true } );
+			await openDashboard( tab?.id );
+		} catch ( err ) {
+			console.error( "Dashboard nejde otevřít:", err );
+			return false;
+		}
+		window.close();
+		return true;
+	}
+
 	/** @type {Classes.PopupController['bootstrap']} */
 	async bootstrap ()
 	{
+		// The popup opened = a click on the extension button: the modules learn of it (api.activation.onIconClick(), the
+		// "icon_click" mode) before the modules of the popup ask for anything — a listing then waits for the work the click started.
+		void announceIconClick();
 		await initPageI18n();
 		await this.loadAndRegisterModules();
+		if ( await this._openDashboardInstead() ) return;
 		await this.initModules();
 	}
 }

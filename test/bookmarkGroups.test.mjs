@@ -15,6 +15,7 @@ import {
 	resolveBookmarkGroups,
 	siteOf,
 } from "../modules/tabGroups/bookmarkGroups.mjs";
+import { groupColorFromText } from "../sandbox-modules/tabGroupsSandbox/settingsView.mjs";
 import { mockLocales } from "./helpers.mjs";
 
 before(async () => {
@@ -182,5 +183,27 @@ describe("listBookmarkFolders", () => {
 			listBookmarkFolders(tree).map((folder) => folder.title),
 			["Bookmarks bar (on this device only)", "Bookmarks bar (in account)"]
 		);
+	});
+});
+
+describe("groupColorFromText (editor of tabGroupsSandbox)", () => {
+	const colors = GROUP_COLORS.map((color) => ({ value: color.value, label: color.label }));
+
+	it("výchozí barva skupiny ze záložek podle názvu: nejbližší barva skupin k barvě textu", () => {
+		const expected = { Práce: "yellow", Work: "red", Zprávy: "green", News: "cyan", Banka: "orange", Škola: "blue", Nákupy: "purple", GitHub: "pink" };
+		for (const [name, color] of Object.entries(expected)) assert.equal(groupColorFromText(name, colors), color, name);
+		assert.equal(groupColorFromText("  Work \n", colors), "red");
+	});
+
+	it("vyjde každá barva skupin, jen z nabízených barev", () => {
+		const seen = new Set(Array.from({ length: 300 }, (_, index) => groupColorFromText(`Skupina ${index}`, colors)));
+		assert.deepEqual([...seen].sort(), colors.map((color) => color.value).sort());
+		assert.equal(groupColorFromText("Work", colors.filter((color) => color.value !== "red")), "pink");
+	});
+
+	it("bez názvu (nebo bez známé barvy) žádná", () => {
+		assert.equal(groupColorFromText("", colors), "");
+		assert.equal(groupColorFromText("   ", colors), "");
+		assert.equal(groupColorFromText("Work", /** @type {any} */ ([{ value: "magenta", label: "Magenta" }])), "");
 	});
 });

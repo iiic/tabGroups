@@ -88,6 +88,9 @@ declare global {
 			/** Translates the data-i18n* attributes in a document or part of it. */
 			type applyI18n = ( root?: Document | Element | DocumentFragment ) => void;
 
+			/** A text of data-i18n-html as nodes of the document: only text, a link (an address of the extension or http(s)) and simple inline marks, without innerHTML */
+			type i18nHtmlNodes = ( html: string, doc?: Document ) => Node[];
+
 			/** Loads the texts and translates an extension page; reloads it after a language change. */
 			type initPageI18n = () => Promise<void>;
 

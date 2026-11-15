@@ -1,6 +1,6 @@
 {
 	"tabGroups_description": {
-		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were opened or — an option in Settings — when they were last used, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
+		"message": "Automatically sorts tabs that aren't in a group of your own into 9 groups (today, yesterday, … last year) by when they were last used or — an option in Settings — when they were opened, and moves them on after midnight. In Settings you can also add groups from bookmarks: tabs bookmarked in a chosen folder (optionally also any address on the bookmark's domain) get a group of their own. Automatic groups stay to the right of your own groups, from oldest to newest."
 	},
 	"tabGroups_color_grey": {
 		"message": "grey"

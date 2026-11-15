@@ -1,0 +1,68 @@
+/* The dashboard (dashboard.html) — the side panel in a whole browser tab: the same module outputs, only in a wider
+   column in the middle of the page. */
+body {
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+		sans-serif;
+	font-size: 15px;
+	max-width: 1200px;
+	margin: 0 auto;
+	/* Free space at the end of the page, so that the extension id watermark (.extension-id-watermark) is seen after scrolling down. */
+	padding: 24px 16px 40px;
+	color: var(--color-text);
+}
+/* The display of the modules' custom elements is handled by the frame around them — see
+   css/module-frame.css. */
+.module-output {
+	margin-top: 8px;
+	padding: 4px 6px;
+	background: var(--color-panel);
+	border-radius: 4px;
+	white-space: pre-wrap;
+}
+.error {
+	color: var(--color-error);
+}
+/* Only one module output on the dashboard: nothing can scroll under it, so pinning has no use — the same as in
+   css/sidebar.css (no 📌 button, a frame pinned earlier looks like an unpinned one). The note of a module another
+   extension runs (.module-frame--delegated) is not an output of a module. */
+#modules-output:not(:has(> .module-frame:not(.module-frame--delegated) ~ .module-frame:not(.module-frame--delegated))) {
+	& .module-frame-pin {
+		display: none;
+	}
+
+	& > .module-frame--pinned {
+		position: static;
+		max-height: none;
+		overflow-y: visible;
+		padding-bottom: 0;
+		border-bottom: 0;
+	}
+}
+/* No module is sent to the dashboard (see dashboard.mjs). */
+.dashboard-empty {
+	color: var(--color-text-muted);
+}
+
+/* The extension id as a faint watermark in the lower left corner (mountExtensionIdWatermark() in base.mjs) — the
+   same as in css/sidebar.css: behind the content, it does not catch clicks and is not selected; the opacity is on
+   the text only, the dot keeps the exact color of the id. */
+.extension-id-watermark {
+	position: fixed;
+	left: 16px;
+	bottom: 8px;
+	z-index: -1;
+	max-width: calc(100vw - 32px);
+	font-family: ui-monospace, Consolas, monospace;
+	font-size: 20px;
+	line-height: 1.2;
+	overflow-wrap: anywhere;
+	pointer-events: none;
+	user-select: none;
+}
+.extension-id-watermark-dot {
+	margin-right: 0.4em;
+}
+.extension-id-watermark-text {
+	color: var(--color-text-muted);
+	opacity: 0.25;
+}

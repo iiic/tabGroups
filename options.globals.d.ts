@@ -56,6 +56,9 @@ declare global {
 			/** A short status message (#status) */
 			statusEl: HTMLElement;
 
+			/** Clears the shown status message (_showStatus()) — a newer message cancels it */
+			_statusTimer: ReturnType<typeof setTimeout> | null;
+
 			/** Editor of the module list as JSON (#modules-json) */
 			jsonTextareaEl: HTMLTextAreaElement;
 			saveJsonBtn: HTMLButtonElement;
@@ -198,6 +201,12 @@ declare global {
 			_createDependenciesField( moduleDef: Types.ModuleDefinition ): HTMLFieldSetElement;
 
 			/**
+			 * The version of the module (registerModule({ version })) for the bottom right corner of its row and of its
+			 * settings block — a small grey text with the title "Module version"; null for a module without a version
+			 */
+			_createModuleVersion( moduleDef: Types.ModuleDefinition | undefined ): HTMLElement | null;
+
+			/**
 			 * "Show module output" — a checkbox for each location (DISPLAY_LOCATIONS) and a hidden sentence for the state
 			 * when the module is not shown anywhere; locations from recommendedLocations have "(recommended by the module)" after the text
 			 */
@@ -327,11 +336,17 @@ declare global {
 			/** Takes the current values of the section's form (all, or just those under root) as saved and refreshes the reminder */
 			_markSaved( section: Types.SavedFormSection, root?: ParentNode ): void;
 
-			/** Shows the reminder above "Save" while a value of the section's form differs from the saved one */
+			/** Shows the reminder above "Save" while a value of the section's form differs from the saved one (or a settings view has unsaved changes) */
 			_syncUnsavedChanges( section: Types.SavedFormSection ): void;
 
-			/** Saves the custom module settings */
+			/** Saves the custom module settings — the fields of the form, then the settings views with unsaved changes */
 			saveModuleSettings(): Promise<void>;
+
+			/** The settings views (registerModule({ settingsView })) under root */
+			_settingsViews( root: ParentNode ): Classes.BaseElement[];
+
+			/** saveSettings() of every settings view with unsaved changes, one after another; what failed as "Module: reason" */
+			_saveSettingsViews(): Promise<string[]>;
 
 			/** Resets the custom module settings to the default values (default-settings.json, otherwise settingsSchema) */
 			resetModuleSettings(): Promise<void>;

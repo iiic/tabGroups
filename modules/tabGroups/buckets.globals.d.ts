@@ -121,7 +121,7 @@ declare global {
 				/** Group names with the prefix (an empty prefix = unchanged) — as the groups have them in the browser */
 				type withTitlePrefix = <T extends { title: string }>( items: T[], prefix: string ) => T[];
 
-				/** The stored sorting choice → a valid value (unknown = by opening) */
+				/** The stored sorting choice → a valid value (unknown = the default, by last use) */
 				type normalizeGroupBy = ( value: unknown ) => Types.TabGroups.GroupBy;
 
 				/** The local calendar day of the time ms as an integer */

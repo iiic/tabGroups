@@ -20,6 +20,9 @@ import {
 	getModuleShowHeading,
 	getOutputElementDef,
 	parseModuleEntry,
+	matchesModuleFilter,
+	fillModuleFilterNames,
+	MODULE_FILTER_MIN,
 	createModuleInstanceId,
 	MODULE_INSTANCE_SEPARATOR,
 	MODULES_JSON_KEY,
@@ -39,6 +42,7 @@ import {
 	removeSandboxModule,
 	resetModule,
 	setSandboxCapabilityGrant,
+	SETTINGS_VIEW_UNSAVED_EVENT,
 	EXTENSION_SERVICE_CLIENTS_KEY,
 	EXTENSION_SERVICE_PROVIDER_KEY,
 	EXTENSION_SERVICE_REGISTER_NOW_MESSAGE,
@@ -77,9 +81,6 @@ const NOT_DISPLAYED_HINT = "options_hint_not_displayed";
 const DISABLED_HINT = "options_hint_disabled";
 const SIDEBAR_ONLY_HINT = "options_hint_sidebar_only";
 
-// The module filter at the top of the page (#module-filter) only from this many modules in the list — with
-// fewer it would only get in the way.
-const MODULE_FILTER_MIN = 5;
 // A narrow screen, where the section tabs turn into an accordion — the same width as in css/options.css.
 const SECTIONS_ACCORDION_QUERY = "(max-width: 760px)";
 // The section open when Settings are opened, unless the user last chose another one.
@@ -137,6 +138,8 @@ class OptionsController extends BaseController {
 		this.saveBtn = /** @type {Classes.OptionsController['saveBtn']} */ (document.getElementById("save-btn"));
 		this.resetBtn = /** @type {Classes.OptionsController['resetBtn']} */ (document.getElementById("reset-btn"));
 		this.statusEl = /** @type {Classes.OptionsController['statusEl']} */ (document.getElementById("status"));
+		/** @type {Classes.OptionsController['_statusTimer']} */
+		this._statusTimer = null;
 
 		this.jsonTextareaEl = /** @type {Classes.OptionsController['jsonTextareaEl']} */ (document.getElementById("modules-json"));
 		this.saveJsonBtn = /** @type {Classes.OptionsController['saveJsonBtn']} */ (document.getElementById("save-modules-json"));
@@ -485,10 +488,15 @@ class OptionsController extends BaseController {
 			row.appendChild(noteEl);
 		}
 
+		// The version of the module in the bottom right corner of the row — like the description only at the template,
+		// all instances are the same module.
+		const versionEl = entry.instance ? null : this._createModuleVersion(moduleDef);
+
 		if (moduleDef?.multiInstance && !entry.instance) {
 			row.classList.add("module-row--template");
 			row.appendChild(this._createAddInstanceButton(row, entry, name));
 			row.appendChild(this._createDependenciesField(moduleDef));
+			if (versionEl) row.appendChild(versionEl);
 			return row;
 		}
 
@@ -560,9 +568,23 @@ class OptionsController extends BaseController {
 		if (entry.instance) {
 			row.appendChild(this._createRemoveInstanceButton(row, entry, name));
 		}
+		if (versionEl) row.appendChild(versionEl);
 
 		this._syncOutputSettingsState(row);
 		return row;
+	}
+
+	// The version of the module (registerModule({ version }), e.g. tabGroupsSandbox) — a small grey text in the bottom
+	// right corner of its row in "Advanced module settings" and of its block in "Custom module settings". A module
+	// without a version gets nothing.
+	/** @type {Classes.OptionsController['_createModuleVersion']} */
+	_createModuleVersion(moduleDef) {
+		if (!moduleDef?.version) return null;
+		const versionEl = document.createElement("small");
+		versionEl.className = "module-version";
+		versionEl.textContent = moduleDef.version;
+		versionEl.title = t("options_module_version_title");
+		return versionEl;
 	}
 
 	// Overview of dependencies at the end of a module row — everything the modules themselves
@@ -1628,17 +1650,24 @@ class OptionsController extends BaseController {
 		(mod.settingsSchema || []).forEach((field) => {
 			block.appendChild(this._createSettingRow(field, mod.name, settings, "module-setting-control"));
 		});
+
+		// The version stays the last thing of the block — _mountSettingsView() puts the settings view in front of it.
+		const versionEl = this._createModuleVersion(mod);
+		if (versionEl) block.appendChild(versionEl);
 		return block;
 	}
 
 	// The editor a module renders itself (registerModule({ settingsView })): its element with location "settings" in the
-	// module's block — it stores its settings itself (an uploaded module through its functions outside the sandbox),
-	// the "Save module settings" button does not save it. Also for a turned-off module (its settings can be edited).
+	// module's block — it stores its settings itself (an uploaded module through its functions outside the sandbox) when
+	// "Save module settings" asks it to (saveSettings(), only after it reported unsaved changes — setUnsavedChanges();
+	// see _syncUnsavedChanges()). Also for a turned-off module (its settings can be edited).
 	/** @type {Classes.OptionsController['_mountSettingsView']} */
 	_mountSettingsView(mod, block, settings) {
 		const view = /** @type {Classes.BaseElement} */ (document.createElement(mod.tag));
 		view.classList.add("module-settings-view");
-		block.appendChild(view);
+		view.dataset.settingsView = mod.name;
+		// In front of the module version (the bottom right corner of the block), otherwise at the end.
+		block.insertBefore(view, block.querySelector(":scope > .module-version"));
 		const mode = this.getModuleMode(settings, mod.name, mod.defaultActivationMode);
 		Promise.resolve(view.init?.({ outputEl: block, name: mod.name, mode, location: "settings" })).catch((err) =>
 			console.error(`Editor nastavení modulu "${mod.name}" nejde vykreslit:`, err)
@@ -1948,14 +1977,54 @@ class OptionsController extends BaseController {
 		return values;
 	}
 
+	// The fields of the form first, then the settings views with unsaved changes, one after another: a view stores into the
+	// same settings (declarativeNetRequest.setRules) — written at the same time, one would overwrite the other. The button
+	// waits disabled meanwhile; a view that failed keeps its changes (and the reminder) and says why.
 	/** @type {Classes.OptionsController['saveModuleSettings']} */
 	async saveModuleSettings() {
-		const values = this._readModuleSettingValues(this.moduleSettingsContainer);
-		const settings = { ...(await this.loadSettings()), ...values };
+		const button = this.saveModuleSettingsBtn;
+		button.disabled = true;
+		try {
+			const values = this._readModuleSettingValues(this.moduleSettingsContainer);
+			const settings = { ...(await this.loadSettings()), ...values };
 
-		await this.saveSettings(settings);
-		this._markSaved("settings");
-		this._showStatus(t("options_module_settings_saved"));
+			await this.saveSettings(settings);
+			this._markSaved("settings");
+			const failures = await this._saveSettingsViews();
+			if (failures.length === 0) {
+				this._showStatus(t("options_module_settings_saved"));
+			} else {
+				this._showStatus(t("options_module_settings_views_failed", failures.join(" · ")), 10000);
+			}
+		} finally {
+			button.disabled = false;
+		}
+	}
+
+	// The settings views (registerModule({ settingsView })) under root — the elements of the modules, an undefined tag aside.
+	/** @type {Classes.OptionsController['_settingsViews']} */
+	_settingsViews(root) {
+		return [.../** @type {NodeListOf<Classes.BaseElement>} */ (root.querySelectorAll(".module-settings-view"))].filter(
+			(view) => typeof view.hasUnsavedChanges === "function"
+		);
+	}
+
+	// saveSettings() of every settings view with unsaved changes; what failed as "Module: reason".
+	/** @type {Classes.OptionsController['_saveSettingsViews']} */
+	async _saveSettingsViews() {
+		/** @type {string[]} */
+		const failures = [];
+		for (const view of this._settingsViews(this.moduleSettingsContainer)) {
+			if (!view.hasUnsavedChanges()) continue;
+			try {
+				await view.saveSettings();
+			} catch (err) {
+				console.error(`Editor nastavení modulu "${view.dataset.settingsView}" nejde uložit:`, err);
+				const reason = err instanceof Error ? err.message : String(err);
+				failures.push(`${this.formatModuleName(view.dataset.settingsView || view.localName)}: ${reason}`);
+			}
+		}
+		return failures;
 	}
 
 	/** @type {Classes.OptionsController['resetModuleSettings']} */
@@ -2033,7 +2102,10 @@ class OptionsController extends BaseController {
 	/** @type {Classes.OptionsController['_showStatus']} */
 	_showStatus(text, duration = 2000) {
 		this.statusEl.textContent = text;
-		setTimeout(() => {
+		// The timer of an earlier message (a failure is shown longer) would clear this one too early.
+		if (this._statusTimer) clearTimeout(this._statusTimer);
+		this._statusTimer = setTimeout(() => {
+			this._statusTimer = null;
 			this.statusEl.textContent = "";
 		}, duration);
 	}
@@ -2097,8 +2169,10 @@ class OptionsController extends BaseController {
 	// The values of a section's form are compared with the ones it had after rendering or the last save; while one of
 	// them differs, a bubble above "Save" reminds the user to save. Comparing values (instead of a flag set by any input)
 	// hides the bubble again when a field is set back, and ignores inputs that change no setting (the search of a viewer
-	// in a custom editor — its getValue() is null). A settings view (settingsView) stores its settings itself and has no
-	// controls read here; reordering the rows and adding/removing an instance is saved right away.
+	// in a custom editor — its getValue() is null). A settings view (settingsView) has no controls read here (an uploaded
+	// module's ones are in its sandbox frame) — it reports its unsaved changes itself (BaseElement.setUnsavedChanges(),
+	// SETTINGS_VIEW_UNSAVED_EVENT), and "Save module settings" has it store them. Reordering the rows and adding/removing
+	// an instance is saved right away.
 
 	/** @type {Classes.OptionsController['_savedFormRoot']} */
 	_savedFormRoot(section) {
@@ -2112,6 +2186,7 @@ class OptionsController extends BaseController {
 			// A click and a drop too — a custom editor adds, removes or moves its rows in their handlers, without "input".
 			["input", "change", "click", "drop"].forEach((type) => root.addEventListener(type, () => this._scheduleUnsavedCheck(section)));
 		});
+		this.moduleSettingsContainer.addEventListener(SETTINGS_VIEW_UNSAVED_EVENT, () => this._scheduleUnsavedCheck("settings"));
 	}
 
 	/** @type {Classes.OptionsController['_scheduleUnsavedCheck']} */
@@ -2142,7 +2217,9 @@ class OptionsController extends BaseController {
 		const root = this._savedFormRoot(section);
 		const saved = this._savedValues[section];
 		const values = section === "list" ? this._readModuleListValues(root) : this._readModuleSettingValues(root);
-		const unsaved = Object.entries(values).some(([key, value]) => saved.get(key) !== JSON.stringify(value));
+		const unsaved =
+			Object.entries(values).some(([key, value]) => saved.get(key) !== JSON.stringify(value)) ||
+			(section === "settings" && this._settingsViews(root).some((view) => view.hasUnsavedChanges()));
 		// options.html: the floating bar follows the form in the same panel.
 		const bar = /** @type {HTMLElement} */ (root.parentElement?.querySelector(".buttons--floating"));
 		bar.classList.toggle("buttons--unsaved", unsaved);
@@ -2395,10 +2472,9 @@ class OptionsController extends BaseController {
 		this._revealTarget(document.getElementById(id));
 	}
 
-	// --- Module filter ---
+	// --- Module filter (matchesModuleFilter() in base.mjs) ---
 	//
-	// Only the modules whose name (as shown, "Storage Manager") or id ("storageManager", an instance
-	// "contentDividerSandbox#k3j9x2") contains the text stay visible in all sections — the rows of the module list,
+	// Only the modules whose name or id contains the text stay visible in all sections — the rows of the module list,
 	// the custom settings, the uploaded modules and the module output. Elements of modules carry the id in
 	// data-module-filter, the output frames have it from the core (data-module-key / data-module). A rendering
 	// (another module list, a module shown later) is filtered again by the observer.
@@ -2416,15 +2492,7 @@ class OptionsController extends BaseController {
 	// names of the modules in the list.
 	/** @type {Classes.OptionsController['_updateModuleFilter']} */
 	_updateModuleFilter(paths) {
-		const names = [...new Set(paths.map((path) => this.formatModuleName(parseModuleEntry(path).name)))].sort((a, b) => a.localeCompare(b, getUiLocale()));
-		this.filterEl.hidden = names.length < MODULE_FILTER_MIN;
-		this.filterNamesEl.replaceChildren(
-			...names.map((name) => {
-				const option = document.createElement("option");
-				option.value = name;
-				return option;
-			})
-		);
+		this.filterEl.hidden = fillModuleFilterNames(this.filterNamesEl, paths) < MODULE_FILTER_MIN;
 		this._applyModuleFilter();
 	}
 
@@ -2434,9 +2502,7 @@ class OptionsController extends BaseController {
 		const elements = /** @type {NodeListOf<HTMLElement>} */ (this.sectionsEl.querySelectorAll("[data-module-filter], #modules-output > .module-frame[data-module]"));
 		for (const el of elements) {
 			const key = el.dataset.moduleFilter ?? el.dataset.moduleKey ?? el.dataset.module ?? "";
-			const name = this.formatModuleName(parseModuleEntry(key).name);
-			const matches = !query || [key, name].some((text) => text.toLowerCase().includes(query));
-			el.classList.toggle("module-filter-hidden", !matches);
+			el.classList.toggle("module-filter-hidden", !matchesModuleFilter(key, query));
 		}
 	}
 

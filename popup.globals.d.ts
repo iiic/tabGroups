@@ -24,7 +24,10 @@ declare global {
 			/** Renders the registered modules that should be active in the popup */
 			initModules(): Promise<void>;
 
-			/** Loads and renders the modules */
+			/** No module in the popup, at least one on the dashboard: brings the dashboard to the front and closes the popup (true) */
+			_openDashboardInstead(): Promise<boolean>;
+
+			/** Loads and renders the modules (or opens the dashboard instead) */
 			bootstrap(): Promise<void>;
 
 		}

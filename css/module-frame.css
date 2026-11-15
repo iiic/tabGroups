@@ -234,3 +234,24 @@ details.module-frame > :not(summary) {
 	padding: 2px 8px;
 	font-size: 12px;
 }
+
+/* "Filter by name" above Settings and above the module output of the side panel and the dashboard
+   (_applyModuleFilter() in options.mjs, mountModuleFilter() and matchesModuleFilter() in base.mjs). In a narrow panel
+   the input goes under the label. */
+.module-filter {
+	margin-bottom: 12px;
+}
+.module-filter label {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 8px;
+}
+.module-filter input {
+	flex: 1 1 14rem;
+	max-width: 28rem;
+	margin: 0;
+}
+.module-filter-hidden {
+	display: none !important;
+}

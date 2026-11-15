@@ -1,6 +1,6 @@
 {
 	"tabGroups_description": {
-		"message": "Karty, které nejsou ve vlastní skupině, sám řadí do 9 skupin (dnes, včera, … v minulém roce) podle toho, kdy byly otevřené, nebo — volba v Nastavení — kdy byly naposledy použité, a po půlnoci je posouvá do dalších. V Nastavení jde přidat i skupiny ze záložek: karty se záložkou ve zvolené složce (volitelně i s adresou na doméně záložky) mají vlastní skupinu. Automatické skupiny drží vpravo od vlastních, od nejstarší po nejnovější."
+		"message": "Karty, které nejsou ve vlastní skupině, sám řadí do 9 skupin (dnes, včera, … v minulém roce) podle toho, kdy byly naposledy použité, nebo — volba v Nastavení — kdy byly otevřené, a po půlnoci je posouvá do dalších. V Nastavení jde přidat i skupiny ze záložek: karty se záložkou ve zvolené složce (volitelně i s adresou na doméně záložky) mají vlastní skupinu. Automatické skupiny drží vpravo od vlastních, od nejstarší po nejnovější."
 	},
 	"tabGroups_color_grey": {
 		"message": "šedá"

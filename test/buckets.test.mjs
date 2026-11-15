@@ -276,8 +276,9 @@ describe("drobné normalizace", () => {
 	it("normalizeGroupBy", () => {
 		assert.equal(normalizeGroupBy("lastUsed"), "lastUsed");
 		assert.equal(normalizeGroupBy("opened"), "opened");
-		assert.equal(normalizeGroupBy("cokoliv"), "opened");
-		assert.equal(normalizeGroupBy(undefined), "opened");
+		// Anything unknown (also nothing stored) = the default: by last use.
+		assert.equal(normalizeGroupBy("cokoliv"), "lastUsed");
+		assert.equal(normalizeGroupBy(undefined), "lastUsed");
 	});
 
 	it("isGroupColor", () => {

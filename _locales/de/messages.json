@@ -3,10 +3,13 @@
 		"message": "Tab Groups"
 	},
 	"extension_description": {
-		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie geöffnet oder (Option in den Einstellungen) zuletzt verwendet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
+		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie zuletzt verwendet oder (Option in den Einstellungen) geöffnet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
 	},
 	"extension_action_title": {
 		"message": "Pop-up öffnen"
+	},
+	"extension_action_title_dashboard": {
+		"message": "Dashboard öffnen"
 	},
 	"core_activation_background": {
 		"message": "Automatisch starten und im Hintergrund arbeiten"
@@ -40,6 +43,9 @@
 	},
 	"core_location_onboarding": {
 		"message": "Auf der Willkommensseite (Onboarding)"
+	},
+	"core_location_dashboard": {
+		"message": "Dashboard (eine ganze Seite für die Ausgaben der Erweiterung)"
 	},
 	"core_output_inline": {
 		"message": "Inline-Element"
@@ -79,6 +85,9 @@
 	},
 	"core_background_no_response": {
 		"message": "background.js hat nicht geantwortet"
+	},
+	"core_script_injection_time_limit": {
+		"message": "die Seite hat nicht innerhalb von $1 s geantwortet"
 	},
 	"core_backup_invalid": {
 		"message": "Die Sicherung des Moduls $1 ist ungültig."
@@ -127,6 +136,12 @@
 	},
 	"onboarding_empty_html": {
 		"message": "Auf der Willkommensseite wird noch nichts angezeigt. Senden Sie Module in den <a href=\"./options.html\" target=\"_blank\">Einstellungen der Erweiterung</a> mit der Option „Modulausgabe anzeigen“ des jeweiligen Moduls hierher."
+	},
+	"dashboard_page_title": {
+		"message": "Tab Groups – Dashboard"
+	},
+	"dashboard_empty_html": {
+		"message": "Auf dem Dashboard wird noch nichts angezeigt. Senden Sie Module in den <a href=\"./options.html\" target=\"_blank\">Einstellungen der Erweiterung</a> mit der Option „Modulausgabe anzeigen“ → „Dashboard“ des jeweiligen Moduls hierher."
 	},
 	"options_page_title": {
 		"message": "Tab Groups-Einstellungen"
@@ -347,6 +362,9 @@
 	"core_sandbox_capability_about_options_open": {
 		"message": "Die Einstellungsseite der Erweiterung öffnen (eine bereits geöffnete kommt in den Vordergrund)."
 	},
+	"core_sandbox_capability_about_dashboard_open": {
+		"message": "Das Dashboard der Erweiterung öffnen (ein bereits geöffnetes kommt in den Vordergrund) — nur solange mindestens ein Modul seine Ausgabe dorthin sendet."
+	},
 	"core_sandbox_capability_about_storage_usage_get": {
 		"message": "Ermitteln, wie viel die eigenen Speicher der Erweiterung belegen – nur die Anzahl der Einträge und die Größen (localStorage, die IndexedDB-Datenbank der Datensätze, navigator.storage.estimate(), chrome.storage.local), nie ihr Inhalt."
 	},
@@ -373,6 +391,15 @@
 	},
 	"core_sandbox_capability_about_pwa_info_on_change": {
 		"message": "Sofort erfahren, wenn das Modul PWA Info eine Website aufzeichnet oder ergänzt (in einem beliebigen Tab — also wenn Sie eine Website mit App besuchen) oder wenn sich seine Einstellungen ändern."
+	},
+	"core_sandbox_capability_about_pwa_info_block_domain": {
+		"message": "Die Domain einer App der Übersicht blockieren (die Schaltfläche „Domain blockieren“ im Detail der App): Die Domain der Seite, auf der das Modul PWA Info sie aufgezeichnet hat, kommt in die Regel „PWA info sandbox - blocked domains“ des Moduls Declarative Net Request — der Browser sendet dann keine Anfrage mehr an sie oder ihre Subdomains, bis die Domain in den Einstellungen aus der Regel entfernt wird; nur die Domains der aufgezeichneten Apps."
+	},
+	"core_sandbox_capability_about_pwa_info_block_service_worker": {
+		"message": "Den Service Worker einer App der Übersicht blockieren (die Schaltfläche „Service Worker blockieren“): Die Adresse seines Skripts kommt in die Regel „PWA info sandbox - blocked service workers“ des Moduls Declarative Net Request — der Browser registriert und aktualisiert ihn dann nicht mehr, bis die Adresse in den Einstellungen aus der Regel entfernt wird; nur die Service Worker, die das Modul PWA Info aufgezeichnet hat."
+	},
+	"core_sandbox_capability_about_pwa_info_open_app_settings": {
+		"message": "Die Einstellungen einer App der Übersicht im Browser öffnen (die Schaltfläche „Deinstallieren…“): Chrome zeigt die Seite der App (chrome://app-settings/…) mit seiner eigenen Schaltfläche „Deinstallieren“ — die App wird erst deinstalliert, wenn der Benutzer es dort bestätigt; nur die Apps der Websites, die das Modul PWA Info aufgezeichnet hat."
 	},
 	"core_sandbox_capability_about_domain_info_get_page": {
 		"message": "Die Domains der Seite im aktuellen Tab lesen, wie das Modul Domain Info sie kennt — welche davon die Seite wie verwendet hat, die Daten, die es dazu von RDAP-Servern geladen hat (Inhaber und Kontakte mit Namen, Adressen, E-Mails und Telefonnummern, Registrare, Daten, Nameserver) samt Verlauf, und die pausierten Server; nur die Domains dieser Seite."
@@ -509,26 +536,38 @@
 	"core_sandbox_capability_about_tab_groups_open_permissions": {
 		"message": "öffnet die Seite, auf der Tab Groups seine Berechtigungen anfordert"
 	},
+	"core_sandbox_capability_about_tab_groups_request_permission": {
+		"message": "fordert nach einem Klick auf seine Schaltfläche beim Browser die Berechtigungen der Gruppen aus Lesezeichen von Tab Groups an: Zugriff auf Lesezeichen und auf die Adressen der Tabs"
+	},
 	"core_sandbox_capability_about_tab_groups_on_change": {
 		"message": "erfährt, wenn sich eine Tabgruppe oder ein Tab des Fensters ändert und wenn sich Einstellungen oder Berechtigungen von Tab Groups ändern"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_status": {
-		"message": "liest, welche Regeln von Declarative Net Request auf die Seite des aktiven Tabs zielen und was sie tun (Header, GET-Parameter, Blockieren), welche davon ausgesetzt sind und wie die Regeln im Browser angekommen sind"
+		"message": "liest, welche Regeln von Declarative Net Request auf die Seite des aktiven Tabs zielen und was sie tun (Header, GET-Parameter, Blockieren), welche davon ausgesetzt sind, wie die Regeln im Browser angekommen sind und die Domains der Anfragen der Seite, die seine Blockierregeln blockiert haben"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_rules": {
 		"message": "liest alle Regeln von Declarative Net Request — die Domains, Adressen und Lesezeichenordner, auf die sie zielen, die Header und Parameter, die sie setzen — mit den Namen der Lesezeichenordner (mit der Berechtigung für Lesezeichen), den erteilten Berechtigungen und den ausgesetzten Regeln"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_folder_urls": {
+		"message": "liest die Adressen der Lesezeichen in einem Lesezeichenordner (auch in seinen Unterordnern) — dieselben, die der Browser für eine Regel von Declarative Net Request mit diesem Ordner erhält (mit der Berechtigung für Lesezeichen)"
 	},
 	"core_sandbox_capability_about_declarative_net_request_set_rules": {
 		"message": "ersetzt die Regeln von Declarative Net Request (es prüft jede Regel genauso wie in den Einstellungen) — der Browser ändert dann nach ihnen die Header und GET-Parameter von Anfragen und blockiert Anfragen auf allen Seiten"
 	},
 	"core_sandbox_capability_about_declarative_net_request_suspend_rule": {
-		"message": "setzt eine Regel von Declarative Net Request für eine Stunde aus — der Browser wendet sie bis dahin nicht an"
+		"message": "setzt eine Regel von Declarative Net Request für eine Stunde aus — überall oder nur für eine Domain; der Browser wendet sie dort bis dahin nicht an"
 	},
 	"core_sandbox_capability_about_declarative_net_request_restore_rule": {
-		"message": "beendet die Aussetzung einer Regel von Declarative Net Request — der Browser wendet sie wieder an"
+		"message": "beendet die Aussetzung einer Regel von Declarative Net Request (überall oder für eine Domain) — der Browser wendet sie wieder an"
 	},
 	"core_sandbox_capability_about_declarative_net_request_reload_tab": {
 		"message": "lädt die Seite des aktiven Tabs des Fensters neu, damit die Regeln von Declarative Net Request für alle ihre Anfragen gelten"
+	},
+	"core_sandbox_capability_about_declarative_net_request_block_page": {
+		"message": "blockiert die ganze Domain oder die genaue Adresse der Seite des aktiven Tabs des Fensters — sie kommt in die Regel „Direct blocking list created by browsing“ von Declarative Net Request, und der Browser blockiert dann alle Anfragen dorthin auf allen Seiten, bis sie in den Einstellungen aus der Regel entfernt wird"
+	},
+	"core_sandbox_capability_about_declarative_net_request_add_except_domain": {
+		"message": "fügt die Domain der Seite des aktiven Tabs des Fensters oder eine Domain der Anfragen dieser Seite, die die Regel blockiert hat, zu Außer Domains einer Regel von Declarative Net Request hinzu — die Regel gilt dann nicht mehr für Anfragen an die Domain und für Dateien, die ihre Seiten von anderswo laden, bis die Domain in den Einstellungen aus der Regel entfernt wird"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_log": {
 		"message": "liest das eigene Ereignisprotokoll von Declarative Net Request – die Anfragen auf allen Seiten, auf die seine Regeln mit Ereignisprotokoll angewendet wurden: die Adressen der Anfragen und der Seiten, von denen sie kamen, die Tabs und die Zeiten"
@@ -536,8 +575,14 @@
 	"core_sandbox_capability_about_declarative_net_request_clear_log": {
 		"message": "löscht einen Eintrag des eigenen Ereignisprotokolls von Declarative Net Request oder das ganze Protokoll"
 	},
+	"core_sandbox_capability_about_declarative_net_request_open_permissions": {
+		"message": "öffnet die Seite, auf der Declarative Net Request seine Berechtigungen anfordert"
+	},
+	"core_sandbox_capability_about_declarative_net_request_request_permission": {
+		"message": "fordert nach einem Klick auf seine Schaltfläche beim Browser die Berechtigungen von Declarative Net Request an: Zugriff auf alle Seiten für seine Regeln, Zugriff auf Lesezeichen, Benachrichtigungen und die Verfolgung angewendeter Regeln oder die Verfolgung der Anfragen, die seine Regeln blockiert haben"
+	},
 	"core_sandbox_capability_about_declarative_net_request_on_change": {
-		"message": "erfährt, wenn sich die Regeln oder Einstellungen von Declarative Net Request ändern, wenn eine Regel ausgesetzt oder wiederhergestellt wird, wenn sich sein Ereignisprotokoll ändert, wenn sich die Modulliste oder die Berechtigungen ändern und wenn sich die Lesezeichen ändern"
+		"message": "erfährt, wenn sich die Regeln oder Einstellungen von Declarative Net Request ändern, wenn eine Regel ausgesetzt oder wiederhergestellt wird, wenn sich sein Ereignisprotokoll ändert, wenn seine Regeln einen Teil einer Seite blockieren, wenn sich die Modulliste oder die Berechtigungen ändern und wenn sich die Lesezeichen ändern"
 	},
 	"core_sandbox_capability_about_content_filters_set": {
 		"message": "uBlock-Origin-Scriptlets einfügen und Elemente auf den Seiten der Hosts ausblenden, die das Modul nennt (nur derer, für die es Zugriff verlangt), nach den Regeln der Filterlisten, die es nennt — die Erweiterung lädt die Listen von diesen Adressen (https) herunter und hält sie aktuell, auch wenn das Modul nicht angezeigt wird. Das Modul bringt keinen Code für die Seiten mit, aber die „trusted-…“-Scriptlets einer Liste, die es als vertrauenswürdig markiert, können jeden Text und Code dieser Seiten ändern. Es kann auch das Tab-Symbol der Seiten markieren, in denen die Regeln laufen."
@@ -590,6 +635,12 @@
 	"core_sandbox_capability_about_scheduled_urls_on_change": {
 		"message": "erfährt, wenn sich die Geräte oder die geplanten Adressen ändern, auch auf einem anderen Gerät"
 	},
+	"core_sandbox_capability_about_scheduled_urls_send_message": {
+		"message": "sendet eine Benachrichtigung (einen Titel, einen Text und die weiteren Optionen einer Web-Benachrichtigung) an Ihre Geräte — jedes zeigt sie an, sofern es Nachrichten erlaubt, und ein Klick darauf kann dort eine Webadresse öffnen; davon hängt auch ab, ob dieses Gerät die an es gesendeten Nachrichten anzeigt"
+	},
+	"core_sandbox_capability_about_scheduled_urls_remove_messages": {
+		"message": "entfernt an Ihre Geräte gesendete Nachrichten"
+	},
 	"core_sandbox_capability_about_dns_overview_get_page": {
 		"message": "Die Hosts lesen, die die Seite im aktuellen Tab kontaktiert hat, wie die Erweiterung ihre Anfragen verfolgt — die Adressen der Server, die Antworten aus dem HTTP-Cache, die Namen, die nicht aufgelöst wurden, in Firefox auch, was der DNS-Cache des Browsers für sie hält und ob die Verbindungen verschlüsseltes DNS verwendet haben — mit den Antworten der für sie geladenen DNS-Abfragen; nur die Hosts dieser Seite. Das Verbieten beendet das Verfolgen der Seiten."
 	},
@@ -598,6 +649,9 @@
 	},
 	"core_sandbox_capability_about_dns_overview_on_change": {
 		"message": "Sofort erfahren, wenn die Seite im aktuellen Tab einen weiteren Host kontaktiert oder neue DNS-Daten ihrer Hosts kommen, und wenn sich ändert, was die Erweiterung kann (Einstellungen, Berechtigungen)."
+	},
+	"core_sandbox_capability_about_colors_manager_get_page": {
+		"message": "Die Farben der Seite im aktuellen Tab lesen — die Erweiterung geht alle ihre Frames durch: die CSS-Variablen von :root mit einer Farbe, die Regeln ihrer Stylesheets mit einer Farbe (Selektoren, Adressen der Stylesheets, @media), style-Attribute und HTML-Attribute mit einer Farbe und die Farben, die ihre sichtbaren Elemente darstellen (mit einigen Elementnamen, deren IDs und Klassen). Nur diese Seite, bei jeder Anfrage erneut; nichts wird gespeichert."
 	},
 	"core_sandbox_domain_info_inactive": {
 		"message": "domainInfo.collect: Das Modul Domain Info ist nicht in der Modulliste oder ausgeschaltet – es lädt nichts."
@@ -695,6 +749,12 @@
 	"core_sandbox_left_page": {
 		"message": "Die Sandbox-Seite wurde woandershin navigiert — das Modul wurde angehalten."
 	},
+	"core_sandbox_save_timeout": {
+		"message": "Das Modul hat seine Einstellungen nicht innerhalb von $1 s gespeichert."
+	},
+	"core_sandbox_save_stopped": {
+		"message": "Das Modul wurde angehalten, bevor es seine Einstellungen gespeichert hat."
+	},
 	"core_sandbox_module_failed": {
 		"message": "Das hochgeladene Modul $1 kann nicht ausgeführt werden:"
 	},
@@ -773,7 +833,7 @@
 	"options_modules_settings": {
 		"message": "Erweiterte Einstellungen"
 	},
-	"options_filter_label": {
+	"core_module_filter_label": {
 		"message": "Nach Name filtern"
 	},
 	"options_save_settings": {
@@ -859,6 +919,9 @@
 	},
 	"options_drag_to_reorder": {
 		"message": "Ziehen, um die Position des Moduls in der Liste zu ändern"
+	},
+	"options_module_version_title": {
+		"message": "Modulversion"
 	},
 	"options_activation_mode": {
 		"message": "Aktivierungsmodus des Moduls"
@@ -973,6 +1036,9 @@
 	},
 	"options_module_settings_saved": {
 		"message": "Moduleinstellungen gespeichert."
+	},
+	"options_module_settings_views_failed": {
+		"message": "Moduleinstellungen gespeichert, aber nicht alles — $1"
 	},
 	"options_module_settings_reset": {
 		"message": "Moduleinstellungen auf die Standardwerte zurückgesetzt."
@@ -1140,7 +1206,7 @@
 		"message": "Export der Funktionen dieser Erweiterung"
 	},
 	"options_services_hint": {
-		"message": "Diese Erweiterung kann ihre Module der vollständigen Erweiterung AnalyticExtension anbieten, wenn diese installiert ist: Sobald Sie es in den Einstellungen von AnalyticExtension erlauben, zeigt sie sie in ihrem Pop-up, ihrer Seitenleiste und ihren Einstellungen an, die Arbeit für sie erledigt aber weiterhin diese Erweiterung mit ihren eigenen Berechtigungen und Einstellungen. Es ist nur ein Export von hier nach außen — Module anderer Erweiterungen lassen sich dieser Erweiterung nicht hinzufügen."
+		"message": "Diese Erweiterung kann ihre Module der vollständigen Erweiterung anbieten, wenn diese installiert ist: Sobald Sie es in deren Einstellungen erlauben, zeigt sie sie in ihrem Pop-up, ihrer Seitenleiste und ihren Einstellungen an, die Arbeit für sie erledigt aber weiterhin diese Erweiterung mit ihren eigenen Berechtigungen und Einstellungen. Es ist nur ein Export von hier nach außen — Module anderer Erweiterungen lassen sich dieser Erweiterung nicht hinzufügen."
 	},
 	"options_services_meta": {
 		"message": "$1 · Version $2 · angeboten $3"
@@ -1203,7 +1269,7 @@
 		"message": "$1 hat abgelehnt, die Module dieser Erweiterung anzuzeigen — sie zeigt sie selbst an."
 	},
 	"options_services_client_unknown": {
-		"message": "AnalyticExtension, der diese Erweiterung ihre Module anbietet, ist nicht installiert oder hat nicht geantwortet — die Module zeigt nur diese Erweiterung selbst an."
+		"message": "Die vollständige Erweiterung, der diese Erweiterung ihre Module anbietet, ist nicht installiert oder hat nicht geantwortet — die Module zeigt nur diese Erweiterung selbst an."
 	},
 	"options_services_client_register": {
 		"message": "Erneut anbieten"
@@ -1246,6 +1312,12 @@
 	},
 	"background_dns_overview_no_dns": {
 		"message": "Dieser Browser hat kein browser.dns — eigene DNS-Abfragen funktionieren nur in Firefox."
+	},
+	"background_colors_manager_extension_pages_only": {
+		"message": "Die Farben einer Seite können nur von Seiten der Erweiterung gelesen werden."
+	},
+	"background_colors_manager_invalid_request": {
+		"message": "Ungültige Anfrage nach den Farben einer Seite (der Tab)."
 	},
 	"background_network_filters_unknown_module": {
 		"message": "Die Netzwerkfilter sind nur für hochgeladene Module — „$1“ ist keines."

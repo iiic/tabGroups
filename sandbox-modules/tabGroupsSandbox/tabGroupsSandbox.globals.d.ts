@@ -118,6 +118,9 @@ declare global {
 			/** The editor of the settings (location "settings"): loads them and renders it */
 			_loadSettings( loadId: number ): Promise<void>;
 
+			/** The button of the core above the editor for the permissions of the groups from bookmarks (tabGroups.requestPermission); false — none */
+			_setPermissionButtons( bookmarks: boolean ): void;
+
 			/** The text of the "Regroup now" result */
 			_describeResult( response: Types.TabGroups.RegroupResult | null ): string;
 

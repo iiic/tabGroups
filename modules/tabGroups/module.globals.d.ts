@@ -2,8 +2,8 @@
  * @file modules/tabGroups/module.globals.d.ts
  * @description Global TypeScript declarations for modules/tabGroups/module.mjs — the module description without DOM, permissions,
  * group settings, state keys and the names of the services of the background part.
- * Module: Sorts tabs outside your own groups into 9 automatic groups by when they were opened, or when they were
- * last used (an option in Settings).
+ * Module: Sorts tabs outside your own groups into 9 automatic groups by when they were last used, or when they were
+ * opened (an option in Settings).
  */
 
 declare global {

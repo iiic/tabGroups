@@ -3,10 +3,13 @@
 		"message": "Tab Groups"
 	},
 	"extension_description": {
-		"message": "Karty, ktoré nie sú vo vlastnej skupine, sám zoraďuje do 9 skupín (dnes, včera, … v minulom roku) podľa toho, kedy boli otvorené, alebo — voľba v Nastaveniach — kedy boli naposledy použité, a po polnoci ich posúva do ďalších. V Nastaveniach sa dajú pridať aj skupiny zo záložiek: karty so záložkou vo zvolenom priečinku (voliteľne aj s adresou na doméne záložky) majú vlastnú skupinu. Automatické skupiny držia vpravo od vlastných, od najstaršej po najnovšiu."
+		"message": "Karty, ktoré nie sú vo vlastnej skupine, sám zoraďuje do 9 skupín (dnes, včera, … v minulom roku) podľa toho, kedy boli naposledy použité, alebo — voľba v Nastaveniach — kedy boli otvorené, a po polnoci ich posúva do ďalších. V Nastaveniach sa dajú pridať aj skupiny zo záložiek: karty so záložkou vo zvolenom priečinku (voliteľne aj s adresou na doméne záložky) majú vlastnú skupinu. Automatické skupiny držia vpravo od vlastných, od najstaršej po najnovšiu."
 	},
 	"extension_action_title": {
 		"message": "Otvoriť popup"
+	},
+	"extension_action_title_dashboard": {
+		"message": "Otvoriť dashboard"
 	},
 	"core_activation_background": {
 		"message": "Spúšťať automaticky a pracovať na pozadí"
@@ -40,6 +43,9 @@
 	},
 	"core_location_onboarding": {
 		"message": "Na uvítacej stránke (onboarding)"
+	},
+	"core_location_dashboard": {
+		"message": "Dashboard (celá stránka pre výstupy rozšírenia)"
 	},
 	"core_output_inline": {
 		"message": "Riadkový element"
@@ -79,6 +85,9 @@
 	},
 	"core_background_no_response": {
 		"message": "background.js neodpovedal"
+	},
+	"core_script_injection_time_limit": {
+		"message": "stránka neodpovedala do $1 s"
 	},
 	"core_backup_invalid": {
 		"message": "Záloha modulu $1 nemá platný tvar."
@@ -127,6 +136,12 @@
 	},
 	"onboarding_empty_html": {
 		"message": "Na uvítacej stránke sa zatiaľ nič nevypisuje. Moduly sem pošleš v <a href=\"./options.html\" target=\"_blank\">Nastaveniach rozšírenia</a> voľbou „Vypisovať dáta modulu“ pri každom module."
+	},
+	"dashboard_page_title": {
+		"message": "Tab Groups - dashboard"
+	},
+	"dashboard_empty_html": {
+		"message": "Na dashboarde sa zatiaľ nič nevypisuje. Moduly sem pošleš v <a href=\"./options.html\" target=\"_blank\">Nastaveniach rozšírenia</a> voľbou „Vypisovať dáta modulu“ → „Dashboard“ pri každom module."
 	},
 	"options_page_title": {
 		"message": "Nastavenia celého Tab Groups"
@@ -347,6 +362,9 @@
 	"core_sandbox_capability_about_options_open": {
 		"message": "Otvoriť stránku Nastavenia rozšírenia (otvorená sa prepne do popredia)."
 	},
+	"core_sandbox_capability_about_dashboard_open": {
+		"message": "Otvoriť dashboard rozšírenia (otvorený sa prepne do popredia) — len keď naň smeruje výstup aspoň jedného modulu."
+	},
 	"core_sandbox_capability_about_storage_usage_get": {
 		"message": "Zistiť, koľko zaberajú vlastné úložiská rozšírenia — len počet položiek a veľkosti (localStorage, databáza záznamov v IndexedDB, navigator.storage.estimate(), chrome.storage.local), nikdy ich obsah."
 	},
@@ -373,6 +391,15 @@
 	},
 	"core_sandbox_capability_about_pwa_info_on_change": {
 		"message": "Dozvedieť sa hneď, keď modul PWA Info zaznamená alebo doplní web (na ktorejkoľvek karte — teda keď navštíviš web s aplikáciou), alebo keď sa zmenia jeho nastavenia."
+	},
+	"core_sandbox_capability_about_pwa_info_block_domain": {
+		"message": "Zablokovať doménu aplikácie z prehľadu (tlačidlo „Blokovať doménu“ v detaile aplikácie): doména stránky, na ktorej ju modul PWA Info zaznamenal, sa pridá do pravidla „PWA info sandbox - blocked domains“ modulu Declarative Net Request — prehliadač potom na ňu ani na jej subdomény nepošle žiadnu požiadavku, kým sa doména z pravidla v Nastaveniach neodoberie; len domény zaznamenaných aplikácií."
+	},
+	"core_sandbox_capability_about_pwa_info_block_service_worker": {
+		"message": "Zablokovať service worker aplikácie z prehľadu (tlačidlo „Blokovať service worker“): adresa jeho skriptu sa pridá do pravidla „PWA info sandbox - blocked service workers“ modulu Declarative Net Request — prehliadač ho potom nezaregistruje ani neaktualizuje, kým sa adresa z pravidla v Nastaveniach neodoberie; len service workery, ktoré zaznamenal modul PWA Info."
+	},
+	"core_sandbox_capability_about_pwa_info_open_app_settings": {
+		"message": "Otvoriť v prehliadači nastavenia aplikácie z prehľadu (tlačidlo „Odinštalovať…“): Chrome ukáže stránku aplikácie (chrome://app-settings/…) so svojím tlačidlom „Odinštalovať“ — aplikácia sa odinštaluje, až keď to tam používateľ potvrdí; len aplikácie webov, ktoré zaznamenal modul PWA Info."
 	},
 	"core_sandbox_capability_about_domain_info_get_page": {
 		"message": "Čítať domény stránky v aktuálnej karte, ako ich pozná modul Domain Info — ktoré z nich stránka použila a ako, údaje, ktoré o nich načítal z RDAP serverov (držitelia a kontakty s menami, adresami, e-mailmi a telefónmi, registrátori, dátumy, menné servery) aj s históriou, a pozastavené servery; len domény tej stránky."
@@ -509,26 +536,38 @@
 	"core_sandbox_capability_about_tab_groups_open_permissions": {
 		"message": "otvorí stránku, kde Tab Groups žiada o svoje povolenia"
 	},
+	"core_sandbox_capability_about_tab_groups_request_permission": {
+		"message": "po kliknutí na svoje tlačidlo požiada prehliadač o povolenia skupín zo záložiek Tab Groups: prístup k záložkám a k adresám kariet"
+	},
 	"core_sandbox_capability_about_tab_groups_on_change": {
 		"message": "dozvie sa, keď sa zmení skupina alebo karta okna a keď sa zmenia nastavenia alebo povolenia Tab Groups"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_status": {
-		"message": "prečíta, ktoré pravidlá Declarative Net Request mieria na stránku aktívnej karty a čo robia (hlavičky, GET parametre, blokovanie), ktoré z nich sú dočasne zrušené a ako pravidlá dopadli v prehliadači"
+		"message": "prečíta, ktoré pravidlá Declarative Net Request mieria na stránku aktívnej karty a čo robia (hlavičky, GET parametre, blokovanie), ktoré z nich sú dočasne zrušené, ako pravidlá dopadli v prehliadači a domény požiadaviek stránky, ktoré jeho blokovacie pravidlá zablokovali"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_rules": {
 		"message": "prečíta všetky pravidlá Declarative Net Request — domény, adresy a priečinky záložiek, na ktoré mieria, hlavičky a parametre, ktoré nastavujú — s názvami priečinkov záložiek (s povolením pre záložky), udelenými povoleniami a dočasne zrušenými pravidlami"
+	},
+	"core_sandbox_capability_about_declarative_net_request_get_folder_urls": {
+		"message": "prečíta adresy záložiek v priečinku záložiek (aj v jeho podpriečinkoch) — tie isté, ktoré prehliadač dostane pre pravidlo Declarative Net Request s týmto priečinkom (s povolením pre záložky)"
 	},
 	"core_sandbox_capability_about_declarative_net_request_set_rules": {
 		"message": "nahradí pravidlá Declarative Net Request (každé pravidlo skontroluje rovnako ako v Nastaveniach) — prehliadač potom podľa nich mení hlavičky a GET parametre požiadaviek a blokuje požiadavky na všetkých stránkach"
 	},
 	"core_sandbox_capability_about_declarative_net_request_suspend_rule": {
-		"message": "dočasne zruší pravidlo Declarative Net Request na hodinu — prehliadač ho dovtedy nepoužije"
+		"message": "dočasne zruší pravidlo Declarative Net Request na hodinu — všade, alebo len pre jednu doménu; prehliadač ho tam dovtedy nepoužije"
 	},
 	"core_sandbox_capability_about_declarative_net_request_restore_rule": {
-		"message": "ukončí dočasné zrušenie pravidla Declarative Net Request — prehliadač ho opäť použije"
+		"message": "ukončí dočasné zrušenie pravidla Declarative Net Request (všade, alebo pre jednu doménu) — prehliadač ho opäť použije"
 	},
 	"core_sandbox_capability_about_declarative_net_request_reload_tab": {
 		"message": "obnoví stránku aktívnej karty okna, aby pravidlá Declarative Net Request platili pre všetky jej požiadavky"
+	},
+	"core_sandbox_capability_about_declarative_net_request_block_page": {
+		"message": "zablokuje celú doménu alebo presnú adresu stránky aktívnej karty okna — pridá sa do pravidla „Direct blocking list created by browsing“ modulu Declarative Net Request a prehliadač potom blokuje všetky požiadavky na ňu na všetkých stránkach, kým sa z pravidla v Nastaveniach neodoberie"
+	},
+	"core_sandbox_capability_about_declarative_net_request_add_except_domain": {
+		"message": "pridá doménu stránky aktívnej karty okna, alebo doménu požiadaviek tej stránky, ktoré pravidlo zablokovalo, do Okrem domén pravidla modulu Declarative Net Request — pravidlo potom prestane platiť pre požiadavky na doménu a súbory, ktoré jej stránky načítavajú odinakiaľ, kým sa doména z pravidla v Nastaveniach neodoberie"
 	},
 	"core_sandbox_capability_about_declarative_net_request_get_log": {
 		"message": "prečíta vlastný log udalostí Declarative Net Request — požiadavky na všetkých stránkach, na ktoré sa použili jeho pravidlá s logom udalostí: adresy požiadaviek a stránok, z ktorých prišli, karty a časy"
@@ -536,8 +575,14 @@
 	"core_sandbox_capability_about_declarative_net_request_clear_log": {
 		"message": "zmaže záznam vlastného logu udalostí Declarative Net Request, alebo celý log"
 	},
+	"core_sandbox_capability_about_declarative_net_request_open_permissions": {
+		"message": "otvorí stránku, kde Declarative Net Request žiada o svoje povolenia"
+	},
+	"core_sandbox_capability_about_declarative_net_request_request_permission": {
+		"message": "po kliknutí na svoje tlačidlo požiada prehliadač o povolenia Declarative Net Request: prístup ku všetkým stránkam pre jeho pravidlá, prístup k záložkám, oznámenia a sledovanie použitých pravidiel, alebo sledovanie požiadaviek, ktoré jeho pravidlá zablokovali"
+	},
 	"core_sandbox_capability_about_declarative_net_request_on_change": {
-		"message": "dozvie sa, keď sa zmenia pravidlá alebo nastavenia Declarative Net Request, keď sa pravidlo dočasne zruší alebo obnoví, keď sa zmení jeho log udalostí, keď sa zmení zoznam modulov alebo povolenia a keď sa zmenia záložky"
+		"message": "dozvie sa, keď sa zmenia pravidlá alebo nastavenia Declarative Net Request, keď sa pravidlo dočasne zruší alebo obnoví, keď sa zmení jeho log udalostí, keď jeho pravidlá zablokujú časť stránky, keď sa zmení zoznam modulov alebo povolenia a keď sa zmenia záložky"
 	},
 	"core_sandbox_capability_about_content_filters_set": {
 		"message": "Vkladať scriptlety uBlock Origin a skrývať prvky na stránkach hostiteľov, ktoré modul menuje (len tých, ku ktorým žiada prístup), podľa pravidiel zoznamov, ktoré menuje — rozšírenie zoznamy z tých adries (https) sťahuje a udržiava aktuálne, aj keď modul nie je zobrazený. Modul pre stránky neprináša žiadny kód, ale scriptlety „trusted-…“ zo zoznamu, ktorý označí za dôveryhodný, môžu na tých stránkach zmeniť akýkoľvek text alebo kód. Môže tiež označiť ikonku karty stránok, v ktorých pravidlá bežia."
@@ -590,6 +635,12 @@
 	"core_sandbox_capability_about_scheduled_urls_on_change": {
 		"message": "dozvie sa, keď sa zmenia zariadenia alebo naplánované adresy, aj na inom zariadení"
 	},
+	"core_sandbox_capability_about_scheduled_urls_send_message": {
+		"message": "pošle oznámenie (titulok, text a ďalšie voľby webového oznámenia) na vaše zariadenia — každé z nich ho zobrazí, ak správy povoľuje, a kliknutie naň tam môže otvoriť webovú adresu; rozhoduje aj o tom, či toto zariadenie zobrazuje správy poslané jemu"
+	},
+	"core_sandbox_capability_about_scheduled_urls_remove_messages": {
+		"message": "odstráni správy poslané na vaše zariadenia"
+	},
 	"core_sandbox_capability_about_dns_overview_get_page": {
 		"message": "Čítať hostiteľov, s ktorými sa spojila stránka v aktuálnej karte, ako rozšírenie sleduje jej požiadavky — adresy serverov, odpovede z HTTP cache, mená, ktoré sa nepodarilo preložiť, vo Firefoxe aj čo o nich drží DNS cache prehliadača a či spojenia použili šifrované DNS — s odpoveďami dopytov na DNS, ktoré sa pre ne načítali; len hostiteľov tej stránky. Zakázanie zastaví sledovanie stránok."
 	},
@@ -598,6 +649,9 @@
 	},
 	"core_sandbox_capability_about_dns_overview_on_change": {
 		"message": "Dozvedieť sa hneď, keď sa stránka v aktuálnej karte spojí s ďalším hostiteľom alebo prídu nové dáta DNS jej hostiteľov, a keď sa zmení, čo rozšírenie môže (nastavenia, oprávnenia)."
+	},
+	"core_sandbox_capability_about_colors_manager_get_page": {
+		"message": "Čítať farby stránky v aktuálnej karte — rozšírenie prejde všetky jej framy: CSS premenné :root s farbou, pravidlá jej štýlov s farbou (selektory, adresy štýlov, @media), atribúty style a HTML atribúty s farbou a farby, ktoré vykresľujú jej viditeľné prvky (s niekoľkými názvami prvkov, ich id a triedami). Len tá stránka, pri každej požiadavke znova; nič sa neukladá."
 	},
 	"core_sandbox_domain_info_inactive": {
 		"message": "domainInfo.collect: modul Domain Info nie je v zozname modulov alebo je vypnutý — nič nenačítava."
@@ -695,6 +749,12 @@
 	"core_sandbox_left_page": {
 		"message": "Stránka sandboxu prešla inam — modul bol zastavený."
 	},
+	"core_sandbox_save_timeout": {
+		"message": "Modul neuložil svoje nastavenia do $1 s."
+	},
+	"core_sandbox_save_stopped": {
+		"message": "Modul sa zastavil skôr, než uložil svoje nastavenia."
+	},
 	"core_sandbox_module_failed": {
 		"message": "Nahraný modul $1 nemôže bežať:"
 	},
@@ -773,7 +833,7 @@
 	"options_modules_settings": {
 		"message": "Pokročilé nastavenia"
 	},
-	"options_filter_label": {
+	"core_module_filter_label": {
 		"message": "Filtrovať podľa názvu"
 	},
 	"options_save_settings": {
@@ -859,6 +919,9 @@
 	},
 	"options_drag_to_reorder": {
 		"message": "Potiahnutím zmeníš poradie modulu v zozname"
+	},
+	"options_module_version_title": {
+		"message": "Verzia modulu"
 	},
 	"options_activation_mode": {
 		"message": "Aktivačný režim modulu"
@@ -973,6 +1036,9 @@
 	},
 	"options_module_settings_saved": {
 		"message": "Nastavenia modulov uložené."
+	},
+	"options_module_settings_views_failed": {
+		"message": "Nastavenia modulov uložené, ale nie všetko — $1"
 	},
 	"options_module_settings_reset": {
 		"message": "Nastavenia modulov obnovené na predvolené."
@@ -1140,7 +1206,7 @@
 		"message": "Export funkcií tohto rozšírenia"
 	},
 	"options_services_hint": {
-		"message": "Toto rozšírenie môže svoje moduly ponúknuť celému rozšíreniu AnalyticExtension, keď je nainštalované: keď to povolíš v Nastaveniach AnalyticExtension, zobrazí ich vo svojom popupe, bočnom paneli a Nastaveniach, prácu pre ne však robí ďalej toto rozšírenie so svojimi povoleniami a nastaveniami. Ide len o export odtiaľto von — moduly iných rozšírení do tohto rozšírenia pridať nejde."
+		"message": "Toto rozšírenie môže svoje moduly ponúknuť plnému rozšíreniu, keď je nainštalované: keď to povolíš v jeho Nastaveniach, zobrazí ich vo svojom popupe, bočnom paneli a Nastaveniach, prácu pre ne však robí ďalej toto rozšírenie so svojimi povoleniami a nastaveniami. Ide len o export odtiaľto von — moduly iných rozšírení do tohto rozšírenia pridať nejde."
 	},
 	"options_services_meta": {
 		"message": "$1 · verzia $2 · ponúknuté $3"
@@ -1203,7 +1269,7 @@
 		"message": "$1 odmietol zobrazovať moduly tohto rozšírenia — zobrazuje ich samo."
 	},
 	"options_services_client_unknown": {
-		"message": "AnalyticExtension, ktorému toto rozšírenie ponúka svoje moduly, nie je nainštalované alebo neodpovedalo — moduly zobrazuje len toto rozšírenie samo."
+		"message": "Plné rozšírenie, ktorému toto rozšírenie ponúka svoje moduly, nie je nainštalované alebo neodpovedalo — moduly zobrazuje len toto rozšírenie samo."
 	},
 	"options_services_client_register": {
 		"message": "Ponúknuť znova"
@@ -1246,6 +1312,12 @@
 	},
 	"background_dns_overview_no_dns": {
 		"message": "Tento prehliadač nemá browser.dns — vlastné dopyty na DNS fungujú len vo Firefoxe."
+	},
+	"background_colors_manager_extension_pages_only": {
+		"message": "Farby stránky sa dajú čítať len zo stránok rozšírenia."
+	},
+	"background_colors_manager_invalid_request": {
+		"message": "Neplatná požiadavka na farby stránky (karta)."
 	},
 	"background_network_filters_unknown_module": {
 		"message": "Sieťové filtre sú len pre nahrané moduly — „$1“ taký nie je."

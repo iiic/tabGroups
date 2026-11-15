@@ -20,7 +20,10 @@
 // does not follow the changes, a denied button is not shown.
 //
 // Without the permissions the overview only says what is missing and opens the page where tabGroups asks for
-// them (tabGroups.openPermissions — a sandboxed module cannot ask for a permission).
+// them (tabGroups.openPermissions — Settings of the extension that runs tabGroups, for a module of a client the client's,
+// at this editor). The editor in Settings asks right there: a click in the sandbox frame cannot ask for a permission, so
+// the core draws the button for the groups from bookmarks above the frame and runs tabGroups.requestPermission within the
+// click; the editor of a module of a client, where that function is unavailable, leads to the Settings of the client.
 //
 // In Settings the element is also the editor of the settings of tabGroups (registerModule({ settingsView }),
 // init({ location: "settings" }), settingsView.mjs) — it gets them through tabGroups.getSettings and stores every
@@ -54,6 +57,7 @@ const IDENTIFY = "tabGroups.identify";
 const GET_SETTINGS = "tabGroups.getSettings";
 const SET_SETTINGS = "tabGroups.setSettings";
 const OPEN_PERMISSIONS = "tabGroups.openPermissions";
+const REQUEST_PERMISSION = "tabGroups.requestPermission";
 const ON_CHANGE = "tabGroups.onChange";
 const OPEN_OPTIONS = "options.open";
 
@@ -176,6 +180,17 @@ class ExtensionTabGroupsSandbox extends /** @type {Types.WithFields<typeof BaseE
 				this._start();
 			})
 		);
+		// A permission granted comes through the listener ("status") too — the editor loads again after every click of the
+		// button of the core anyway (also without the listener).
+		if (location === "settings") {
+			this._unsubscribers.push(
+				api.buttons.onClick((click) => {
+					if (!click.ok) console.warn("tabGroupsSandbox: oprávnění nejde vyžádat:", click.error);
+					this._settingsShown = false;
+					this._scheduleRefresh();
+				})
+			);
+		}
 		try {
 			this._states = await api.capabilities.state();
 		} catch (err) {
@@ -336,6 +351,7 @@ class ExtensionTabGroupsSandbox extends /** @type {Types.WithFields<typeof BaseE
 	async _loadSettings(loadId) {
 		const name = this._name || TAG;
 		if (!this._allowed(GET_SETTINGS) || !this._allowed(SET_SETTINGS)) {
+			this._setPermissionButtons(false);
 			this.replaceChildren(this._status(t("tabGroupsSandbox_settings_not_allowed", name), true));
 			this._settingsShown = false;
 			return;
@@ -348,11 +364,14 @@ class ExtensionTabGroupsSandbox extends /** @type {Types.WithFields<typeof BaseE
 		} catch (err) {
 			if (loadId !== this._loadId) return;
 			console.error(err);
+			this._setPermissionButtons(false);
 			this.replaceChildren(this._status(t("tabGroupsSandbox_settings_load_failed", name, errorText(err)), true));
 			this._settingsShown = false;
 			return;
 		}
 		if (loadId !== this._loadId) return;
+		const askHere = this._allowed(REQUEST_PERMISSION);
+		this._setPermissionButtons(askHere && !view.hasBookmarks);
 		const editor = document.createElement("div");
 		const status = this._status("", false);
 		status.setAttribute("role", "status");
@@ -370,10 +389,31 @@ class ExtensionTabGroupsSandbox extends /** @type {Types.WithFields<typeof BaseE
 		};
 		renderSettingsEditor(editor, view, {
 			save: (key, value) => store(() => sandboxApi(this).capabilities.call(SET_SETTINGS, { key, value }), t("tabGroupsSandbox_settings_saved")),
-			openPermissions: this._allowed(OPEN_PERMISSIONS) ? () => this._openPermissions() : null,
+			openPermissions: !askHere && this._allowed(OPEN_PERMISSIONS) ? () => this._openPermissions() : null,
 		});
 		this.replaceChildren(editor, status);
 		this._settingsShown = true;
+	}
+
+	// The button for the permissions of the groups from bookmarks, drawn by the core above the frame (bookmarks — shown).
+	// After the permission is granted the editor loads again and calls this without it; the buttons of the core stay until
+	// they are replaced — also after a function was denied.
+	/** @type {Classes.ExtensionTabGroupsSandbox['_setPermissionButtons']} */
+	_setPermissionButtons(bookmarks) {
+		/** @type {Types.SandboxButtonDefinition[]} */
+		const buttons = [];
+		if (bookmarks) {
+			buttons.push({
+				id: "allow-bookmarks",
+				label: t("tabGroupsSandbox_bookmarks_allow"),
+				title: t("tabGroupsSandbox_bookmarks_allow_title"),
+				capability: REQUEST_PERMISSION,
+				args: ["bookmarks"],
+			});
+		}
+		sandboxApi(this)
+			.buttons.set(buttons)
+			.catch((/** @type {unknown} */ err) => console.error("tabGroupsSandbox: tlačítko oprávnění nejde vykreslit:", err));
 	}
 
 	/** @type {Classes.ExtensionTabGroupsSandbox['_chips']} */

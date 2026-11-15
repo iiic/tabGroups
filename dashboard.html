@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title data-i18n="dashboard_page_title">Tab Groups - dashboard</title>
+	<link rel="stylesheet" href="./css/mvp.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/theme-light.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/dashboard.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/module-frame.css" crossorigin="anonymous">
+	<!-- Appearance choice (light/dark) — switched by the styleSwitch module (modules/styleSwitch/pageStyles.mjs); the href must be the same on all pages. -->
+	<link rel="alternate stylesheet" href="./css/theme-light.css" title="Světlý" crossorigin="anonymous">
+	<link rel="stylesheet" href="./css/theme-dark.css" title="Tmavý" media="(prefers-color-scheme: dark)" crossorigin="anonymous">
+</head>
+
+<body>
+	<!-- Module filter: hides the module outputs whose name or id does not contain the text (mountModuleFilter() in
+	     base.mjs). Shown only from OUTPUT_MODULE_FILTER_MIN modules sent to the dashboard. -->
+	<div class="module-filter" id="module-filter" hidden>
+		<label><span data-i18n="core_module_filter_label">Filter by name</span>
+			<input type="search" id="module-filter-input" list="module-filter-names" autocomplete="off" spellcheck="false">
+		</label>
+		<datalist id="module-filter-names"></datalist>
+	</div>
+
+	<div id="modules-output"></div>
+
+	<!-- Shown by dashboard.mjs when no module is sent to the dashboard. -->
+	<p id="dashboard-empty" class="dashboard-empty" hidden data-i18n-html="dashboard_empty_html">
+		Nothing is shown on the dashboard yet. Send modules here in the <a href="./options.html" target="_blank">extension settings</a> with the “Show module output” → “Dashboard” option of each module.
+	</p>
+
+	<script type="module" src="./dashboard.mjs" crossorigin="anonymous"></script>
+</body>
+
+</html>

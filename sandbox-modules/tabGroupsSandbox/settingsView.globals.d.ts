@@ -22,6 +22,9 @@ declare global {
 				/** The stored folder (it stays selectable when the tree does not have it) */
 				storedFolderId: string;
 				storedFolderTitle: string;
+
+				/** The color the row has while the user has not picked another one (of its name; of a new row the one it starts with) — it follows the name while the color is this one */
+				defaultColor: string;
 			};
 
 			/** What the editor does with a change. */
@@ -44,6 +47,19 @@ declare global {
 
 			namespace SettingsView {
 
+				/** "#rrggbb" (sRGB) → OKLab [L, a, b] */
+				type oklab = ( hex: string ) => [ number, number, number ];
+
+				namespace oklab {
+
+					/** A channel of the hex at the offset as linear sRGB (0–1) */
+					type linear = ( offset: number ) => number;
+
+				}
+
+				/** The color of a group named text: the nearest of colors to colorFromText() of the SDK in OKLab, "" for an empty name */
+				type groupColorFromText = ( text: string, colors: Types.TabGroups.SettingsView['colors'] ) => Types.TabGroups.GroupColor | "";
+
 				/** A new id of a row of the groups from bookmarks */
 				type newRowId = () => string;
 
@@ -53,13 +69,18 @@ declare global {
 				/** The "collapsed group" checkbox with its label */
 				type collapsedCheckbox = ( checked: boolean, ariaLabel: string ) => { label: HTMLLabelElement; input: HTMLInputElement };
 
-				/** A select of the colors with a preview in a table cell */
+				/** A select of the colors with a preview in a table cell; setValue() picks a color, setDefault() moves "(default)" */
 				type colorPicker = (
 					colors: Types.TabGroups.SettingsView['colors'],
 					value: string,
 					ariaLabel: string,
 					defaultColor?: string | null,
-				) => { cell: HTMLTableCellElement; select: HTMLSelectElement };
+				) => {
+					cell: HTMLTableCellElement;
+					select: HTMLSelectElement;
+					setValue: ( color: string ) => void;
+					setDefault: ( color: string | null ) => void;
+				};
 
 				/** The header row of a table */
 				type tableHead = ( table: HTMLTableElement, titles: string[] ) => void;

@@ -32,25 +32,6 @@ section:last-of-type {
 	white-space: nowrap;
 }
 
-/* Module filter above the sections (_applyModuleFilter() in options.mjs). */
-.module-filter {
-	margin-bottom: 12px;
-}
-.module-filter label {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 4px 8px;
-}
-.module-filter input {
-	flex: 1 1 14rem;
-	max-width: 28rem;
-	margin: 0;
-}
-.module-filter-hidden {
-	display: none !important;
-}
-
 /* Sections as tabs (_initSectionTabs() in options.mjs), on a narrow screen as an accordion (below). The
    section itself is a block — the panel keeps the flex layout of mvp.css's section that its content has always had. */
 .options-section {
@@ -220,6 +201,17 @@ textarea {
 }
 .module-description {
 	color: var(--color-text-muted);
+}
+/* The version of the module (registerModule({ version })) — unobtrusive, in the bottom right corner of its row in
+   "Advanced module settings" and of its block in "Custom module settings" (as wide as the text, so the title shows
+   only over it). See _createModuleVersion() in options.mjs. */
+.module-version {
+	display: block;
+	width: fit-content;
+	margin-left: auto;
+	font-size: 11px;
+	line-height: 1.2;
+	color: var(--color-text-secondary);
 }
 .module-row-field {
 	display: block;
@@ -716,7 +708,8 @@ select {
 
 /* The extension id as a faint watermark in the lower left corner (mountExtensionIdWatermark() in base.mjs) —
    in the background behind the content (z-index: -1, above the body background; the opaque panels cover it);
-   it does not catch clicks and is not selected. */
+   it does not catch clicks and is not selected. The opacity is on the text only: on the whole mark it would fade
+   the dot before the id too, and that one has the exact color of the id. */
 .extension-id-watermark {
 	position: fixed;
 	left: 12px;
@@ -724,12 +717,17 @@ select {
 	z-index: -1;
 	max-width: calc(100vw - 24px);
 	font-family: ui-monospace, Consolas, monospace;
-	/* Larger than the text of the page, smaller in a narrow panel so that even a Firefox UUID (36 characters) fits on one line. */
-	font-size: clamp(15px, calc((100vw - 24px) / 22), 20px);
+	/* Larger than the text of the page, smaller in a narrow panel so that even a Firefox UUID (36 characters) and the dot fit on one line. */
+	font-size: clamp(15px, calc((100vw - 24px) / 23), 20px);
 	line-height: 1.2;
 	overflow-wrap: anywhere;
-	color: var(--color-text-muted);
-	opacity: 0.25;
 	pointer-events: none;
 	user-select: none;
+}
+.extension-id-watermark-dot {
+	margin-right: 0.4em;
+}
+.extension-id-watermark-text {
+	color: var(--color-text-muted);
+	opacity: 0.25;
 }

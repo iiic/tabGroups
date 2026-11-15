@@ -233,21 +233,21 @@ export function withTitlePrefix ( items, prefix )
 }
 
 // Which day decides the period a tab belongs to (the GROUP_BY_KEY setting in
-// module.mjs): the day it was opened — the tab stays in that day's group and only
-// midnight moves it —, or the day of last use — a tab the user
-// switches to moves into "today" (estimateUsedDay()).
+// module.mjs): the day of last use — a tab the user switches to moves into
+// "today" (estimateUsedDay()); the default —, or the day it was opened — the
+// tab stays in that day's group and only midnight moves it.
 /** @type {Types.TabGroups.GroupBy} */
 export const GROUP_BY_OPENED = "opened";
 /** @type {Types.TabGroups.GroupBy} */
 export const GROUP_BY_LAST_USED = "lastUsed";
 /** @type {Types.TabGroups.GroupBy} */
-export const DEFAULT_GROUP_BY = GROUP_BY_OPENED;
+export const DEFAULT_GROUP_BY = GROUP_BY_LAST_USED;
 
-// The stored choice → a valid value; anything unknown = by opening.
+// The stored choice → a valid value; anything unknown = the default (by last use).
 /** @type {Functions.TabGroups.Buckets.normalizeGroupBy} */
 export function normalizeGroupBy ( value )
 {
-	return value === GROUP_BY_LAST_USED ? GROUP_BY_LAST_USED : GROUP_BY_OPENED;
+	return value === GROUP_BY_OPENED ? GROUP_BY_OPENED : DEFAULT_GROUP_BY;
 }
 
 // The local calendar day of the time ms as a day number (see the introductory comment).

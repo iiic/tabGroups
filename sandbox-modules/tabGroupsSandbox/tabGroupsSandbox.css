@@ -8,7 +8,8 @@
    The chips: group chips in the order of the tab strip (the oldest on the left); the colors of the
    groups (the chips and the previews of the editor of the settings) roughly as in the browser's tab
    strip (Chrome's light look), with readable text, the same in the light and dark look, so the overview
-   matches what the user sees in the strip. */
+   matches what the user sees in the strip. GROUP_COLOR_HEX of settingsView.mjs has the same hex (the
+   default color of a group from bookmarks is the one nearest to the color of its name). */
 
 extension-tab-groups-sandbox {
 	.tab-groups-color--grey {

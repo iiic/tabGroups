@@ -15,7 +15,7 @@ export const DESCRIPTION = t("tabGroupsSandbox_description");
 // The version of the module (registerModule({ version })) — a standalone extension built from it gets it as its
 // version (scripts/build-module-*.ps1 read this line, keep its form). Raise it with a change of the module.
 /** @type {Types.ModuleDescriptor['VERSION']} */
-export const VERSION = "1.0.4";
+export const VERSION = "1.0.5";
 
 // The overview concerns the window, not the active page — hence without WEB_PAGE_SPEC, it is
 // shown even over a chrome:// page.
@@ -55,8 +55,10 @@ export const SETTINGS_VIEW = true;
 // background part of tabGroups (api.services): the groups of the window (tabGroups.getOverview), regrouping the tabs
 // and blinking its groups (tabGroups.regroup, tabGroups.identify), its settings for the editor (tabGroups.getSettings,
 // tabGroups.setSettings), opening the page where tabGroups asks for the permissions (tabGroups.openPermissions — a
-// sandboxed module cannot ask for a permission) and the listener of the changes of the groups, the settings and the
-// permissions (tabGroups.onChange); options.open opens Settings, where the editor of the settings is. The extension
+// sandboxed module cannot ask for a permission), the permissions of the groups from bookmarks from a button the core
+// draws above the editor (tabGroups.requestPermission — only for a module the extension brings itself) and the listener
+// of the changes of the groups, the settings and the permissions (tabGroups.onChange); options.open opens Settings,
+// where the editor of the settings is. The extension
 // brings the module itself, so they are allowed until the user denies them in Settings → "Uploaded modules (sandbox)".
 // When a service provider shows the module of the standalone Tab Groups extension, the functions tabGroups.* go to
 // that extension.
@@ -68,6 +70,7 @@ export const CAPABILITIES = [
 	"tabGroups.getSettings",
 	"tabGroups.setSettings",
 	"tabGroups.openPermissions",
+	"tabGroups.requestPermission",
 	"tabGroups.onChange",
 	"options.open",
 ];

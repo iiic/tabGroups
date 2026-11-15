@@ -1,6 +1,6 @@
 {
 	"tabGroups_description": {
-		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie geöffnet oder (Option in den Einstellungen) zuletzt verwendet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
+		"message": "Sortiert Tabs, die sich in keiner eigenen Gruppe befinden, automatisch in 9 Gruppen (heute, gestern, … letztes Jahr) – danach, wann sie zuletzt verwendet oder (Option in den Einstellungen) geöffnet wurden – und verschiebt sie nach Mitternacht weiter. In den Einstellungen können Sie außerdem Gruppen aus Lesezeichen hinzufügen: Tabs, die in einem ausgewählten Ordner als Lesezeichen gespeichert sind (optional auch jede Adresse auf der Domain des Lesezeichens), erhalten eine eigene Gruppe. Automatische Gruppen bleiben rechts von Ihren eigenen Gruppen, von der ältesten zur neuesten."
 	},
 	"tabGroups_color_grey": {
 		"message": "grau"

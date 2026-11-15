@@ -12,8 +12,8 @@
 // message listeners are registered synchronously right when the script is evaluated, as
 // MV3 requires for waking up the service worker.
 import * as base from "./base.mjs";
-// Texts of errors that extension pages show — t() only after loadI18n() in the handler.
-import { t, loadI18n } from "./i18n.mjs";
+// Texts of errors that extension pages show — t() only after loadI18n() in the handler; the tooltip of the button.
+import { t, loadI18n, onUiLanguageChange } from "./i18n.mjs";
 // Module load measurement — the hooks are already installed by base.mjs, here the
 // reports of all contexts are just collected into the overview (see the "Module load measurement" section below).
 import * as perf from "./perf.mjs";
@@ -633,12 +633,12 @@ import "./modules-background.mjs";
 
 	// --- Dynamic network request rules (api.networkRules) ---
 	//
-	// Module rules (NETWORK_RULES_KEY) are put into chrome.declarativeNetRequest
+	// Module rules (the regular ones in IndexedDB — base.readRegularNetworkRules()) are put into chrome.declarativeNetRequest
 	// only by background.js — dynamic rule ids have one namespace for the
 	// whole extension, so background.js is their sole owner: after every
 	// change (module rules, activation mode, module list, permissions) it
-	// recalculates the whole set (see planNetworkRules() in base.mjs) and replaces
-	// all dynamic rules at once. Rules of a module that is turned off or removed from the list
+	// recalculates the whole set (see planNetworkRules() in base.mjs) and changes in the browser
+	// only the rules that differ (diffNetworkRules() — the others keep their ids). Rules of a module that is turned off or removed from the list
 	// thus stop applying immediately, even without an open extension
 	// page. Without the declarativeNetRequest* permission the browser does not provide the API —
 	// the rules stay stored and are used after it is granted. Recalculations and writes
@@ -653,10 +653,11 @@ import "./modules-background.mjs";
 	// is waiting, the status from the last recalculation (NETWORK_RULES_STATUS_CACHE_KEY) is not valid.
 	let networkRulesPending = 0;
 
+	// The task gets no argument (not the result of the task before it — applyNetworkRules() takes an optional store).
 	/** @type {Functions.Background.queueNetworkRules} */
 	function queueNetworkRules(task) {
 		networkRulesPending += 1;
-		const run = networkRulesQueue.then(task).finally(() => {
+		const run = networkRulesQueue.then(() => task()).finally(() => {
 			networkRulesPending -= 1;
 		});
 		networkRulesQueue = run.catch(() => {});
@@ -674,14 +675,115 @@ import "./modules-background.mjs";
 
 	/** @type {Functions.Background.cachedNetworkRulesStatus} */
 	async function cachedNetworkRulesStatus(module) {
-		if (networkRulesPending > 0 || !chrome.storage.session) return null;
+		if (networkRulesPending > 0) return null;
+		const cached = await readNetworkRulesStatusCache(module);
+		return networkRulesPending === 0 ? cached : null;
+	}
+
+	// The status of the module from the last recalculation as it is stored (null — none, or without chrome.storage.session).
+	/** @type {Functions.Background.readNetworkRulesStatusCache} */
+	async function readNetworkRulesStatusCache(module) {
+		if (!chrome.storage.session) return null;
 		try {
 			const cache = /** @type {Record<string, Types.NetworkRulesStatus> | undefined} */ ((await chrome.storage.session.get(NETWORK_RULES_STATUS_CACHE_KEY))[NETWORK_RULES_STATUS_CACHE_KEY]);
-			return networkRulesPending === 0 && cache && cache[module] ? cache[module] : null;
+			return cache && cache[module] ? cache[module] : null;
 		} catch {
 			return null;
 		}
 	}
+
+	// The dynamic rules the core put into the browser last, with their ids — the core is their only writer, so while the
+	// service worker (the background page in Firefox) lives, a recalculation does not have to read them back: getDynamicRules()
+	// costs ~0.6 s with 22,500 rules in Chrome (verified in Chrome 156). null — not known (after a start, after a failed
+	// write): the recalculation reads them from the browser.
+	/** @type {chrome.declarativeNetRequest.Rule[] | null} */
+	let knownDynamicRules = null;
+	// Their signatures (base.networkRuleSignature(), the same order) — the next diffNetworkRules() does not compute them again.
+	/** @type {string[] | null} */
+	let knownDynamicSignatures = null;
+
+	// The bulk rules of the modules (IndexedDB) as the core knows them — only the core writes them (setModuleNetworkRules(),
+	// removeModuleNetworkRules(), the rejected ones in applyNetworkRules(); all in the queue), so after the first read a
+	// recalculation does not read them again (19,825 rules of the filter lists: ~35 ms in Chrome 156, ~0.1 s in Firefox 159);
+	// null — not known (after a start, after a failed write).
+	/** @type {Types.NetworkRulesBulkStore | null} */
+	let knownBulkStore = null;
+
+	/** @type {Functions.Background.readBulkStore} */
+	async function readBulkStore() {
+		if (!knownBulkStore) knownBulkStore = await base.readBulkNetworkRules();
+		return knownBulkStore;
+	}
+
+	// Writes the bulk rules of one module (null = removes them) and keeps the known store with the change.
+	/** @type {Functions.Background.writeBulkEntry} */
+	async function writeBulkEntry(module, entry) {
+		const known = knownBulkStore;
+		knownBulkStore = null;
+		await base.writeBulkNetworkRules(module, entry);
+		if (!known) return;
+		const { [module]: _removed, ...rest } = known;
+		knownBulkStore = entry ? { ...rest, [module]: entry } : rest;
+	}
+
+	// The names of the modules of the list (modules.json — MODULES_JSON_KEY in chrome.storage.local when the user changed the
+	// list, otherwise the file of the package) as the core knows them; read again after a change of the list
+	// (storage.onChanged below — moduleNamesGeneration: a read a change came during does not keep what it read), not at every
+	// recalculation.
+	/** @type {Set<string> | null} */
+	let knownModuleNames = null;
+	let moduleNamesGeneration = 0;
+
+	/** @type {Functions.Background.readModuleNames} */
+	async function readModuleNames() {
+		if (knownModuleNames) return knownModuleNames;
+		const generation = moduleNamesGeneration;
+		const paths = JSON.parse(await new base.BaseController().getModulesJson());
+		if (!Array.isArray(paths)) throw new Error("modules.json musí být pole řetězců");
+		const names = new Set(paths.map((path) => base.getModuleKey(path)));
+		if (generation === moduleNamesGeneration) knownModuleNames = names;
+		return names;
+	}
+
+	// The regular rules of the modules (IndexedDB, base.readRegularNetworkRules()) as the core knows them — after its own
+	// write of a record and after its first read; null — not known (after a start, after a change by another page). A
+	// recalculation thus reads only the bulk rules. networkRulesStoreGeneration goes up with every change by another page
+	// (NETWORK_RULES_REVISION_KEY): a read or a write that a change came during does not keep what it had.
+	/** @type {Types.NetworkRulesStore | null} */
+	let knownNetworkRulesStore = null;
+	let networkRulesStoreGeneration = 0;
+
+	/** @type {Functions.Background.readNetworkRulesStore} */
+	async function readNetworkRulesStore() {
+		if (knownNetworkRulesStore) return knownNetworkRulesStore;
+		const generation = networkRulesStoreGeneration;
+		const store = await base.readRegularNetworkRules();
+		if (generation === networkRulesStoreGeneration) knownNetworkRulesStore = store;
+		return store;
+	}
+
+	// Writes the regular rules of one module (null = removes them) — only its record in IndexedDB, without a broadcast to the
+	// pages (that made a change of the rules of one module cost 3–7 s in Firefox while they were in chrome.storage.local);
+	// next: the store with the change, as the recalculation takes it.
+	/** @type {Functions.Background.writeNetworkRulesEntry} */
+	async function writeNetworkRulesEntry(module, entry, next) {
+		const generation = networkRulesStoreGeneration;
+		knownNetworkRulesStore = null;
+		await base.writeRegularNetworkRules(module, entry);
+		if (generation === networkRulesStoreGeneration) knownNetworkRulesStore = next;
+	}
+
+	// The regular rules from chrome.storage.local (before version 2 of the database) into IndexedDB — the first task of the
+	// queue, before any recalculation or a write of the rules of a module. Without IndexedDB (or with an error) the key stays
+	// and the next start tries again; the rules in the browser stay as they are meanwhile.
+	queueNetworkRules(async () => {
+		try {
+			const moved = await base.migrateNetworkRulesStore();
+			if (moved > 0) console.info(`Pravidla síťových požadavků ${moved} modulů přesunuta z chrome.storage.local do IndexedDB.`);
+		} catch (err) {
+			console.error("Pravidla síťových požadavků nejde přesunout do IndexedDB:", err);
+		}
+	}).catch(() => {});
 
 	// How many rules to verify at most at once (session rules, see
 	// addBulkNetworkRules()) and how many attempts of searching directly in the dynamic
@@ -790,17 +892,16 @@ import "./modules-background.mjs";
 		return [...rejected];
 	}
 
-	// Status of modules after the recalculation: module name -> Types.NetworkRulesStatus.
+	// Status of modules after the recalculation: module name -> Types.NetworkRulesStatus. networkRulesStore: the store of the
+	// rules of the modules the caller has just read and changed (setModuleNetworkRules()) — it is not read again.
 	/** @type {Functions.Background.applyNetworkRules} */
-	async function applyNetworkRules() {
-		const stored = /** @type {Types.StorageLocal} */ (await chrome.storage.local.get([base.NETWORK_RULES_KEY, base.SETTINGS_KEY]));
-		const store = stored[base.NETWORK_RULES_KEY] || {};
+	async function applyNetworkRules(networkRulesStore = null) {
+		const stored = /** @type {Types.StorageLocal} */ (await chrome.storage.local.get(base.SETTINGS_KEY));
+		const store = networkRulesStore || (await readNetworkRulesStore());
 		/** @type {Set<string>} */
 		let moduleNames;
 		try {
-			const paths = JSON.parse(await new base.BaseController().getModulesJson());
-			if (!Array.isArray(paths)) throw new Error("modules.json musí být pole řetězců");
-			moduleNames = new Set(paths.map((path) => base.getModuleKey(path)));
+			moduleNames = await readModuleNames();
 		} catch (err) {
 			// Without the module list there is no way to tell whose rules should apply — the current
 			// rules in the browser stay unchanged.
@@ -810,7 +911,7 @@ import "./modules-background.mjs";
 		/** @type {Types.NetworkRulesBulkStore} */
 		let bulkStore;
 		try {
-			bulkStore = await base.readBulkNetworkRules();
+			bulkStore = await readBulkStore();
 		} catch (err) {
 			// Without the bulk rules they would be deleted from the browser — better do nothing.
 			console.error("Nelze načíst hromadná pravidla síťových požadavků:", err);
@@ -830,21 +931,34 @@ import "./modules-background.mjs";
 		const numbered = base
 			.fitNetworkRules(groups, base.networkRulesLimits(dnr))
 			.map((group) => ({ ...group, rules: group.rules.map((rule) => /** @type {chrome.declarativeNetRequest.Rule} */ ({ ...rule, id: nextId++ })) }));
-		const addRules = numbered.flatMap((group) => group.rules);
 		// Bulk rules the browser rejected in this recalculation (module → count).
 		/** @type {Map<string, number>} */
 		const rejectedNow = new Map();
-		const current = await dnr.getDynamicRules();
-		if (!base.networkRulesMatch(current, addRules)) {
-			const removeRuleIds = current.map((rule) => rule.id);
+		const current = knownDynamicRules ?? (await dnr.getDynamicRules());
+		// Only the rules that differ go into the browser (a suspended rule, a new "Except" domain = a few rules of one module).
+		const change = base.diffNetworkRules(
+			current,
+			numbered.flatMap((group) => group.rules.map(({ id: _id, ...rule }) => rule)),
+			knownDynamicRules ? knownDynamicSignatures : null
+		);
+		knownDynamicRules = null;
+		knownDynamicSignatures = null;
+		if (change.removeRuleIds.length === 0 && change.addRules.length === 0) {
+			knownDynamicRules = change.rules;
+			knownDynamicSignatures = change.signatures;
+		} else {
 			try {
-				await dnr.updateDynamicRules({ removeRuleIds, addRules });
+				await dnr.updateDynamicRules({ removeRuleIds: change.removeRuleIds, addRules: change.addRules });
+				knownDynamicRules = change.rules;
+				knownDynamicSignatures = change.signatures;
 			} catch (err) {
 				// One invalid rule (e.g. a too complex regular expression)
 				// breaks the whole batch — so the rules are set module by module, so that an error
 				// of one module does not cancel the rules of the others. For bulk rules
 				// the rejected ones are searched out and skipped (and remembered with the set).
+				// All the rules in the browser go (read again — the known ones may not be all of them).
 				console.error("Nastavení pravidel síťových požadavků selhalo, zkouším po modulech:", err);
+				const removeRuleIds = (await dnr.getDynamicRules()).map((rule) => rule.id);
 				await dnr.updateDynamicRules({ removeRuleIds });
 				for (const group of numbered) {
 					if (group.bulk) {
@@ -856,7 +970,7 @@ import "./modules-background.mjs";
 						const indexes = rejected.map((rule) => group.indexes[rule.id - firstId]);
 						console.warn(`Prohlížeč odmítl ${rejected.length} hromadných pravidel modulu ${group.module}.`);
 						try {
-							await base.writeBulkNetworkRules(group.module, { ...entry, rejected: [...new Set([...(entry.rejected || []), ...indexes])] });
+							await writeBulkEntry(group.module, { ...entry, rejected: [...new Set([...(entry.rejected || []), ...indexes])] });
 						} catch (writeErr) {
 							console.error("Nelze uložit odmítnutá hromadná pravidla:", writeErr);
 						}
@@ -892,39 +1006,48 @@ import "./modules-background.mjs";
 				await loadI18n();
 				return { active: 0, reason: "error", error: t("background_missing_module_name") };
 			}
-			const store = /** @type {Types.StorageLocal} */ (await chrome.storage.local.get(base.NETWORK_RULES_KEY))[base.NETWORK_RULES_KEY] || {};
+			const store = await readNetworkRulesStore();
 			/** @type {{ defaultMode?: Enums.ActivationMode }} */
 			const mode = defaultMode && base.ACTIVATION_MODES.some((m) => m.value === defaultMode) ? { defaultMode } : {};
 			const sanitized = base.sanitizeNetworkRules(rules);
-			const previousBulk = await base.readBulkNetworkRulesOf(module);
+			const previousBulk = (await readBulkStore())[module] ?? null;
+			// The store as the recalculation takes it (not read again).
+			let next = store;
 			if (bulk) {
 				const sameRules = !!previousBulk && JSON.stringify(previousBulk.rules) === JSON.stringify(sanitized);
 				if (!previousBulk || !sameRules || previousBulk.defaultMode !== mode.defaultMode) {
 					// Rejected rules apply only to the same set.
-					await base.writeBulkNetworkRules(module, { rules: sanitized, ...mode, rejected: previousBulk && sameRules ? previousBulk.rejected || [] : [] });
+					await writeBulkEntry(module, { rules: sanitized, ...mode, rejected: previousBulk && sameRules ? previousBulk.rejected || [] : [] });
 				}
 				if (module in store) {
 					const { [module]: _removed, ...rest } = store;
-					await chrome.storage.local.set({ [base.NETWORK_RULES_KEY]: rest });
+					next = rest;
+					await writeNetworkRulesEntry(module, null, next);
 				}
 			} else {
 				/** @type {Types.NetworkRulesEntry} */
 				const entry = { rules: sanitized, ...mode };
 				if (JSON.stringify(store[module]) !== JSON.stringify(entry)) {
-					await chrome.storage.local.set({ [base.NETWORK_RULES_KEY]: { ...store, [module]: entry } });
+					next = { ...store, [module]: entry };
+					await writeNetworkRulesEntry(module, entry, next);
 				}
-				if (previousBulk) await base.writeBulkNetworkRules(module, null);
+				if (previousBulk) await writeBulkEntry(module, null);
 			}
-			return (await applyNetworkRules())[module] || { active: 0, reason: null };
+			return (await applyNetworkRules(next))[module] || { active: 0, reason: null };
 		});
 	}
 
 
 	// The rule status of a module — the same answer as NETWORK_RULES_STATUS_MESSAGE.
+	// While a recalculation runs (or waits), the status waits for it in the queue and takes what it stored — a recalculation
+	// of its own only without a stored status (after a browser start). Status queries of the modules during a recalculation
+	// thus do not queue more recalculations of the whole set behind it.
 	/** @type {Functions.Background.moduleNetworkRulesStatus} */
 	function moduleNetworkRulesStatus(module) {
 		return cachedNetworkRulesStatus(module).then(
-			(cached) => cached || queueNetworkRules(applyNetworkRules).then((all) => all[module] || { active: 0, reason: null })
+			(cached) =>
+				cached ||
+				queueNetworkRules(async () => (await readNetworkRulesStatusCache(module)) || (await applyNetworkRules())[module] || { active: 0, reason: null })
 		);
 	}
 
@@ -943,7 +1066,18 @@ import "./modules-background.mjs";
 		const after = /** @type {Types.ModuleSettings} */ ((settingsChange && settingsChange.newValue) || {});
 		const modeChanged =
 			!!settingsChange && [...new Set([...Object.keys(before), ...Object.keys(after)])].some((key) => !key.includes(".") && before[key] !== after[key]);
-		if (modeChanged || changes[base.MODULES_JSON_KEY] || changes[base.NETWORK_RULES_KEY]) {
+		// The module list changed — the known names go (readModuleNames()).
+		if (changes[base.MODULES_JSON_KEY]) {
+			moduleNamesGeneration += 1;
+			knownModuleNames = null;
+		}
+		// Another page changed the regular rules in IndexedDB (a restored backup, the reset of a module) — read them again.
+		const rulesChanged = !!changes[base.NETWORK_RULES_REVISION_KEY];
+		if (rulesChanged) {
+			networkRulesStoreGeneration += 1;
+			knownNetworkRulesStore = null;
+		}
+		if (modeChanged || changes[base.MODULES_JSON_KEY] || rulesChanged) {
 			scheduleNetworkRules();
 		}
 	});
@@ -974,6 +1108,36 @@ import "./modules-background.mjs";
 		if (area === "local" && base.SIDEBAR_DISABLED_KEY in changes) applyStoredSidebarDisabled();
 	});
 	applyStoredSidebarDisabled();
+
+	// --- The extension button opens the dashboard (base.ACTION_OPENS_DASHBOARD_KEY) ---
+	//
+	// No module is sent to the popup and at least one to the dashboard (the pages that know the modules write the key,
+	// base.syncActionOpensDashboard()): the button has no popup then and its click opens the dashboard, or brings its
+	// open tab to the front (base.openDashboard()). Applied on every wake-up — the browser may have forgotten the
+	// button state — after every change of the key and after a change of the UI language (the tooltip).
+	/** @type {Functions.Background.applyStoredActionOpensDashboard} */
+	function applyStoredActionOpensDashboard() {
+		Promise.all([chrome.storage.local.get(base.ACTION_OPENS_DASHBOARD_KEY), loadI18n()])
+			.then(([stored]) => base.applyActionOpensDashboard(stored[base.ACTION_OPENS_DASHBOARD_KEY] === true))
+			.catch((err) => console.error("Tlačítko rozšíření nejde přepnout na dashboard:", err));
+	}
+	// The listener synchronously on every start (a click wakes the service worker only for it); without a popup only.
+	// It is a click on the extension button for the modules too (api.activation.onIconClick(), the "icon_click" mode).
+	chrome.action?.onClicked?.addListener((tab) => {
+		void base.notifyIconClick({ tabId: tab?.id, windowId: tab?.windowId });
+		base.openDashboard(tab?.id).catch((err) => console.error("Dashboard nejde otevřít:", err));
+	});
+	// The popup opened — a click on the extension button (base.announceIconClick() of popup.mjs).
+	addCoreMessageListener((message, sender) => {
+		if (!message || message.type !== base.ICON_CLICK_MESSAGE || !isExtensionPageSender(sender)) return;
+		void base.notifyIconClick({ tabId: message.tabId, windowId: message.windowId });
+	});
+	chrome.storage.onChanged.addListener((changes, area) => {
+		if (area === "local" && base.ACTION_OPENS_DASHBOARD_KEY in changes) applyStoredActionOpensDashboard();
+	});
+	onUiLanguageChange(() => applyStoredActionOpensDashboard());
+	applyStoredActionOpensDashboard();
+
 
 
 
@@ -1888,6 +2052,12 @@ import "./modules-background.mjs";
 	// green practically permanently — which meaningfully reflects that the same
 	// "going to sleep" does not happen there.
 	//
+	// A toolbar icon of the manifest that is an SVG (action.default_icon — a standalone extension from a module with its
+	// own icon.svg in Firefox, see scripts/build-module-firefox.ps1) stays an SVG: the browser draws it itself, so its
+	// @media (prefers-color-scheme) follows the theme of the browser (black on a light one, white on a dark one), while
+	// pixels from a canvas would keep just one of its colors. The dot then goes into the SVG (svgWithActiveDot()), set
+	// by its data: address — Firefox accepts one in action.setIcon({ path }) and still switches it by the theme.
+	//
 	// iconDrawPromise chains the calls, so that two in quick succession (typically
 	// onSuspend immediately followed by onSuspendCanceled, when the browser cancels going to sleep
 	// in the meantime) really end in the right ORDER OF REQUESTS, not in the
@@ -1900,12 +2070,49 @@ import "./modules-background.mjs";
 		return iconDrawPromise;
 	}
 
+	/** The SVG toolbar icon of the manifest (its path), otherwise null — the icon is drawn from icon.png. */
+	const svgActionIcon = (() => {
+		const icon = /** @type {chrome.runtime.ManifestV3} */ (chrome.runtime.getManifest()).action?.default_icon;
+		return typeof icon === "string" && icon.endsWith(".svg") ? icon : null;
+	})();
+	const ACTIVE_DOT_RGB = "30, 180, 70";
+
+	/** @type {Functions.Background.activeDotGeometry} */
+	function activeDotGeometry(width, height) {
+		// The given size (~9 px) applies to the icon shown at 32 px (the common size in the browser toolbar on
+		// displays with higher resolution) — converted by the ratio to the real size of the source image (icon.png,
+		// 256×256), so the dot looks the same size regardless of what size the browser is currently scaling it to.
+		const radius = (9 / 2) * (width / 32);
+		const margin = radius * 0.6;
+		return { cx: margin + radius, cy: height - margin - radius, radius };
+	}
+
+	/** @type {Functions.Background.svgWithActiveDot} */
+	function svgWithActiveDot(svg) {
+		// The icon's own <svg> (from its start tag — without <?xml …?> and comments before it) nested in a 32×32 one, with
+		// its width and height replaced; its <style> stays in the document, the colors of the theme with it.
+		const start = svg.search(/<svg[\s>]/);
+		if (start < 0) throw new Error(`${svgActionIcon} není SVG`);
+		const icon = svg.slice(start).replace(/^<svg\b([^>]*)>/, (_, /** @type {string} */ attributes) => `<svg${attributes.replace(/\s(?:width|height|x|y)\s*=\s*(?:"[^"]*"|'[^']*')/g, "")} width="32" height="32">`);
+		const { cx, cy, radius } = activeDotGeometry(32, 32);
+		const stops = [0, 0.7, 1].map((offset) => `<stop offset="${offset}" stop-color="rgb(${ACTIVE_DOT_RGB})"${offset === 1 ? ' stop-opacity="0"' : ""}/>`).join("");
+		return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">${icon}<radialGradient id="extension-active-dot">${stops}</radialGradient><circle cx="${cx}" cy="${cy}" r="${radius}" fill="url(#extension-active-dot)"/></svg>`;
+	}
+
 	/** @type {Functions.Background.drawExtensionIcon} */
 	async function drawExtensionIcon(active) {
-		if (!chrome.action || !chrome.action.setIcon || typeof OffscreenCanvas === "undefined") {
+		if (!chrome.action || !chrome.action.setIcon) {
 			return;
 		}
 		try {
+			if (svgActionIcon) {
+				const svg = active ? svgWithActiveDot(await (await fetch(chrome.runtime.getURL(svgActionIcon))).text()) : null;
+				await chrome.action.setIcon({ path: svg ? `data:image/svg+xml,${encodeURIComponent(svg)}` : svgActionIcon });
+				return;
+			}
+			if (typeof OffscreenCanvas === "undefined") {
+				return;
+			}
 			const response = await fetch(chrome.runtime.getURL("icon.png"));
 			const bitmap = await createImageBitmap(await response.blob());
 			const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
@@ -1914,22 +2121,11 @@ import "./modules-background.mjs";
 			ctx.drawImage(bitmap, 0, 0);
 
 			if (active) {
-				// The given size (~9 px) applies to the icon shown at 32 px
-				// (the common size in the browser toolbar on displays with higher
-				// resolution) — converted by the ratio to the real size of the
-				// source image (icon.png, 256×256), so the dot looks the same
-				// size regardless of what size the browser is currently
-				// scaling it to.
-				const scale = bitmap.width / 32;
-				const radius = (9 / 2) * scale;
-				const margin = radius * 0.6;
-				const cx = margin + radius;
-				const cy = bitmap.height - margin - radius;
-
+				const { cx, cy, radius } = activeDotGeometry(bitmap.width, bitmap.height);
 				const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-				gradient.addColorStop(0, "rgba(30, 180, 70, 1)");
-				gradient.addColorStop(0.7, "rgba(30, 180, 70, 1)");
-				gradient.addColorStop(1, "rgba(30, 180, 70, 0)");
+				gradient.addColorStop(0, `rgba(${ACTIVE_DOT_RGB}, 1)`);
+				gradient.addColorStop(0.7, `rgba(${ACTIVE_DOT_RGB}, 1)`);
+				gradient.addColorStop(1, `rgba(${ACTIVE_DOT_RGB}, 0)`);
 
 				ctx.fillStyle = gradient;
 				ctx.beginPath();

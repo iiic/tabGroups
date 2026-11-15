@@ -174,6 +174,15 @@
 // ACTIVATION_MODES — the module activation modes ({ value, label }) in the order
 //   of the choice in Settings.
 //
+// followsActiveTab(location) — whether the surface the element is rendered on (init({ location }))
+//   stays open while the user switches tabs: the side panel and the dashboard. There a module
+//   that shows something about the page refreshes it after another tab or a finished load
+//   (see analyticalTool); the popup closes and the floating window belongs to one page.
+//   followSurfaceTab(location, handler) does it for the module: handler() after another tab
+//   of the window became the active one and after the page of the surface's tab finished
+//   loading (on the dashboard the tab the user came from, not the dashboard itself); on
+//   another surface nothing. Returns a function to unsubscribe.
+//
 // getRegisteredModules() — definitions of all modules registered so far
 //   (a shallow copy), including the optional usesPermissions from registerModule() —
 //   extensionPermissionsManager reads it to find out, for each optional permission,
@@ -197,6 +206,12 @@
 // page (a content script, its address) — then it is not shown on special browser
 // pages (chrome://, about:, new tab, add-on store, ...); isWebPageUrl() is the same
 // test for a single address, e.g. before chrome.scripting.executeScript().
+//
+// executeScriptWithin(injection, timeMs = SCRIPT_INJECTION_TIME_LIMIT_MS) — chrome.scripting.executeScript() that
+//   rejects once the frames have not answered within timeMs. Use it instead of executeScript() wherever the result
+//   is awaited: Firefox never settles executeScript() of an async function or of a content-script.js (an async
+//   function at its end) whose page went into the back-forward cache meanwhile. An injected async function should
+//   also answer null at pagehide (see runCollectFrame of modules/imageInfo/background-script.mjs).
 //
 // startIdleWork(timeout) — a content script's look through a big page in slices of the browser's
 //   idle time (requestIdleCallback): `const budget = await startIdleWork();` and in the loop
@@ -233,6 +248,7 @@ export {
 	getModuleSettingKey,
 	formatBytes,
 	contrastColor,
+	colorFromText,
 	PAGE_ACCESS_PERMISSIONS,
 	BOOKMARKS_PERMISSIONS,
 	WEBREQUEST_PERMISSIONS,
@@ -248,6 +264,8 @@ export {
 	bookmarkFolderContainsUrl,
 	getRegisteredModules,
 	isWebPageUrl,
+	executeScriptWithin,
+	SCRIPT_INJECTION_TIME_LIMIT_MS,
 	MAIN_WORLD_DOMAINS_FIELD,
 	MAIN_WORLD_BOOKMARK_FOLDERS_FIELD,
 	PAGE_SCRIPTS_FIELD,
@@ -259,6 +277,8 @@ export {
 	getBookmarkFolderDomains,
 	getMainWorldDomains,
 	ACTIVATION_MODES,
+	followsActiveTab,
+	followSurfaceTab,
 
 	// --- API for communication with the core (settings, messages, data, floating window) ---
 	createModuleApi,

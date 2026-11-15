@@ -62,6 +62,7 @@ import {
 	SET_SETTINGS_SERVICE,
 	OPEN_PERMISSIONS_SERVICE,
 	CHANGES_SERVICE,
+	SETTINGS_EDITED_BY,
 	REFERENCE_DAY_KEY,
 	APPLIED_TITLES_KEY,
 	APPLIED_BOOKMARK_TITLES_KEY,
@@ -813,9 +814,11 @@ registerBackgroundScript({
 		api.services.provideListener(CHANGES_SERVICE);
 		// A closed tab changes only the overview, not the sorting.
 		chrome.tabs.onRemoved.addListener(() => api.services.changed(CHANGES_SERVICE, "groups"));
-		// The page where the element of this module asks for the permissions — Settings of this extension.
+		// The page where the permissions can be granted — Settings of this extension at the editor of the settings, the
+		// buttons of the core above it ask for them (openOptionsPage() would only bring an open Settings page to the front,
+		// whatever section was open last — also the very page whose button asked).
 		api.services.provide(OPEN_PERMISSIONS_SERVICE, async () => {
-			await chrome.runtime.openOptionsPage();
+			await chrome.tabs.create({ url: chrome.runtime.getURL(`options.html#${SETTINGS_EDITED_BY}`) });
 			return { opened: true };
 		});
 
